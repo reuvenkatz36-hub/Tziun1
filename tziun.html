@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ציון | Tziun</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<style>
+:root {
+  --ink: #0D1117;
+  --paper: #F7F3EE;
+  --warm: #EDE8DF;
+  --line: #DDD8CE;
+  --green: #1A5C3A;
+  --green-light: #2A7A50;
+  --green-soft: #E6F0EB;
+  --gold: #C4973A;
+  --gold-soft: #FBF3E3;
+  --red: #B83232;
+  --red-soft: #FAEAEA;
+  --blue: #1E4D8C;
+  --blue-soft: #E8EFF8;
+  --shadow: 0 2px 8px rgba(13,17,23,.07), 0 1px 2px rgba(13,17,23,.05);
+  --shadow-lg: 0 8px 32px rgba(13,17,23,.10), 0 2px 8px rgba(13,17,23,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior:smooth; }
+body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+
+/* ---- SCREENS ---- */
+.screen { display:none; min-height:100vh; animation:fadeUp .3s ease; }
+.screen.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* ---- TOPBAR ---- */
+.topbar {
+  position:sticky; top:0; z-index:100;
+  background:rgba(247,243,238,.95); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:.875rem 1.25rem;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+}
+.brand { display:flex; align-items:center; gap:.625rem; cursor:pointer; }
+.brand-mark {
+  width:36px; height:36px; background:var(--green); color:#fff;
+  border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:1.125rem; letter-spacing:-.02em;
+  box-shadow:0 2px 8px rgba(26,92,58,.3);
+}
+.brand-name { font-weight:800; font-size:1.25rem; letter-spacing:-.03em; }
+.topbar-actions { display:flex; gap:.5rem; }
+.icon-btn {
+  width:36px; height:36px; border:1.5px solid var(--line); border-radius:10px;
+  background:#fff; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:1rem; transition:all .15s;
+}
+.icon-btn:hover { border-color:var(--green); background:var(--green-soft); }
+.back-btn {
+  display:flex; align-items:center; gap:.375rem;
+  background:none; border:none; cursor:pointer;
+  font-size:.9rem; font-weight:600; color:var(--green); padding:.25rem;
+}
+
+/* ---- CONTAINER ---- */
+.wrap { max-width:720px; margin:0 auto; padding:1.5rem 1.25rem; }
+
+/* ---- CARDS ---- */
+.card {
+  background:#fff; border:1.5px solid var(--line); border-radius:16px;
+  padding:1.25rem; box-shadow:var(--shadow); margin-bottom:.75rem;
+  transition:all .2s;
+}
+.card-click { cursor:pointer; }
+.card-click:hover { border-color:var(--green); transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+
+/* ---- BUTTONS ---- */
+.btn { padding:.75rem 1.5rem; border-radius:12px; font-size:.95rem; font-weight:700; cursor:pointer; border:none; transition:all .15s; display:inline-flex; align-items:center; gap:.5rem; justify-content:center; font-family:inherit; }
+.btn-primary { background:var(--green); color:#fff; box-shadow:0 2px 8px rgba(26,92,58,.25); }
+.btn-primary:hover { background:var(--green-light); transform:translateY(-1px); box-shadow:0 4px 16px rgba(26,92,58,.3); }
+.btn-secondary { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn-secondary:hover { border-color:var(--green); background:var(--green-soft); }
+.btn-ghost { background:transparent; color:var(--ink); border:none; }
+.btn-danger { background:var(--red-soft); color:var(--red); border:1.5px solid #e8b4b4; }
+.btn-block { width:100%; }
+.btn-lg { padding:1rem 2rem; font-size:1.05rem; border-radius:14px; }
+
+/* ---- INPUTS ---- */
+.label { font-size:.8rem; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.375rem; display:block; }
+.input, .select, .textarea {
+  width:100%; padding:.75rem 1rem; border:1.5px solid var(--line); border-radius:12px;
+  background:#fff; font-size:1rem; font-family:inherit; color:var(--ink);
+  transition:all .15s; outline:none;
+}
+.input:focus, .select:focus, .textarea:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-soft); }
+.input-wrap { margin-bottom:1rem; }
+
+/* ---- BADGES ---- */
+.badge { padding:.25rem .75rem; border-radius:100px; font-size:.8rem; font-weight:700; display:inline-flex; align-items:center; gap:.25rem; }
+.badge-green { background:var(--green-soft); color:var(--green); }
+.badge-gold { background:var(--gold-soft); color:var(--gold); }
+.badge-red { background:var(--red-soft); color:var(--red); }
+.badge-blue { background:var(--blue-soft); color:var(--blue); }
+
+/* ---- GRADE ---- */
+.grade { padding:.3rem .8rem; border-radius:100px; font-weight:800; font-size:.95rem; min-width:48px; text-align:center; }
+.grade-90 { background:#DCFCE7; color:#15803D; }
+.grade-75 { background:#DBEAFE; color:#1D4ED8; }
+.grade-60 { background:#FEF3C7; color:#92400E; }
+.grade-low { background:#FEE2E2; color:#B91C1C; }
+
+/* ---- AVATAR ---- */
+.avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; flex-shrink:0; }
+
+/* ---- HERO GRADIENT ---- */
+.hero-card {
+  background:linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
+  color:#fff; border-radius:20px; padding:1.5rem; margin-bottom:1.25rem;
+  position:relative; overflow:hidden;
+  box-shadow:0 8px 32px rgba(26,92,58,.25);
+}
+.hero-card::before {
+  content:''; position:absolute; top:-40%; left:-10%;
+  width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.06);
+}
+
+/* ---- PROGRESS BAR ---- */
+.progress-steps { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+.progress-step { flex:1; height:4px; border-radius:2px; background:var(--line); overflow:hidden; }
+.progress-step.done { background:var(--green); }
+
+/* ---- PILL TABS ---- */
+.pill-tabs { display:flex; gap:.5rem; margin-bottom:1.25rem; overflow-x:auto; padding-bottom:.25rem; }
+.pill { padding:.5rem 1rem; border-radius:100px; border:1.5px solid var(--line); background:#fff; cursor:pointer; font-size:.875rem; font-weight:600; transition:all .15s; white-space:nowrap; }
+.pill.active { background:var(--green); color:#fff; border-color:var(--green); }
+
+/* ---- HW MARKS ---- */
+.hw-marks { display:flex; gap:.375rem; }
+.hw-mark {
+  width:38px; height:38px; border-radius:10px; border:2px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-weight:800; font-size:.9rem;
+  background:#fff; transition:all .15s;
+}
+.hw-mark.v.on { background:#15803D; border-color:#15803D; color:#fff; }
+.hw-mark.half.on { background:var(--gold); border-color:var(--gold); color:#fff; }
+.hw-mark.x.on { background:var(--red); border-color:var(--red); color:#fff; }
+
+/* ---- CAMERA ---- */
+.camera-box {
+  background:#000; border-radius:16px; overflow:hidden;
+  aspect-ratio:3/4; position:relative; margin-bottom:1rem;
+}
+.camera-box video { width:100%; height:100%; object-fit:cover; }
+.camera-frame {
+  position:absolute; inset:1rem; border-radius:12px;
+  border:3px dashed rgba(255,255,255,.5); pointer-events:none;
+  transition:border-color .3s;
+}
+.camera-frame.good { border-color:#22C55E; }
+.camera-frame.bad { border-color:#EF4444; }
+.quality-badge {
+  position:absolute; top:.75rem; left:50%; transform:translateX(-50%);
+  padding:.4rem 1rem; border-radius:100px; font-weight:700; font-size:.85rem;
+  display:flex; align-items:center; gap:.4rem; white-space:nowrap;
+  backdrop-filter:blur(8px);
+}
+.quality-good { background:rgba(21,128,61,.9); color:#fff; }
+.quality-bad { background:rgba(185,28,28,.9); color:#fff; }
+.quality-checking { background:rgba(255,255,255,.9); color:var(--ink); }
+
+/* ---- MODAL ---- */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(13,17,23,.5); backdrop-filter:blur(4px);
+  display:none; align-items:center; justify-content:center; z-index:200; padding:1rem;
+}
+.modal-overlay.open { display:flex; }
+.modal { background:#fff; border-radius:20px; padding:1.5rem; max-width:440px; width:100%; box-shadow:var(--shadow-lg); animation:fadeUp .25s ease; }
+
+/* ---- NOTIFICATION ---- */
+.notif {
+  position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
+  background:var(--ink); color:#fff; padding:.75rem 1.5rem; border-radius:100px;
+  font-weight:600; font-size:.9rem; z-index:300; white-space:nowrap;
+  display:none; box-shadow:var(--shadow-lg);
+}
+.notif.show { display:block; animation:notifIn .3s ease; }
+@keyframes notifIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+/* ---- CHART ---- */
+.chart-svg { width:100%; height:140px; }
+
+/* ---- SKILL BAR ---- */
+.skill-row { margin-bottom:.875rem; }
+.skill-label { display:flex; justify-content:space-between; font-size:.875rem; margin-bottom:.3rem; }
+.skill-bar { height:8px; background:var(--warm); border-radius:4px; overflow:hidden; }
+.skill-fill { height:100%; border-radius:4px; transition:width .8s cubic-bezier(.4,0,.2,1); }
+
+/* ---- AI RESULT ---- */
+.ai-insight {
+  padding:1rem; border-radius:12px; margin-bottom:.75rem;
+  display:flex; align-items:flex-start; gap:.75rem;
+}
+.ai-icon { font-size:1.25rem; flex-shrink:0; }
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:480px) { .wrap { padding:1.25rem 1rem; } .btn-lg { padding:.875rem 1.5rem; } }
+</style>
+</head>
+<body>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<!-- ========== SCREEN: LANDING ========== -->
+<div class="screen active" id="s-landing">
+  <div style="min-height:100vh;background:radial-gradient(ellipse at top right,rgba(196,151,58,.07),transparent 50%),radial-gradient(ellipse at bottom left,rgba(26,92,58,.05),transparent 50%),var(--paper);display:flex;flex-direction:column;">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">צ</div>
+        <div class="brand-name">ציון</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" style="padding:.5rem 1rem;font-size:.875rem;" onclick="go('s-login')">כניסה</button>
+        <button class="btn btn-primary" style="padding:.5rem 1rem;font-size:.875rem;" onclick="go('s-login')">התחילו</button>
+      </div>
+    </header>
+
+    <div style="flex:1;display:flex;align-items:center;padding:2rem 1.25rem;">
+      <div style="max-width:600px;margin:0 auto;width:100%;">
+        <div class="badge badge-green" style="margin-bottom:1.25rem;">● מערכת ניהול ציונים לבתי ספר</div>
+        <h1 style="font-size:clamp(2.5rem,6vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:1rem;">
+          פחות בירוקרטיה,<br><span style="color:var(--green);">יותר הוראה.</span>
+        </h1>
+        <p style="font-size:1.125rem;color:#6B7280;line-height:1.6;margin-bottom:2rem;max-width:480px;">
+          AI שבודק מבחנים מצולמים, מעקב שיעורי בית, תיק תלמיד דיגיטלי, ודוחות להורים — הכל במקום אחד.
+        </p>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2.5rem;">
+          <button class="btn btn-primary btn-lg" onclick="go('s-login')">צפו בהדגמה</button>
+          <button class="btn btn-secondary btn-lg" onclick="go('s-pricing')">תמחור</button>
+        </div>
+        <div style="display:flex;gap:2rem;padding-top:1.5rem;border-top:1.5px solid var(--line);">
+          <div><div style="font-size:2rem;font-weight:900;color:var(--green);">85%</div><div style="font-size:.875rem;color:#6B7280;">חיסכון בזמן בדיקה</div></div>
+          <div><div style="font-size:2rem;font-weight:900;color:var(--green);">AI</div><div style="font-size:.875rem;color:#6B7280;">בדיקה אוטומטית</div></div>
+          <div><div style="font-size:2rem;font-weight:900;color:var(--green);">∞</div><div style="font-size:.875rem;color:#6B7280;">תיקים דיגיטליים</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: PRICING ========== -->
+<div class="screen" id="s-pricing">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-landing')">← חזרה</button>
+    <div class="brand-mark">צ</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <h1 style="font-size:1.75rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.5rem;">תמחור פשוט</h1>
+    <p style="color:#6B7280;margin-bottom:1.5rem;">בית ספר אחד · כל המורות · AI מובנה · מתאים לתקציב גפ"ן</p>
+
+    <div class="card" style="border:2px solid var(--line);">
+      <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">🌱 ניצן</div>
+      <div style="color:#6B7280;font-size:.875rem;margin-bottom:.875rem;">עד 250 תלמידים</div>
+      <div style="font-size:2.75rem;font-weight:900;color:var(--green);line-height:1;">13,800₪</div>
+      <div style="color:#6B7280;font-size:.875rem;margin-bottom:1rem;">לשנה / כל המורות</div>
+      <button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button>
+    </div>
+
+    <div class="card" style="border:2px solid var(--green);position:relative;">
+      <div class="badge badge-green" style="position:absolute;top:-12px;right:16px;">הכי פופולרי</div>
+      <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">🌳 אלון</div>
+      <div style="color:#6B7280;font-size:.875rem;margin-bottom:.875rem;">250-500 תלמידים</div>
+      <div style="font-size:2.75rem;font-weight:900;color:var(--green);line-height:1;">19,800₪</div>
+      <div style="color:#6B7280;font-size:.875rem;margin-bottom:1rem;">לשנה / כל המורות</div>
+      <button class="btn btn-primary btn-block" onclick="go('s-login')">דברו איתנו</button>
+    </div>
+
+    <div class="card">
+      <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">🌟 עץ הדעת</div>
+      <div style="color:#6B7280;font-size:.875rem;margin-bottom:.875rem;">500-1000 תלמידים</div>
+      <div style="font-size:2.75rem;font-weight:900;color:var(--green);line-height:1;">24,500₪</div>
+      <div style="color:#6B7280;font-size:.875rem;margin-bottom:1rem;">לשנה / כל המורות</div>
+      <button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button>
+    </div>
+
+    <div style="background:var(--green-soft);border:1.5px solid #b6d8c6;border-radius:14px;padding:1rem;text-align:center;">
+      <div style="font-weight:700;margin-bottom:.25rem;">💚 מתאים לתקציב גפ"ן</div>
+      <div style="font-size:.875rem;color:#6B7280;">כל החבילות מתחת ל-25,000₪ — ללא אישור הקצאה מיוחד</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: LOGIN ========== -->
+<div class="screen" id="s-login">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:linear-gradient(180deg,var(--paper),var(--warm));">
+    <div style="width:100%;max-width:400px;background:#fff;border-radius:24px;padding:2rem;box-shadow:var(--shadow-lg);border:1.5px solid var(--line);">
+      <div style="text-align:center;margin-bottom:1.75rem;">
+        <div class="brand-mark" style="width:52px;height:52px;font-size:1.375rem;margin:0 auto 1rem;">צ</div>
+        <h2 style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.25rem;">כניסה לבית הספר</h2>
+        <p style="color:#6B7280;font-size:.875rem;">כניסה משותפת לכל מורות בית הספר</p>
+      </div>
+      <div class="input-wrap">
+        <label class="label">מייל בית הספר</label>
+        <input type="email" class="input" id="login-email" placeholder="school@example.com" dir="ltr" value="demo@school.com">
+      </div>
+      <div class="input-wrap">
+        <label class="label">סיסמה</label>
+        <input type="password" class="input" id="login-pass" placeholder="••••••••" dir="ltr" value="demo123">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()" style="margin-bottom:.875rem;">כניסה</button>
+      <p style="text-align:center;font-size:.8rem;color:#6B7280;">בית ספר חדש? <a href="#" style="color:var(--green);font-weight:700;">צרו קשר לקבל גישה</a></p>
+      <p style="text-align:center;margin-top:.75rem;"><button class="btn btn-ghost" style="font-size:.875rem;" onclick="go('s-landing')">← חזרה לדף הבית</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: PROFILES ========== -->
+<div class="screen" id="s-profiles">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.25rem;background:radial-gradient(ellipse at top,rgba(26,92,58,.04),transparent 60%),var(--paper);">
+    <div style="text-align:center;margin-bottom:2.5rem;">
+      <div class="brand-mark" style="width:44px;height:44px;margin:0 auto 1rem;">צ</div>
+      <h2 id="school-greeting" style="font-size:1.375rem;font-weight:800;margin-bottom:.25rem;">בית ספר אופק</h2>
+      <h1 style="font-size:2rem;font-weight:900;letter-spacing:-.03em;">מי משתמש/ת עכשיו?</h1>
+    </div>
+    <div id="profiles-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1.25rem;width:100%;max-width:600px;margin-bottom:2rem;"></div>
+    <button onclick="showAddProfile()" class="btn btn-secondary">+ הוספת פרופיל</button>
+  </div>
+</div>
+
+<!-- ========== SCREEN: DASHBOARD ========== -->
+<div class="screen" id="s-dash">
+  <header class="topbar">
+    <div class="brand" onclick="go('s-profiles')">
+      <div class="brand-mark">צ</div>
+      <div>
+        <div class="brand-name" id="dash-class-name" style="font-size:1rem;">ציון</div>
+        <div id="dash-subtitle" style="font-size:.7rem;color:#6B7280;"></div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="go('s-students')">👥</button>
+      <button class="icon-btn" onclick="go('s-settings')">⚙️</button>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="hero-card">
+      <div style="position:relative;z-index:1;">
+        <div id="dash-greeting" style="font-size:1.375rem;font-weight:800;margin-bottom:.25rem;">בוקר טוב!</div>
+        <div style="opacity:.85;font-size:.9rem;" id="dash-sub">ברוכה הבאה</div>
+        <div style="display:flex;gap:1.5rem;margin-top:1.25rem;">
+          <div><div style="font-size:1.75rem;font-weight:900;" id="dash-students">28</div><div style="font-size:.8rem;opacity:.8;">תלמידים</div></div>
+          <div><div style="font-size:1.75rem;font-weight:900;" id="dash-subjects">3</div><div style="font-size:.8rem;opacity:.8;">מקצועות</div></div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-weight:800;font-size:1.125rem;letter-spacing:-.02em;margin-bottom:.875rem;">המקצועות שלי</h3>
+    <div id="subjects-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1.5rem;"></div>
+
+    <h3 style="font-weight:800;font-size:1.125rem;letter-spacing:-.02em;margin-bottom:.875rem;">פעולות מהירות</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <div class="card card-click" onclick="go('s-homework')" style="padding:1rem;">
+        <div style="font-size:1.5rem;margin-bottom:.375rem;">📓</div>
+        <div style="font-weight:700;font-size:.9rem;">שיעורי בית</div>
+        <div style="font-size:.75rem;color:#6B7280;">תיעוד יומי</div>
+      </div>
+      <div class="card card-click" onclick="go('s-students')" style="padding:1rem;">
+        <div style="font-size:1.5rem;margin-bottom:.375rem;">📂</div>
+        <div style="font-weight:700;font-size:.9rem;">תיקי תלמידים</div>
+        <div style="font-size:.75rem;color:#6B7280;">צפו בהתקדמות</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: SUBJECT ========== -->
+<div class="screen" id="s-subject">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
+    <div id="subject-title" style="font-weight:700;"></div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
+      <button class="btn btn-primary btn-block" onclick="go('s-scan')">✨ בדיקת AI</button>
+      <button class="btn btn-secondary btn-block" onclick="go('s-manual')">📝 ידנית</button>
+    </div>
+    <div class="card card-click" onclick="go('s-analytics')" style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
+      <div style="font-size:1.5rem;">📊</div>
+      <div style="flex:1;"><div style="font-weight:700;">ניתוח כיתתי</div><div style="font-size:.8rem;color:#6B7280;">כיצד הכיתה ביצעה</div></div>
+      <div style="color:var(--green);">←</div>
+    </div>
+    <h3 style="font-weight:800;margin-bottom:.875rem;">מבחנים אחרונים</h3>
+    <div id="exams-list"></div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: AI SCAN ========== -->
+<div class="screen" id="s-scan">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-subject')">← חזרה</button>
+    <div style="font-weight:700;">✨ בדיקת AI</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap" id="scan-step-student">
+    <div class="card" style="margin-bottom:1rem;">
+      <div class="input-wrap" style="margin-bottom:.75rem;">
+        <label class="label">שם המבחן</label>
+        <input type="text" class="input" id="scan-exam-name" placeholder="לדוגמה: מבחן פרק 5">
+      </div>
+      <label class="label">בחירת תלמיד</label>
+      <input type="search" class="input" id="scan-search" placeholder="חיפוש..." oninput="filterScanStudents()" style="margin-bottom:.75rem;">
+      <div id="scan-students-list" style="max-height:320px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <div class="wrap" id="scan-step-camera" style="display:none;">
+    <div class="card" style="margin-bottom:1rem;text-align:center;padding:.875rem;">
+      <div id="scan-student-badge" style="font-weight:700;margin-bottom:.25rem;"></div>
+      <div style="font-size:.8rem;color:#6B7280;" id="scan-exam-badge"></div>
+    </div>
+    <div class="camera-box" id="camera-box">
+      <video id="camera-video" autoplay playsinline muted></video>
+      <canvas id="camera-canvas" style="display:none;"></canvas>
+      <div class="camera-frame" id="camera-frame"></div>
+      <div class="quality-badge quality-checking" id="quality-badge">⏳ בודק איכות...</div>
+    </div>
+    <button class="btn btn-primary btn-block btn-lg" id="capture-btn" onclick="capturePhoto()" disabled>📸 צלם</button>
+    <div style="margin-top:.75rem;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <label class="btn btn-secondary">
+        📁 העלאת תמונה
+        <input type="file" accept="image/jpeg,image/png" style="display:none;" onchange="handleFileUpload(event)">
+      </label>
+      <button class="btn btn-ghost" onclick="showScanStudent()">← חזרה</button>
+    </div>
+  </div>
+
+  <div class="wrap" id="scan-step-loading" style="display:none;">
+    <div class="card" style="text-align:center;padding:3rem 1.5rem;">
+      <div style="font-size:3rem;margin-bottom:1rem;" id="loading-icon">🤖</div>
+      <div style="font-weight:700;font-size:1.125rem;margin-bottom:.5rem;">ה-AI בודק את המבחן...</div>
+      <div style="color:#6B7280;font-size:.875rem;">עוד 15-30 שניות</div>
+      <div style="margin-top:1.5rem;height:4px;background:var(--warm);border-radius:2px;overflow:hidden;">
+        <div id="loading-bar" style="height:100%;background:var(--green);border-radius:2px;width:0%;transition:width 25s linear;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" id="scan-step-result" style="display:none;"></div>
+  <div class="wrap" id="scan-step-fallback" style="display:none;"></div>
+</div>
+
+<!-- ========== SCREEN: MANUAL ========== -->
+<div class="screen" id="s-manual">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-subject')">← חזרה</button>
+    <div style="font-weight:700;">📝 הזנה ידנית</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <div class="card" style="margin-bottom:1rem;">
+      <div class="input-wrap">
+        <label class="label">שם המבחן</label>
+        <input type="text" class="input" id="manual-exam-name" placeholder="לדוגמה: מבחן פרק 6">
+      </div>
+      <div>
+        <label class="label">תאריך</label>
+        <input type="date" class="input" id="manual-date">
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-weight:700;margin-bottom:.875rem;" id="manual-count-label">הזנת ציונים</div>
+      <div id="manual-students-list"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;margin-top:1rem;position:sticky;bottom:1rem;">
+      <button class="btn btn-secondary" onclick="go('s-subject')">ביטול</button>
+      <button class="btn btn-primary" onclick="saveManualExam()">✓ שמור מבחן</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: STUDENTS LIST ========== -->
+<div class="screen" id="s-students">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
+    <div style="font-weight:700;">תיקי תלמידים</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <input type="search" class="input" id="students-search" placeholder="חיפוש תלמיד..." oninput="filterStudents()" style="margin-bottom:1rem;">
+    <div class="pill-tabs">
+      <div class="pill active" onclick="setStudentFilter('all',this)">הכל</div>
+      <div class="pill" onclick="setStudentFilter('top',this)">מצטיינים</div>
+      <div class="pill" onclick="setStudentFilter('low',this)">דורשים עזרה</div>
+    </div>
+    <div id="students-list"></div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: STUDENT FOLDER ========== -->
+<div class="screen" id="s-student">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-students')">← חזרה</button>
+    <div id="student-folder-name" style="font-weight:700;"></div>
+    <button class="btn btn-secondary" style="padding:.4rem .8rem;font-size:.8rem;" onclick="showWhatsApp()">📤 WhatsApp</button>
+  </header>
+  <div class="wrap">
+    <div class="card" style="overflow:hidden;padding:0;margin-bottom:1rem;">
+      <div style="height:80px;background:linear-gradient(135deg,var(--green),var(--green-light));"></div>
+      <div style="padding:0 1.25rem 1.25rem;margin-top:-36px;">
+        <div id="student-avatar-lg" class="avatar" style="width:72px;height:72px;font-size:1.5rem;border:4px solid #fff;box-shadow:var(--shadow);margin-bottom:.875rem;"></div>
+        <div id="student-name-lg" style="font-size:1.5rem;font-weight:900;letter-spacing:-.02em;"></div>
+        <div id="student-meta-lg" style="color:#6B7280;font-size:.875rem;"></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem;">
+      <div class="card" style="text-align:center;padding:1rem;">
+        <div id="sf-exam-avg" style="font-size:2rem;font-weight:900;color:var(--green);line-height:1;">-</div>
+        <div style="font-size:.75rem;color:#6B7280;margin-top:.25rem;">מבחנים</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1rem;">
+        <div id="sf-hw" style="font-size:2rem;font-weight:900;color:#15803D;line-height:1;">95</div>
+        <div style="font-size:.75rem;color:#6B7280;margin-top:.25rem;">שיעורי בית</div>
+      </div>
+      <div class="card" style="text-align:center;padding:1rem;">
+        <div id="sf-weighted" style="font-size:2rem;font-weight:900;color:var(--gold);line-height:1;">-</div>
+        <div style="font-size:.75rem;color:#6B7280;margin-top:.25rem;">משוקלל</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="font-weight:700;margin-bottom:.875rem;">📈 קו התקדמות</div>
+      <svg class="chart-svg" viewBox="0 0 400 140" id="student-chart"></svg>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="font-weight:700;margin-bottom:.875rem;">🎯 מטריצת כישורים</div>
+      <div id="skill-matrix"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="font-weight:700;margin-bottom:.875rem;">📚 מבחנים אחרונים</div>
+      <div id="student-exams-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: HOMEWORK ========== -->
+<div class="screen" id="s-homework">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
+    <div style="font-weight:700;">📓 שיעורי בית</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.875rem;">
+        <div>
+          <label class="label">מקצוע</label>
+          <select class="select" id="hw-subject" onchange="loadHW()"></select>
+        </div>
+        <div>
+          <label class="label">תאריך</label>
+          <input type="date" class="input" id="hw-date" onchange="loadHW()">
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;font-size:.875rem;padding-top:.875rem;border-top:1.5px solid var(--line);">
+        <span><strong id="hw-v-count" style="color:#15803D;">0</strong> הגישו</span>
+        <span><strong id="hw-half-count" style="color:var(--gold);">0</strong> חלקי</span>
+        <span><strong id="hw-x-count" style="color:var(--red);">0</strong> חסר</span>
+      </div>
+    </div>
+    <div id="hw-list"></div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: ANALYTICS ========== -->
+<div class="screen" id="s-analytics">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-subject')">← חזרה</button>
+    <div style="font-weight:700;">📊 ניתוח כיתתי</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <div class="card" style="margin-bottom:1rem;background:var(--green-soft);border-color:#b6d8c6;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;text-align:center;">
+        <div><div style="font-size:1.5rem;font-weight:900;color:var(--green);">81.4</div><div style="font-size:.7rem;color:#6B7280;">ממוצע</div></div>
+        <div><div style="font-size:1.5rem;font-weight:900;color:#15803D;">96</div><div style="font-size:.7rem;color:#6B7280;">גבוה</div></div>
+        <div><div style="font-size:1.5rem;font-weight:900;color:var(--red);">52</div><div style="font-size:.7rem;color:#6B7280;">נמוך</div></div>
+        <div><div style="font-size:1.5rem;font-weight:900;">28</div><div style="font-size:.7rem;color:#6B7280;">נבדקו</div></div>
+      </div>
+    </div>
+    <div style="background:var(--red-soft);border-right:4px solid var(--red);border-radius:12px;padding:.875rem;margin-bottom:1rem;">
+      <div style="font-weight:700;color:#7F1D1D;margin-bottom:.25rem;">⚠️ תובנה</div>
+      <div style="color:#991B1B;font-size:.875rem;"><strong>71%</strong> מהכיתה נכשלו בשאלה 6 — חיבור שברים עם מכנה משותף.</div>
+    </div>
+    <h3 style="font-weight:800;margin-bottom:.875rem;">פירוט שאלות</h3>
+    <div id="analytics-questions"></div>
+  </div>
+</div>
+
+<!-- ========== SCREEN: SETTINGS ========== -->
+<div class="screen" id="s-settings">
+  <header class="topbar">
+    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
+    <div style="font-weight:700;">⚙️ הגדרות</div>
+    <div style="width:60px;"></div>
+  </header>
+  <div class="wrap">
+    <div class="card" style="margin-bottom:.75rem;">
+      <div style="font-weight:800;margin-bottom:.875rem;">🏫 בית הספר</div>
+      <div style="font-size:.875rem;color:#6B7280;">שם</div>
+      <div style="font-weight:600;margin-bottom:.5rem;" id="settings-school"></div>
+      <div style="font-size:.875rem;color:#6B7280;">חבילה</div>
+      <div class="badge badge-green">🌳 אלון</div>
+    </div>
+    <div class="card" style="margin-bottom:.75rem;">
+      <div style="font-weight:800;margin-bottom:.875rem;">👤 פרופיל פעיל</div>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem;">
+        <div id="settings-avatar" class="avatar" style="width:44px;height:44px;font-size:1rem;"></div>
+        <div><div id="settings-profile-name" style="font-weight:700;"></div><div style="font-size:.8rem;color:#6B7280;">פרופיל פעיל</div></div>
+      </div>
+      <button class="btn btn-secondary btn-block" onclick="go('s-profiles')">החלף פרופיל</button>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+      <button class="btn btn-danger" onclick="doLogout()">🚪 התנתק</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ADD PROFILE MODAL ========== -->
+<div class="modal-overlay" id="modal-profile">
+  <div class="modal">
+    <h3 style="font-size:1.25rem;font-weight:900;letter-spacing:-.02em;margin-bottom:.375rem;">פרופיל חדש</h3>
+    <p style="color:#6B7280;font-size:.875rem;margin-bottom:1.25rem;">הוסיפו את הפרטים שלכם</p>
+    <div class="input-wrap">
+      <label class="label">שם מלא</label>
+      <input type="text" class="input" id="profile-name" placeholder="לדוגמה: רחל ברק">
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label class="label">מין</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+        <button id="gender-f" class="card" style="text-align:center;padding:.875rem;cursor:pointer;border:2px solid var(--green);background:var(--green-soft);" onclick="setGender('female')">
+          <div style="font-size:1.75rem;">👩‍🏫</div><div style="font-weight:700;font-size:.875rem;margin-top:.25rem;">מורה</div>
+        </button>
+        <button id="gender-m" class="card" style="text-align:center;padding:.875rem;cursor:pointer;" onclick="setGender('male')">
+          <div style="font-size:1.75rem;">👨‍🏫</div><div style="font-weight:700;font-size:.875rem;margin-top:.25rem;">מורה</div>
+        </button>
+      </div>
+    </div>
+    <div style="margin-bottom:1.25rem;">
+      <label class="label">צבע</label>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="color-picks"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:.75rem;background:var(--warm);border-radius:12px;padding:.875rem;margin-bottom:1.25rem;cursor:pointer;">
+      <input type="checkbox" id="is-homeroom" style="width:18px;height:18px;">
+      <div><div style="font-weight:700;font-size:.875rem;">אני מחנכת/מחנך</div><div style="font-size:.75rem;color:#6B7280;">גישה לכלי תעודות</div></div>
+    </label>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
+      <button class="btn btn-secondary" onclick="closeModal('modal-profile')">ביטול</button>
+      <button class="btn btn-primary" onclick="createProfile()">צור פרופיל ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== WHATSAPP MODAL ========== -->
+<div class="modal-overlay" id="modal-wa">
+  <div class="modal">
+    <h3 style="font-size:1.25rem;font-weight:900;margin-bottom:.375rem;">📤 שליחה להורה</h3>
+    <p style="color:#6B7280;font-size:.875rem;margin-bottom:1.25rem;">שלח דוח ישירות לוואטסאפ של ההורה</p>
+    <div class="input-wrap">
+      <label class="label">מספר טלפון הורה</label>
+      <input type="tel" class="input" id="wa-phone" placeholder="050-1234567" dir="ltr">
+    </div>
+    <button class="btn btn-block btn-lg" style="background:#25D366;color:#fff;margin-bottom:.75rem;" onclick="sendWA()">
+      💬 שלח בוואטסאפ
+    </button>
+    <button class="btn btn-ghost btn-block" onclick="closeModal('modal-wa')">ביטול</button>
+  </div>
+</div>
+
+<script>
+// ============ STATE ============
+const COLORS = ['#1A5C3A','#C4973A','#2A7A50','#B83232','#1E4D8C','#7B5EA7','#8B4513','#4A7C59'];
+let selectedGender = 'female';
+let selectedColor = COLORS[0];
+let activeProfile = null;
+let activeSchool = { name:'בית ספר אופק', email:'demo@school.com' };
+let activeSubject = null;
+let activeStudent = null;
+let studentFilter = 'all';
+let hwMarks = {};
+let scanSelectedStudent = null;
+let stream = null;
+let qualityTimer = null;
+
+// ============ DEMO DATA ============
+const profiles = [
+  { id:1, name:'רחל ברק', gender:'female', color:'#1A5C3A', homeroom:true },
+  { id:2, name:'מיכאל כהן', gender:'male', color:'#1E4D8C', homeroom:false }
+];
+
+const subjects = [
+  { id:1, name:'מתמטיקה', icon:'🔢', exams:12 },
+  { id:2, name:'עברית', icon:'📖', exams:8 },
+  { id:3, name:'תנ"ך', icon:'📜', exams:5 }
+];
+
+const students = [
+  { id:1, name:'דניאל לוי', avg:86, exams:[92,88,75,90,86], hw:95 },
+  { id:2, name:'רוני נחום', avg:68, exams:[65,70,62,72,68], hw:72 },
+  { id:3, name:'יואב עזרא', avg:92, exams:[88,95,90,96,92], hw:98 },
+  { id:4, name:'מיה כהן', avg:89, exams:[87,91,86,92,89], hw:94 },
+  { id:5, name:'איתי שרון', avg:74, exams:[70,76,72,78,74], hw:80 },
+  { id:6, name:'נועה גרינברג', avg:81, exams:[78,84,80,82,81], hw:90 },
+  { id:7, name:'תמר אבני', avg:95, exams:[93,96,94,97,95], hw:99 },
+  { id:8, name:'עומר רוזנברג', avg:77, exams:[74,80,75,79,77], hw:85 },
+];
+
+const hwData = {};
+
+// ============ NAVIGATION ============
+function go(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo(0,0);
+  onEnterScreen(screenId);
+}
+
+function onEnterScreen(id) {
+  if (id === 's-profiles') renderProfiles();
+  if (id === 's-dash') renderDash();
+  if (id === 's-students') renderStudents();
+  if (id === 's-subject') renderSubject();
+  if (id === 's-manual') renderManual();
+  if (id === 's-scan') renderScanStudents();
+  if (id === 's-homework') renderHW();
+  if (id === 's-analytics') renderAnalytics();
+  if (id === 's-settings') renderSettings();
+  if (id === 's-student') renderStudentFolder();
+}
+
+// ============ LOGIN ============
+function doLogin() {
+  const e = document.getElementById('login-email').value;
+  const p = document.getElementById('login-pass').value;
+  if (!e || !p) { notify('נא למלא מייל וסיסמה'); return; }
+  go('s-profiles');
+}
+
+function doLogout() {
+  activeProfile = null;
+  go('s-landing');
+}
+
+// ============ PROFILES ============
+function renderProfiles() {
+  document.getElementById('school-greeting').textContent = activeSchool.name;
+  const grid = document.getElementById('profiles-grid');
+  grid.innerHTML = '';
+  profiles.forEach(p => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:.625rem;cursor:pointer;';
+    div.innerHTML = `
+      <div class="avatar" style="width:88px;height:88px;font-size:1.75rem;background:${p.color};border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:transform .2s;"
+        onmouseenter="this.style.transform='translateY(-4px)'"
+        onmouseleave="this.style.transform='translateY(0)'">
+        ${getInitials(p.name)}
+      </div>
+      <div style="text-align:center;">
+        <div style="font-weight:700;font-size:.9rem;">${p.name}</div>
+        <div style="font-size:.75rem;color:#6B7280;">${p.homeroom ? 'מחנכת' : 'מורה'}</div>
+      </div>`;
+    div.onclick = () => selectProfile(p);
+    grid.appendChild(div);
+  });
+}
+
+function selectProfile(p) {
+  activeProfile = p;
+  go('s-dash');
+}
+
+function showAddProfile() {
+  const picks = document.getElementById('color-picks');
+  picks.innerHTML = '';
+  COLORS.forEach(c => {
+    const b = document.createElement('button');
+    b.style.cssText = `width:32px;height:32px;border-radius:8px;background:${c};border:3px solid transparent;cursor:pointer;transition:all .15s;`;
+    if (c === selectedColor) b.style.borderColor = '#fff';
+    b.onclick = () => { selectedColor = c; document.getElementById('color-picks').querySelectorAll('button').forEach(x => x.style.borderColor='transparent'); b.style.borderColor='var(--ink)'; };
+    picks.appendChild(b);
+  });
+  document.getElementById('modal-profile').classList.add('open');
+}
+
+function setGender(g) {
+  selectedGender = g;
+  document.getElementById('gender-f').style.cssText = g==='female' ? 'text-align:center;padding:.875rem;cursor:pointer;border:2px solid var(--green);background:var(--green-soft);border-radius:14px;' : 'text-align:center;padding:.875rem;cursor:pointer;border:1.5px solid var(--line);border-radius:14px;background:#fff;';
+  document.getElementById('gender-m').style.cssText = g==='male' ? 'text-align:center;padding:.875rem;cursor:pointer;border:2px solid var(--green);background:var(--green-soft);border-radius:14px;' : 'text-align:center;padding:.875rem;cursor:pointer;border:1.5px solid var(--line);border-radius:14px;background:#fff;';
+}
+
+function createProfile() {
+  const name = document.getElementById('profile-name').value.trim();
+  if (!name) { notify('נא להזין שם'); return; }
+  profiles.push({ id: Date.now(), name, gender: selectedGender, color: selectedColor, homeroom: document.getElementById('is-homeroom').checked });
+  closeModal('modal-profile');
+  document.getElementById('profile-name').value = '';
+  notify('פרופיל נוצר! ✨');
+  renderProfiles();
+}
+
+// ============ DASHBOARD ============
+function renderDash() {
+  if (!activeProfile) return;
+  const h = new Date().getHours();
+  const g = h < 12 ? 'בוקר טוב' : h < 17 ? 'צהריים טובים' : 'ערב טוב';
+  document.getElementById('dash-greeting').textContent = `${g}, ${activeProfile.name.split(' ')[0]}`;
+  document.getElementById('dash-sub').textContent = activeProfile.gender === 'female' ? 'ברוכה הבאה' : 'ברוך הבא';
+  document.getElementById('dash-class-name').textContent = 'כיתה ה׳2';
+  document.getElementById('dash-subtitle').textContent = `${students.length} תלמידים · ${activeProfile.name}`;
+  document.getElementById('dash-students').textContent = students.length;
+  document.getElementById('dash-subjects').textContent = subjects.length;
+
+  const grid = document.getElementById('subjects-grid');
+  grid.innerHTML = '';
+  subjects.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'card card-click';
+    d.style.cssText = 'text-align:center;padding:1.25rem .75rem;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.375rem;';
+    d.innerHTML = `<div style="font-size:2rem;">${s.icon}</div><div style="font-weight:700;font-size:.9rem;">${s.name}</div><div style="font-size:.75rem;color:#6B7280;">${s.exams} מבחנים</div>`;
+    d.onclick = () => { activeSubject = s; go('s-subject'); };
+    grid.appendChild(d);
+  });
+}
+
+// ============ SUBJECT ============
+function renderSubject() {
+  if (!activeSubject) return;
+  document.getElementById('subject-title').textContent = `${activeSubject.icon} ${activeSubject.name}`;
+  const list = document.getElementById('exams-list');
+  list.innerHTML = '';
+  const exams = [
+    { name:'מבחן פרק 5 — שברים', date:'15.05.2026', avg:81.4, count:28 },
+    { name:'מבחן פרק 4 — חילוק', date:'28.04.2026', avg:85.2, count:27 },
+    { name:'מבחן פרק 3 — כפל', date:'10.04.2026', avg:88.1, count:28 }
+  ];
+  exams.forEach(e => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
+    d.innerHTML = `<div><div style="font-weight:700;">${e.name}</div><div style="font-size:.8rem;color:#6B7280;">${e.date} · ${e.count} תלמידים</div></div>
+      <div style="text-align:left;"><div style="font-size:1.5rem;font-weight:900;color:var(--green);line-height:1;">${e.avg}</div><div style="font-size:.7rem;color:#6B7280;">ממוצע</div></div>`;
+    list.appendChild(d);
+  });
+}
+
+// ============ STUDENTS ============
+function renderStudents() {
+  const search = document.getElementById('students-search').value;
+  const list = document.getElementById('students-list');
+  list.innerHTML = '';
+  students.filter(s => {
+    if (search && !s.name.includes(search)) return false;
+    if (studentFilter === 'top') return s.avg >= 90;
+    if (studentFilter === 'low') return s.avg < 75;
+    return true;
+  }).forEach(s => {
+    const gc = gradeClass(s.avg);
+    const d = document.createElement('div');
+    d.className = 'card card-click';
+    d.style.cssText = 'display:flex;align-items:center;gap:.875rem;';
+    d.innerHTML = `
+      <div class="avatar" style="width:44px;height:44px;font-size:.9rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;">${s.name}</div>
+        <div style="font-size:.8rem;color:#6B7280;">${s.exams.length} מבחנים</div>
+        <div style="height:5px;background:var(--warm);border-radius:3px;margin-top:.375rem;overflow:hidden;width:80px;">
+          <div style="height:100%;background:var(--green);width:${s.avg}%;"></div>
+        </div>
+      </div>
+      <div class="grade ${gc}">${s.avg}</div>`;
+    d.onclick = () => { activeStudent = s; go('s-student'); };
+    list.appendChild(d);
+  });
+}
+
+function filterStudents() { renderStudents(); }
+function setStudentFilter(f, el) {
+  studentFilter = f;
+  document.querySelectorAll('#s-students .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderStudents();
+}
+
+// ============ STUDENT FOLDER ============
+function renderStudentFolder() {
+  const s = activeStudent;
+  if (!s) return;
+  document.getElementById('student-folder-name').textContent = s.name;
+  document.getElementById('student-name-lg').textContent = s.name;
+  document.getElementById('student-meta-lg').textContent = `${s.exams.length} מבחנים השנה`;
+
+  const av = document.getElementById('student-avatar-lg');
+  av.textContent = getInitials(s.name);
+  av.style.background = avatarColor(s.name);
+
+  const avg = s.avg;
+  const hw = s.hw;
+  const weighted = Math.round(avg * .7 + hw * .3);
+
+  document.getElementById('sf-exam-avg').textContent = avg;
+  document.getElementById('sf-hw').textContent = hw;
+  document.getElementById('sf-weighted').textContent = weighted;
+
+  // Chart
+  const svg = document.getElementById('student-chart');
+  const data = s.exams;
+  const maxV = 100, minV = 40;
+  const W = 400, H = 140, pad = 20;
+  const xs = data.map((_, i) => pad + (i / (data.length-1)) * (W - 2*pad));
+  const ys = data.map(v => H - pad - ((v - minV) / (maxV - minV)) * (H - 2*pad));
+  const points = xs.map((x, i) => `${x},${ys[i]}`).join(' ');
+  const areaPoints = `${xs[0]},${H-pad} ${points} ${xs[xs.length-1]},${H-pad}`;
+  svg.innerHTML = `
+    <polyline points="${areaPoints}" fill="rgba(26,92,58,.08)" stroke="none"/>
+    <polyline points="${points}" fill="none" stroke="#1A5C3A" stroke-width="2.5" stroke-linejoin="round"/>
+    ${xs.map((x,i) => `<circle cx="${x}" cy="${ys[i]}" r="${i===data.length-1?7:4}" fill="${i===data.length-1?'#1A5C3A':'white'}" stroke="#1A5C3A" stroke-width="2.5"/>`).join('')}
+    <text x="${xs[xs.length-1]}" y="${ys[data.length-1]-12}" text-anchor="middle" font-size="11" fill="#1A5C3A" font-weight="700">${data[data.length-1]}</text>`;
+
+  // Skill matrix
+  const skills = [
+    { name:'חיבור וחיסור', score:95 },
+    { name:'חילוק ארוך', score:85 },
+    { name:'לוח הכפל', score:68 },
+    { name:'שברים - מכנה משותף', score:42 },
+    { name:'בעיות מילוליות', score:90 }
+  ];
+  document.getElementById('skill-matrix').innerHTML = skills.map(sk => {
+    const color = sk.score>=85 ? '#15803D' : sk.score>=70 ? '#1D4ED8' : sk.score>=50 ? '#92400E' : '#B91C1C';
+    const bg = sk.score>=85 ? '#22C55E' : sk.score>=70 ? '#3B82F6' : sk.score>=50 ? '#F59E0B' : '#EF4444';
+    return `<div class="skill-row">
+      <div class="skill-label"><span>${sk.name}</span><span style="font-weight:700;color:${color};">${sk.score}%</span></div>
+      <div class="skill-bar"><div class="skill-fill" style="width:${sk.score}%;background:${bg};"></div></div>
+    </div>`;
+  }).join('');
+
+  // Exams
+  const exNames = ['מבחן שברים','מבחן חילוק','מבחן כפל','מבחן חיבור','מבחן גיאומטריה'];
+  document.getElementById('student-exams-list').innerHTML = s.exams.map((sc,i) => {
+    const gc = gradeClass(sc);
+    return `<div style="display:flex;align-items:center;gap:.875rem;padding:.75rem 0;border-bottom:1.5px solid var(--line);">
+      <div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">${exNames[i] || 'מבחן'}</div><div style="font-size:.75rem;color:#6B7280;">אפריל-מאי 2026</div></div>
+      <div class="grade ${gc}">${sc}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============ HOMEWORK ============
+function renderHW() {
+  const sel = document.getElementById('hw-subject');
+  sel.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('hw-date').value = today;
+  hwMarks = {};
+  renderHWList();
+}
+
+function loadHW() { hwMarks = {}; renderHWList(); }
+
+function renderHWList() {
+  const list = document.getElementById('hw-list');
+  list.innerHTML = students.map(s => `
+    <div class="card" style="display:flex;align-items:center;gap:.875rem;padding:.875rem;">
+      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;font-weight:600;">${s.name}</div>
+      <div class="hw-marks">
+        <button class="hw-mark v ${hwMarks[s.id]==='v'?'on':''}" onclick="setHW(${s.id},'v',this)">✓</button>
+        <button class="hw-mark half ${hwMarks[s.id]==='half'?'on':''}" onclick="setHW(${s.id},'half',this)">~</button>
+        <button class="hw-mark x ${hwMarks[s.id]==='x'?'on':''}" onclick="setHW(${s.id},'x',this)">✗</button>
+      </div>
+    </div>`).join('');
+  updateHWCounts();
+}
+
+function setHW(id, mark, btn) {
+  if (hwMarks[id] === mark) delete hwMarks[id];
+  else hwMarks[id] = mark;
+  const row = btn.closest('.card');
+  row.querySelectorAll('.hw-mark').forEach(b => { b.classList.remove('on'); });
+  if (hwMarks[id]) btn.classList.add('on');
+  updateHWCounts();
+}
+
+function updateHWCounts() {
+  const vals = Object.values(hwMarks);
+  document.getElementById('hw-v-count').textContent = vals.filter(v=>v==='v').length;
+  document.getElementById('hw-half-count').textContent = vals.filter(v=>v==='half').length;
+  document.getElementById('hw-x-count').textContent = vals.filter(v=>v==='x').length;
+}
+
+// ============ MANUAL ENTRY ============
+function renderManual() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('manual-date').value = today;
+  const scores = {};
+  const list = document.getElementById('manual-students-list');
+  list.innerHTML = students.map(s => `
+    <div style="display:flex;align-items:center;gap:.875rem;padding:.75rem 0;border-bottom:1.5px solid var(--line);">
+      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;font-weight:600;">${s.name}</div>
+      <input type="number" class="input" style="width:80px;text-align:center;padding:.5rem;" placeholder="-" min="0" max="100" id="score-${s.id}">
+    </div>`).join('');
+}
+
+function saveManualExam() {
+  const name = document.getElementById('manual-exam-name').value.trim();
+  if (!name) { notify('נא להזין שם מבחן'); return; }
+  let count = 0;
+  students.forEach(s => { if (document.getElementById(`score-${s.id}`)?.value) count++; });
+  if (!count) { notify('נא להזין ציון לפחות לתלמיד אחד'); return; }
+  notify(`✅ מבחן "${name}" נשמר! (${count} תלמידים)`);
+  go('s-subject');
+}
+
+// ============ AI SCAN ============
+function renderScanStudents() {
+  const list = document.getElementById('scan-students-list');
+  list.innerHTML = students.map(s => `
+    <button onclick="selectScanStudent(${s.id})" style="width:100%;display:flex;align-items:center;gap:.875rem;padding:.75rem;background:var(--warm);border-radius:12px;border:none;cursor:pointer;margin-bottom:.5rem;text-align:right;transition:all .15s;"
+      onmouseenter="this.style.background='var(--green-soft)'" onmouseleave="this.style.background='var(--warm)'">
+      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;font-weight:600;">${s.name}</div>
+      <div style="color:var(--green);">←</div>
+    </button>`).join('');
+
+  // Reset steps
+  document.getElementById('scan-step-student').style.display = 'block';
+  document.getElementById('scan-step-camera').style.display = 'none';
+  document.getElementById('scan-step-loading').style.display = 'none';
+  document.getElementById('scan-step-result').style.display = 'none';
+  document.getElementById('scan-step-fallback').style.display = 'none';
+}
+
+function filterScanStudents() {
+  const q = document.getElementById('scan-search').value;
+  document.querySelectorAll('#scan-students-list button').forEach((b, i) => {
+    b.style.display = students[i]?.name.includes(q) ? 'flex' : 'none';
+  });
+}
+
+function selectScanStudent(id) {
+  scanSelectedStudent = students.find(s => s.id === id);
+  showScanCamera();
+}
+
+function showScanStudent() {
+  stopCamera();
+  document.getElementById('scan-step-student').style.display = 'block';
+  document.getElementById('scan-step-camera').style.display = 'none';
+}
+
+function showScanCamera() {
+  document.getElementById('scan-step-student').style.display = 'none';
+  document.getElementById('scan-step-camera').style.display = 'block';
+  document.getElementById('scan-student-badge').textContent = scanSelectedStudent.name;
+  document.getElementById('scan-exam-badge').textContent = document.getElementById('scan-exam-name').value || 'מבחן';
+  startCamera();
+}
+
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment', width:{ideal:1920}, height:{ideal:1080} } });
+    const video = document.getElementById('camera-video');
+    video.srcObject = stream;
+    video.play();
+    startQualityCheck();
+  } catch(e) {
+    document.getElementById('camera-box').innerHTML = '<div style="color:#fff;padding:2rem;text-align:center;"><div style="font-size:2rem;margin-bottom:.75rem;">📁</div><div>לא ניתן לפתוח מצלמה<br>השתמשו בהעלאת קובץ</div></div>';
+  }
+}
+
+function stopCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (qualityTimer) { clearInterval(qualityTimer); qualityTimer = null; }
+}
+
+function startQualityCheck() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.getElementById('camera-canvas');
+  const frame = document.getElementById('camera-frame');
+  const badge = document.getElementById('quality-badge');
+  const captureBtn = document.getElementById('capture-btn');
+
+  qualityTimer = setInterval(() => {
+    if (!video.videoWidth) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = 200; canvas.height = 200;
+    ctx.drawImage(video, 0, 0, 200, 200);
+    const data = ctx.getImageData(0, 0, 200, 200).data;
+    let mean = 0, lumas = [];
+    for (let i = 0; i < data.length; i += 4) {
+      const l = .299*data[i] + .587*data[i+1] + .114*data[i+2];
+      lumas.push(l); mean += l;
+    }
+    mean /= lumas.length;
+    const variance = lumas.reduce((s,l) => s+(l-mean)**2, 0) / lumas.length;
+    const good = variance > 400;
+    frame.className = 'camera-frame ' + (good ? 'good' : 'bad');
+    badge.className = 'quality-badge ' + (good ? 'quality-good' : 'quality-bad');
+    badge.textContent = good ? '✓ איכות טובה' : '✗ מטושטש - קרבו את המצלמה';
+    captureBtn.disabled = !good;
+  }, 400);
+}
+
+function capturePhoto() {
+  const video = document.getElementById('camera-video');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob(blob => { stopCamera(); runAI(blob); }, 'image/jpeg', .9);
+}
+
+function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { notify('התמונה גדולה מ-5MB'); return; }
+  stopCamera();
+  runAI(file);
+}
+
+async function runAI(blob) {
+  document.getElementById('scan-step-camera').style.display = 'none';
+  document.getElementById('scan-step-loading').style.display = 'block';
+  const bar = document.getElementById('loading-bar');
+  setTimeout(() => { bar.style.width = '90%'; }, 100);
+
+  // Simulate AI (replace with real API call when key is ready)
+  const hasKey = false; // Set to true when ANTHROPIC_API_KEY is configured
+
+  await new Promise(r => setTimeout(r, 2500));
+
+  if (hasKey) {
+    // Real API call
+    const formData = new FormData();
+    formData.append('image', blob, 'exam.jpg');
+    formData.append('studentId', scanSelectedStudent.id);
+    formData.append('examName', document.getElementById('scan-exam-name').value || 'מבחן');
+    const res = await fetch('/api/grade-exam', { method:'POST', body:formData });
+    const data = await res.json();
+    if (data.needsManualFallback) { showFallback(data.message); return; }
+    showResult(data.result);
+  } else {
+    // Demo mode
+    const confident = Math.random() > .2;
+    if (!confident) { showFallback('כתב היד לא ברור מספיק לניתוח אוטומטי.'); return; }
+    const score = Math.floor(70 + Math.random() * 28);
+    showResult({
+      total_score: score,
+      max_score: 100,
+      confidence: 'high',
+      bottom_line: `${scanSelectedStudent.name} הפגין/ה הבנה טובה של הנושא. יש לחזק את נושא השברים.`,
+      strengths: ['שליטה בחיבור וחיסור', 'פתרון בעיות מילוליות'],
+      weaknesses: ['חיבור שברים עם מכנה משותף'],
+      questions: Array.from({length:5}, (_,i) => ({
+        question_number: i+1,
+        question_text: `שאלה ${i+1}`,
+        is_correct: Math.random() > .3,
+        points_awarded: Math.floor(Math.random()*10)+1,
+        max_points: 10,
+        ai_feedback: 'תשובה טובה, המשך/י כך!'
+      }))
+    });
+  }
+}
+
+function showResult(r) {
+  document.getElementById('scan-step-loading').style.display = 'none';
+  const el = document.getElementById('scan-step-result');
+  el.style.display = 'block';
+  const correct = r.questions?.filter(q => q.is_correct).length || 0;
+  const total = r.questions?.length || 5;
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+        <div>
+          <div style="font-weight:700;font-size:1.05rem;">${scanSelectedStudent.name}</div>
+          <div style="font-size:.8rem;color:#6B7280;">${document.getElementById('scan-exam-name').value || 'מבחן'}</div>
+        </div>
+        <div style="text-align:left;">
+          <div style="font-size:3rem;font-weight:900;color:var(--green);line-height:1;">${r.total_score}</div>
+          <div style="font-size:.75rem;color:#6B7280;">מתוך 100</div>
+        </div>
+      </div>
+      <div style="background:var(--green-soft);border-right:4px solid var(--green);border-radius:10px;padding:.875rem;margin-bottom:.875rem;">
+        <div style="font-size:.875rem;">${r.bottom_line}</div>
+      </div>
+      ${r.strengths?.length ? `<div style="margin-bottom:.625rem;"><div style="font-weight:700;font-size:.875rem;color:#15803D;margin-bottom:.375rem;">✓ חוזקות</div>${r.strengths.map(s=>`<div style="font-size:.875rem;">· ${s}</div>`).join('')}</div>` : ''}
+      ${r.weaknesses?.length ? `<div><div style="font-weight:700;font-size:.875rem;color:var(--gold);margin-bottom:.375rem;">⚠️ לחיזוק</div>${r.weaknesses.map(s=>`<div style="font-size:.875rem;">· ${s}</div>`).join('')}</div>` : ''}
+      <div style="margin-top:.875rem;padding:.75rem;background:var(--warm);border-radius:10px;font-size:.8rem;color:#6B7280;">
+        🤖 רמת ביטחון: גבוהה · ${correct}/${total} שאלות נכונות
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <button class="btn btn-secondary" onclick="showFallback('עריכה ידנית')">ערוך ידנית</button>
+      <button class="btn btn-primary" onclick="confirmResult(${r.total_score})">✓ אשר ושמור</button>
+    </div>`;
+}
+
+function showFallback(msg) {
+  document.getElementById('scan-step-loading').style.display = 'none';
+  document.getElementById('scan-step-result').style.display = 'none';
+  const el = document.getElementById('scan-step-fallback');
+  el.style.display = 'block';
+  el.innerHTML = `
+    ${msg !== 'עריכה ידנית' ? `<div style="background:var(--gold-soft);border:1.5px solid #e0c070;border-radius:14px;padding:.875rem;margin-bottom:1rem;display:flex;gap:.75rem;align-items:start;">
+      <div style="font-size:1.25rem;">⚠️</div>
+      <div><div style="font-weight:700;color:#78350F;">${msg}</div><div style="font-size:.875rem;color:#92400E;margin-top:.25rem;">המשך עם הזנה ידנית מהירה.</div></div>
+    </div>` : ''}
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="text-align:center;margin-bottom:1rem;">
+        <div style="font-weight:700;">${scanSelectedStudent?.name}</div>
+      </div>
+      <div class="input-wrap">
+        <label class="label">ציון סופי (0-100)</label>
+        <input type="number" class="input" id="fallback-score" style="text-align:center;font-size:1.5rem;font-weight:800;" min="0" max="100" autofocus>
+      </div>
+      <div>
+        <label class="label">הערות מורה (אופציונלי)</label>
+        <textarea class="textarea" id="fallback-notes" rows="3" placeholder="לדוגמה: עבודה טובה, לחזק שברים"></textarea>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
+      <button class="btn btn-secondary" onclick="showScanStudent()">← חזרה</button>
+      <button class="btn btn-primary" onclick="saveFallback()">✓ שמור</button>
+    </div>`;
+}
+
+function confirmResult(score) {
+  notify(`✅ מבחן נשמר! ציון: ${score}`);
+  go('s-subject');
+}
+
+function saveFallback() {
+  const score = document.getElementById('fallback-score')?.value;
+  if (!score) { notify('נא להזין ציון'); return; }
+  notify(`✅ ציון ${score} נשמר!`);
+  go('s-subject');
+}
+
+// ============ ANALYTICS ============
+function renderAnalytics() {
+  const qs = [
+    { n:1, desc:'חיבור בסיסי', correct:26, total:28 },
+    { n:2, desc:'שבר פשוט', correct:24, total:28 },
+    { n:3, desc:'שוויון שברים', correct:22, total:28 },
+    { n:4, desc:'המרת שבר', correct:20, total:28 },
+    { n:6, desc:'מכנה משותף', correct:8, total:28, critical:true },
+    { n:7, desc:'בעיה מילולית', correct:19, total:28 }
+  ];
+  document.getElementById('analytics-questions').innerHTML = qs.map(q => {
+    const pct = Math.round(q.correct/q.total*100);
+    const color = pct>=80 ? '#15803D' : pct>=65 ? '#1D4ED8' : pct>=50 ? '#D97706' : '#B91C1C';
+    const bg = pct>=80 ? '#22C55E' : pct>=65 ? '#3B82F6' : pct>=50 ? '#F59E0B' : '#EF4444';
+    return `<div class="card" style="${q.critical?'border:2px solid var(--red);background:var(--red-soft);':''}margin-bottom:.75rem;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:.625rem;">
+        <div>
+          <div style="font-weight:700;${q.critical?'color:#7F1D1D;':''}">${q.critical?'⚠️ ':''}שאלה ${q.n} — ${q.desc}</div>
+          <div style="font-size:.8rem;color:${q.critical?'#991B1B':'#6B7280'};">${q.correct} מתוך ${q.total} נכון</div>
+        </div>
+        <div style="font-size:1.5rem;font-weight:900;color:${color};">${pct}%</div>
+      </div>
+      <div class="skill-bar"><div class="skill-fill" style="width:${pct}%;background:${bg};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ============ SETTINGS ============
+function renderSettings() {
+  document.getElementById('settings-school').textContent = activeSchool.name;
+  if (activeProfile) {
+    document.getElementById('settings-profile-name').textContent = activeProfile.name;
+    const av = document.getElementById('settings-avatar');
+    av.textContent = getInitials(activeProfile.name);
+    av.style.background = activeProfile.color;
+  }
+}
+
+// ============ WHATSAPP ============
+function showWhatsApp() {
+  document.getElementById('modal-wa').classList.add('open');
+}
+
+function sendWA() {
+  const phone = document.getElementById('wa-phone').value.replace(/[^\d]/g,'');
+  if (!phone) { notify('נא להזין מספר טלפון'); return; }
+  let cleanPhone = phone;
+  if (cleanPhone.startsWith('0')) cleanPhone = '972' + cleanPhone.slice(1);
+  const s = activeStudent;
+  const msg = encodeURIComponent(`שלום רב,\n\nשמי ${activeProfile?.name || 'המורה'}.\nמצורף דוח התקדמות של ${s.name}.\nממוצע עדכני: ${s.avg}.\n\nבברכה,\n${activeProfile?.name || 'המורה'}`);
+  window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
+  closeModal('modal-wa');
+}
+
+// ============ MODALS ============
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ============ NOTIFY ============
+function notify(msg) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 2800);
+}
+
+// ============ UTILS ============
+function getInitials(name) {
+  return name.split(' ').map(w=>w[0]).slice(0,2).join('');
+}
+function avatarColor(name) {
+  return COLORS[name.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % COLORS.length];
+}
+function gradeClass(score) {
+  return score>=90 ? 'grade-90' : score>=75 ? 'grade-75' : score>=60 ? 'grade-60' : 'grade-low';
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {});
+</script>
+</body>
+</html>
