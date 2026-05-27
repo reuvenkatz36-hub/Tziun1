@@ -3,1102 +3,1116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ציון | Tziun</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<title>ציון — מערכת ניהול ציונים חכמה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink: #0D1117;
-  --paper: #F7F3EE;
-  --warm: #EDE8DF;
-  --line: #DDD8CE;
-  --green: #1A5C3A;
-  --green-light: #2A7A50;
-  --green-soft: #E6F0EB;
-  --gold: #C4973A;
-  --gold-soft: #FBF3E3;
-  --red: #B83232;
-  --red-soft: #FAEAEA;
-  --blue: #1E4D8C;
-  --blue-soft: #E8EFF8;
-  --shadow: 0 2px 8px rgba(13,17,23,.07), 0 1px 2px rgba(13,17,23,.05);
-  --shadow-lg: 0 8px 32px rgba(13,17,23,.10), 0 2px 8px rgba(13,17,23,.06);
+  --ink: #0A0E14;
+  --ink-soft: #4A5260;
+  --ink-faint: #8B92A0;
+  --paper: #FAFAF7;
+  --paper-soft: #F4F2EC;
+  --line: #E5E2D8;
+  --line-soft: #EFEDE5;
+  --forest: #1F4A38;
+  --forest-light: #2E6850;
+  --forest-bg: #EDF2EE;
+  --gold: #B8924A;
+  --gold-bg: #F5EFE0;
+  --rust: #A04030;
+  --rust-bg: #F4E5E1;
+  --slate: #475569;
+  --slate-bg: #E8EBF0;
+  --shadow-sm: 0 1px 3px rgba(10,14,20,.06);
+  --shadow: 0 4px 12px rgba(10,14,20,.06);
+  --shadow-lg: 0 12px 32px rgba(10,14,20,.10);
 }
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { scroll-behavior:smooth; }
-body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
-
-/* ---- SCREENS ---- */
-.screen { display:none; min-height:100vh; animation:fadeUp .3s ease; }
-.screen.active { display:block; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
-/* ---- TOPBAR ---- */
-.topbar {
-  position:sticky; top:0; z-index:100;
-  background:rgba(247,243,238,.95); backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
-  padding:.875rem 1.25rem;
-  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+body {
+  font-family: 'Heebo', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  font-feature-settings: 'kern','liga';
 }
-.brand { display:flex; align-items:center; gap:.625rem; cursor:pointer; }
-.brand-mark {
-  width:36px; height:36px; background:var(--green); color:#fff;
-  border-radius:10px; display:flex; align-items:center; justify-content:center;
-  font-weight:900; font-size:1.125rem; letter-spacing:-.02em;
-  box-shadow:0 2px 8px rgba(26,92,58,.3);
-}
-.brand-name { font-weight:800; font-size:1.25rem; letter-spacing:-.03em; }
-.topbar-actions { display:flex; gap:.5rem; }
-.icon-btn {
-  width:36px; height:36px; border:1.5px solid var(--line); border-radius:10px;
-  background:#fff; display:flex; align-items:center; justify-content:center;
-  cursor:pointer; font-size:1rem; transition:all .15s;
-}
-.icon-btn:hover { border-color:var(--green); background:var(--green-soft); }
-.back-btn {
-  display:flex; align-items:center; gap:.375rem;
-  background:none; border:none; cursor:pointer;
-  font-size:.9rem; font-weight:600; color:var(--green); padding:.25rem;
-}
+.serif { font-family: 'Frank Ruhl Libre', Georgia, serif; }
 
-/* ---- CONTAINER ---- */
-.wrap { max-width:720px; margin:0 auto; padding:1.5rem 1.25rem; }
+.screen { display:none; min-height:100vh; }
+.screen.active { display:block; animation: enter .35s cubic-bezier(.16,1,.3,1); }
+@keyframes enter { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---- CARDS ---- */
-.card {
-  background:#fff; border:1.5px solid var(--line); border-radius:16px;
-  padding:1.25rem; box-shadow:var(--shadow); margin-bottom:.75rem;
-  transition:all .2s;
-}
-.card-click { cursor:pointer; }
-.card-click:hover { border-color:var(--green); transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.topbar { position:sticky; top:0; z-index:100; background:rgba(250,250,247,.9); backdrop-filter:blur(20px); border-bottom:1px solid var(--line-soft); }
+.topbar-inner { max-width:1280px; margin:0 auto; padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.brand { display:flex; align-items:center; gap:.75rem; cursor:pointer; }
+.brand-mark { width:38px; height:38px; background:var(--ink); color:var(--paper); border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif; font-weight:900; font-size:1.15rem; letter-spacing:-.04em; }
+.brand-text { font-family:'Frank Ruhl Libre',serif; font-size:1.4rem; font-weight:700; letter-spacing:-.02em; }
+.brand-sub { font-size:.7rem; color:var(--ink-faint); letter-spacing:.12em; text-transform:uppercase; margin-top:1px; }
+.topbar-actions { display:flex; gap:.5rem; align-items:center; }
+.icon-btn { width:38px; height:38px; background:transparent; border:1px solid var(--line); border-radius:8px; cursor:pointer; color:var(--ink-soft); display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.icon-btn:hover { background:var(--paper-soft); border-color:var(--ink); color:var(--ink); }
+.back-link { display:flex; align-items:center; gap:.375rem; background:none; border:none; cursor:pointer; color:var(--ink-soft); font-size:.9rem; font-weight:500; font-family:inherit; padding:.375rem .5rem; }
+.back-link:hover { color:var(--ink); }
 
-/* ---- BUTTONS ---- */
-.btn { padding:.75rem 1.5rem; border-radius:12px; font-size:.95rem; font-weight:700; cursor:pointer; border:none; transition:all .15s; display:inline-flex; align-items:center; gap:.5rem; justify-content:center; font-family:inherit; }
-.btn-primary { background:var(--green); color:#fff; box-shadow:0 2px 8px rgba(26,92,58,.25); }
-.btn-primary:hover { background:var(--green-light); transform:translateY(-1px); box-shadow:0 4px 16px rgba(26,92,58,.3); }
-.btn-secondary { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
-.btn-secondary:hover { border-color:var(--green); background:var(--green-soft); }
-.btn-ghost { background:transparent; color:var(--ink); border:none; }
-.btn-danger { background:var(--red-soft); color:var(--red); border:1.5px solid #e8b4b4; }
+.container { max-width:1280px; margin:0 auto; padding:2.5rem 1.5rem; }
+.container-narrow { max-width:680px; margin:0 auto; padding:2.5rem 1.5rem; }
+
+.h1 { font-family:'Frank Ruhl Libre',serif; font-size:clamp(2.5rem,5vw,3.75rem); font-weight:700; line-height:1.05; letter-spacing:-.025em; }
+.h2 { font-family:'Frank Ruhl Libre',serif; font-size:2rem; font-weight:700; letter-spacing:-.02em; line-height:1.15; }
+.h3 { font-family:'Frank Ruhl Libre',serif; font-size:1.5rem; font-weight:700; letter-spacing:-.015em; }
+.h4 { font-weight:700; font-size:1.05rem; letter-spacing:-.01em; }
+.eyebrow { font-size:.7rem; font-weight:600; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-faint); }
+.lead { font-size:1.125rem; line-height:1.6; color:var(--ink-soft); }
+.muted { color:var(--ink-faint); }
+
+.btn { padding:.75rem 1.5rem; border-radius:6px; font-size:.9rem; font-weight:600; font-family:inherit; cursor:pointer; border:1px solid transparent; transition:all .15s; display:inline-flex; align-items:center; gap:.5rem; justify-content:center; white-space:nowrap; }
+.btn-primary { background:var(--ink); color:var(--paper); }
+.btn-primary:hover { background:var(--forest); transform:translateY(-1px); box-shadow:var(--shadow); }
+.btn-secondary { background:var(--paper); color:var(--ink); border-color:var(--line); }
+.btn-secondary:hover { background:var(--paper-soft); border-color:var(--ink); }
+.btn-ghost { background:transparent; color:var(--ink-soft); }
+.btn-ghost:hover { background:var(--paper-soft); color:var(--ink); }
 .btn-block { width:100%; }
-.btn-lg { padding:1rem 2rem; font-size:1.05rem; border-radius:14px; }
+.btn-lg { padding:.95rem 2rem; font-size:.95rem; border-radius:8px; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
 
-/* ---- INPUTS ---- */
-.label { font-size:.8rem; font-weight:700; color:#6B7280; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.375rem; display:block; }
-.input, .select, .textarea {
-  width:100%; padding:.75rem 1rem; border:1.5px solid var(--line); border-radius:12px;
-  background:#fff; font-size:1rem; font-family:inherit; color:var(--ink);
-  transition:all .15s; outline:none;
-}
-.input:focus, .select:focus, .textarea:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-soft); }
-.input-wrap { margin-bottom:1rem; }
+.card { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:1.5rem; transition:all .2s; }
+.card-elevated { box-shadow:var(--shadow-sm); }
+.card-hover { cursor:pointer; }
+.card-hover:hover { border-color:var(--ink); box-shadow:var(--shadow); transform:translateY(-2px); }
 
-/* ---- BADGES ---- */
-.badge { padding:.25rem .75rem; border-radius:100px; font-size:.8rem; font-weight:700; display:inline-flex; align-items:center; gap:.25rem; }
-.badge-green { background:var(--green-soft); color:var(--green); }
-.badge-gold { background:var(--gold-soft); color:var(--gold); }
-.badge-red { background:var(--red-soft); color:var(--red); }
-.badge-blue { background:var(--blue-soft); color:var(--blue); }
+.field { margin-bottom:1.25rem; }
+.label { display:block; margin-bottom:.5rem; font-size:.75rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
+.input, .select, .textarea { width:100%; padding:.8rem 1rem; background:var(--paper); border:1px solid var(--line); border-radius:8px; font-size:1rem; font-family:inherit; color:var(--ink); transition:all .15s; outline:none; }
+.input:focus, .select:focus, .textarea:focus { border-color:var(--ink); box-shadow:0 0 0 3px var(--paper-soft); }
+.input::placeholder { color:var(--ink-faint); }
 
-/* ---- GRADE ---- */
-.grade { padding:.3rem .8rem; border-radius:100px; font-weight:800; font-size:.95rem; min-width:48px; text-align:center; }
-.grade-90 { background:#DCFCE7; color:#15803D; }
-.grade-75 { background:#DBEAFE; color:#1D4ED8; }
-.grade-60 { background:#FEF3C7; color:#92400E; }
-.grade-low { background:#FEE2E2; color:#B91C1C; }
+.tag { display:inline-flex; align-items:center; gap:.375rem; padding:.25rem .625rem; border-radius:4px; font-size:.75rem; font-weight:600; }
+.tag-forest { background:var(--forest-bg); color:var(--forest); }
+.tag-gold { background:var(--gold-bg); color:var(--gold); }
+.tag-rust { background:var(--rust-bg); color:var(--rust); }
 
-/* ---- AVATAR ---- */
-.avatar { border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; flex-shrink:0; }
+.grade { display:inline-flex; align-items:center; justify-content:center; min-width:52px; padding:.35rem .75rem; border-radius:100px; font-weight:700; font-size:.95rem; font-variant-numeric:tabular-nums; }
+.grade-excellent { background:var(--forest-bg); color:var(--forest); }
+.grade-good { background:var(--slate-bg); color:var(--slate); }
+.grade-ok { background:var(--gold-bg); color:var(--gold); }
+.grade-low { background:var(--rust-bg); color:var(--rust); }
 
-/* ---- HERO GRADIENT ---- */
-.hero-card {
-  background:linear-gradient(135deg, var(--green) 0%, var(--green-light) 100%);
-  color:#fff; border-radius:20px; padding:1.5rem; margin-bottom:1.25rem;
-  position:relative; overflow:hidden;
-  box-shadow:0 8px 32px rgba(26,92,58,.25);
-}
-.hero-card::before {
-  content:''; position:absolute; top:-40%; left:-10%;
-  width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.06);
-}
+.avatar { display:inline-flex; align-items:center; justify-content:center; border-radius:50%; font-weight:700; color:var(--paper); flex-shrink:0; font-family:'Frank Ruhl Libre',serif; letter-spacing:-.02em; }
 
-/* ---- PROGRESS BAR ---- */
-.progress-steps { display:flex; gap:.5rem; margin-bottom:1.5rem; }
-.progress-step { flex:1; height:4px; border-radius:2px; background:var(--line); overflow:hidden; }
-.progress-step.done { background:var(--green); }
+/* LANDING */
+.landing-hero { min-height:100vh; background:linear-gradient(180deg, var(--paper) 0%, var(--paper-soft) 100%); display:flex; flex-direction:column; position:relative; overflow:hidden; }
+.landing-hero::before { content:''; position:absolute; top:0; right:0; width:600px; height:600px; background:radial-gradient(circle, var(--forest-bg) 0%, transparent 70%); opacity:.5; pointer-events:none; }
+.hero-content { flex:1; display:flex; align-items:center; padding:4rem 0; position:relative; z-index:1; }
+.hero-grid { display:grid; grid-template-columns:1.1fr 1fr; gap:5rem; align-items:center; max-width:1200px; margin:0 auto; padding:0 1.5rem; width:100%; }
+@media (max-width:900px) { .hero-grid { grid-template-columns:1fr; gap:3rem; } }
+.hero-tag { display:inline-flex; align-items:center; gap:.5rem; padding:.375rem .875rem; background:var(--paper); border:1px solid var(--line); border-radius:100px; font-size:.8rem; font-weight:500; color:var(--ink-soft); margin-bottom:1.75rem; }
+.hero-tag-dot { width:6px; height:6px; border-radius:50%; background:var(--forest); animation:pulse 2s infinite; }
+.hero-title { margin-bottom:1.5rem; }
+.hero-title em { font-style:italic; color:var(--forest); font-weight:400; }
+.hero-desc { font-size:1.2rem; line-height:1.65; color:var(--ink-soft); margin-bottom:2.5rem; max-width:500px; }
+.hero-cta { display:flex; gap:.75rem; flex-wrap:wrap; }
+.mock-screen { background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:1.5rem; box-shadow:var(--shadow-lg); transform:rotate(1.5deg); position:relative; }
+.mock-screen::before { content:''; position:absolute; top:-20px; right:-20px; width:100%; height:100%; background:var(--forest-bg); border-radius:14px; z-index:-1; transform:rotate(-3deg); }
+.mock-row { display:flex; align-items:center; gap:.875rem; padding:.75rem 0; border-bottom:1px solid var(--line-soft); }
+.mock-row:last-child { border-bottom:none; }
 
-/* ---- PILL TABS ---- */
-.pill-tabs { display:flex; gap:.5rem; margin-bottom:1.25rem; overflow-x:auto; padding-bottom:.25rem; }
-.pill { padding:.5rem 1rem; border-radius:100px; border:1.5px solid var(--line); background:#fff; cursor:pointer; font-size:.875rem; font-weight:600; transition:all .15s; white-space:nowrap; }
-.pill.active { background:var(--green); color:#fff; border-color:var(--green); }
+.features { background:var(--paper); padding:6rem 1.5rem; border-top:1px solid var(--line-soft); }
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:2rem; max-width:1100px; margin:3rem auto 0; }
+.feature-num { font-family:'Frank Ruhl Libre',serif; font-size:1rem; color:var(--ink-faint); letter-spacing:.15em; margin-bottom:.75rem; display:block; }
+.feature-title { font-family:'Frank Ruhl Libre',serif; font-size:1.35rem; font-weight:700; margin-bottom:.625rem; letter-spacing:-.015em; }
+.feature-desc { color:var(--ink-soft); line-height:1.6; font-size:.95rem; }
 
-/* ---- HW MARKS ---- */
+.pricing { background:var(--paper-soft); padding:6rem 1.5rem; }
+.pricing-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; max-width:1100px; margin:3rem auto 0; }
+.price-card { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:2.25rem 2rem; position:relative; }
+.price-card.featured { border-color:var(--ink); box-shadow:var(--shadow-lg); transform:scale(1.02); }
+.price-tier { font-family:'Frank Ruhl Libre',serif; font-size:1.625rem; font-weight:700; margin-bottom:.25rem; }
+.price-students { color:var(--ink-soft); font-size:.875rem; margin-bottom:1.5rem; }
+.price-amount { font-family:'Frank Ruhl Libre',serif; font-size:3.25rem; font-weight:700; line-height:1; letter-spacing:-.03em; }
+.price-currency { font-size:1.5rem; color:var(--ink-soft); }
+.price-period { color:var(--ink-soft); font-size:.9rem; margin-top:.375rem; margin-bottom:1.75rem; }
+.price-features { list-style:none; margin-bottom:2rem; padding-top:1.5rem; border-top:1px solid var(--line-soft); }
+.price-features li { padding:.5rem 0; font-size:.9rem; display:flex; gap:.625rem; align-items:flex-start; }
+.price-features li::before { content:''; display:inline-block; width:6px; height:6px; background:var(--forest); border-radius:50%; margin-top:.55rem; flex-shrink:0; }
+
+.footer { padding:4rem 1.5rem 3rem; background:var(--ink); color:rgba(250,250,247,.7); text-align:center; }
+.footer-brand { color:var(--paper); font-family:'Frank Ruhl Libre',serif; font-size:1.5rem; margin-bottom:.25rem; }
+.footer-sub { font-size:.85rem; color:rgba(250,250,247,.5); margin-bottom:2rem; }
+
+.auth-page { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:linear-gradient(180deg, var(--paper) 0%, var(--paper-soft) 100%); }
+.auth-card { width:100%; max-width:440px; background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:2.5rem; box-shadow:var(--shadow-lg); }
+.auth-header { text-align:center; margin-bottom:2rem; }
+.auth-brand { width:52px; height:52px; background:var(--ink); color:var(--paper); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif; font-weight:900; font-size:1.5rem; margin:0 auto 1.25rem; }
+.auth-toggle { display:flex; background:var(--paper-soft); border-radius:8px; padding:3px; margin-bottom:1.5rem; }
+.auth-toggle-btn { flex:1; padding:.55rem; background:transparent; border:none; border-radius:6px; cursor:pointer; font-family:inherit; font-weight:600; font-size:.85rem; color:var(--ink-soft); transition:all .15s; }
+.auth-toggle-btn.active { background:var(--paper); color:var(--ink); box-shadow:var(--shadow-sm); }
+
+.profiles-page { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3rem 1.5rem; background:var(--paper); position:relative; }
+.profiles-page::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at top, var(--forest-bg) 0%, transparent 50%), radial-gradient(ellipse at bottom right, var(--gold-bg) 0%, transparent 50%); opacity:.4; pointer-events:none; }
+.profiles-content { position:relative; z-index:1; max-width:720px; width:100%; }
+.profiles-header { text-align:center; margin-bottom:3.5rem; }
+.profiles-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:1.5rem; margin-bottom:2.5rem; }
+.profile-item { display:flex; flex-direction:column; align-items:center; gap:.75rem; cursor:pointer; background:none; border:none; font-family:inherit; transition:transform .2s; }
+.profile-item:hover { transform:translateY(-3px); }
+.profile-avatar-lg { width:96px; height:96px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:2rem; color:var(--paper); box-shadow:var(--shadow); transition:box-shadow .2s; }
+.profile-item:hover .profile-avatar-lg { box-shadow:var(--shadow-lg); }
+.profile-name { font-weight:600; font-size:.95rem; }
+.profile-role { font-size:.75rem; color:var(--ink-faint); letter-spacing:.05em; }
+
+.dash-hero { background:linear-gradient(135deg, var(--ink) 0%, #1A2129 100%); color:var(--paper); border-radius:16px; padding:2.5rem 2rem; margin-bottom:2rem; position:relative; overflow:hidden; }
+.dash-hero::before { content:''; position:absolute; top:0; right:0; width:400px; height:400px; background:radial-gradient(circle, rgba(31,74,56,.3) 0%, transparent 70%); border-radius:50%; pointer-events:none; }
+.dash-hero-content { position:relative; z-index:1; }
+.dash-greeting { font-family:'Frank Ruhl Libre',serif; font-size:2rem; font-weight:700; margin-bottom:.375rem; letter-spacing:-.02em; }
+.dash-sub { color:rgba(250,250,247,.7); font-size:.95rem; margin-bottom:1.75rem; }
+.dash-stats { display:flex; gap:2.5rem; }
+.dash-stat-num { font-family:'Frank Ruhl Libre',serif; font-size:2.25rem; font-weight:700; letter-spacing:-.02em; line-height:1; }
+.dash-stat-label { font-size:.8rem; color:rgba(250,250,247,.6); margin-top:.375rem; letter-spacing:.05em; }
+
+.section-header { display:flex; justify-content:space-between; align-items:baseline; margin:2.5rem 0 1.25rem; }
+.section-header h3 { font-family:'Frank Ruhl Libre',serif; font-size:1.375rem; font-weight:700; letter-spacing:-.015em; }
+
+.subject-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:1rem; }
+.subject-card { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:1.75rem 1rem; text-align:center; cursor:pointer; transition:all .2s; text-decoration:none; color:inherit; aspect-ratio:1.1; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.subject-card:hover { border-color:var(--ink); box-shadow:var(--shadow); transform:translateY(-2px); }
+.subject-icon { width:44px; height:44px; border-radius:10px; background:var(--forest-bg); color:var(--forest); display:flex; align-items:center; justify-content:center; margin-bottom:.875rem; font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:1.1rem; }
+.subject-name { font-weight:600; margin-bottom:.25rem; }
+.subject-meta { font-size:.8rem; color:var(--ink-faint); }
+.subject-card.add { border-style:dashed; }
+.subject-card.add .subject-icon { background:transparent; border:2px dashed var(--line); color:var(--ink-faint); font-size:1.5rem; }
+
+.quick-actions { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:.75rem; }
+.quick-action { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:1.25rem; cursor:pointer; transition:all .2s; text-decoration:none; color:inherit; display:flex; align-items:center; gap:1rem; }
+.quick-action:hover { border-color:var(--ink); box-shadow:var(--shadow); }
+.quick-action-icon { width:44px; height:44px; border-radius:10px; background:var(--ink); color:var(--paper); display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif; font-weight:700; flex-shrink:0; }
+.qa-title { font-weight:600; font-size:.95rem; margin-bottom:.125rem; }
+.qa-desc { font-size:.8rem; color:var(--ink-faint); }
+
+.empty-state { text-align:center; padding:4rem 1.5rem; background:var(--paper); border:1px dashed var(--line); border-radius:12px; }
+.empty-icon { width:72px; height:72px; margin:0 auto 1.25rem; background:var(--paper-soft); border-radius:16px; display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif; font-size:1.75rem; color:var(--ink-faint); font-weight:700; }
+.empty-title { font-family:'Frank Ruhl Libre',serif; font-size:1.5rem; font-weight:700; margin-bottom:.5rem; }
+.empty-desc { color:var(--ink-soft); margin-bottom:1.75rem; max-width:400px; margin-left:auto; margin-right:auto; }
+
+.student-row { display:flex; align-items:center; gap:1rem; padding:1.125rem 1.25rem; background:var(--paper); border:1px solid var(--line); border-radius:10px; margin-bottom:.5rem; cursor:pointer; transition:all .15s; text-decoration:none; color:inherit; }
+.student-row:hover { border-color:var(--ink); transform:translateX(-3px); }
+.student-name { font-weight:600; margin-bottom:.15rem; }
+.student-meta { font-size:.8rem; color:var(--ink-faint); }
+
+.filter-row { display:flex; gap:.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+.filter-pill { padding:.5rem 1rem; border:1px solid var(--line); border-radius:100px; background:var(--paper); cursor:pointer; font-size:.85rem; font-weight:500; font-family:inherit; transition:all .15s; color:var(--ink-soft); }
+.filter-pill.active { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+.profile-banner { background:var(--paper); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-bottom:1.5rem; }
+.profile-banner-bg { height:96px; background:linear-gradient(135deg, var(--ink) 0%, #1F2933 100%); }
+.profile-banner-content { padding:0 2rem 2rem; margin-top:-36px; position:relative; }
+.profile-big-avatar { width:76px; height:76px; border-radius:16px; background:var(--paper); border:4px solid var(--paper); display:flex; align-items:center; justify-content:center; font-family:'Frank Ruhl Libre',serif; font-size:1.75rem; font-weight:700; box-shadow:var(--shadow); margin-bottom:1rem; }
+
+.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
+.stat-tile { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:1.25rem; text-align:center; }
+.stat-value { font-family:'Frank Ruhl Libre',serif; font-size:2.25rem; font-weight:700; line-height:1; letter-spacing:-.02em; }
+.stat-label { font-size:.75rem; color:var(--ink-faint); letter-spacing:.05em; text-transform:uppercase; margin-top:.5rem; }
+
+.chart-card { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:1.5rem; margin-bottom:1rem; }
+.skill-row-top { display:flex; justify-content:space-between; margin-bottom:.375rem; font-size:.9rem; }
+.skill-bar-track { height:6px; background:var(--paper-soft); border-radius:3px; overflow:hidden; }
+.skill-bar-fill { height:100%; border-radius:3px; transition:width .9s; }
+
+.exam-list-item { display:flex; align-items:center; gap:1rem; padding:1rem 0; border-bottom:1px solid var(--line-soft); }
+.exam-list-item:last-child { border-bottom:none; }
+
+.hw-row { display:flex; align-items:center; gap:1rem; padding:.875rem 1.25rem; background:var(--paper); border:1px solid var(--line); border-radius:10px; margin-bottom:.375rem; }
 .hw-marks { display:flex; gap:.375rem; }
-.hw-mark {
-  width:38px; height:38px; border-radius:10px; border:2px solid var(--line);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; font-weight:800; font-size:.9rem;
-  background:#fff; transition:all .15s;
-}
-.hw-mark.v.on { background:#15803D; border-color:#15803D; color:#fff; }
-.hw-mark.half.on { background:var(--gold); border-color:var(--gold); color:#fff; }
-.hw-mark.x.on { background:var(--red); border-color:var(--red); color:#fff; }
+.hw-btn { width:38px; height:38px; border:1.5px solid var(--line); background:var(--paper); border-radius:8px; cursor:pointer; font-weight:700; font-size:.9rem; display:flex; align-items:center; justify-content:center; font-family:inherit; transition:all .15s; color:var(--ink-soft); }
+.hw-btn:hover { border-color:var(--ink); }
+.hw-btn.v.on { background:var(--forest); border-color:var(--forest); color:var(--paper); }
+.hw-btn.half.on { background:var(--gold); border-color:var(--gold); color:var(--paper); }
+.hw-btn.x.on { background:var(--rust); border-color:var(--rust); color:var(--paper); }
 
-/* ---- CAMERA ---- */
-.camera-box {
-  background:#000; border-radius:16px; overflow:hidden;
-  aspect-ratio:3/4; position:relative; margin-bottom:1rem;
-}
-.camera-box video { width:100%; height:100%; object-fit:cover; }
-.camera-frame {
-  position:absolute; inset:1rem; border-radius:12px;
-  border:3px dashed rgba(255,255,255,.5); pointer-events:none;
-  transition:border-color .3s;
-}
-.camera-frame.good { border-color:#22C55E; }
-.camera-frame.bad { border-color:#EF4444; }
-.quality-badge {
-  position:absolute; top:.75rem; left:50%; transform:translateX(-50%);
-  padding:.4rem 1rem; border-radius:100px; font-weight:700; font-size:.85rem;
-  display:flex; align-items:center; gap:.4rem; white-space:nowrap;
-  backdrop-filter:blur(8px);
-}
-.quality-good { background:rgba(21,128,61,.9); color:#fff; }
-.quality-bad { background:rgba(185,28,28,.9); color:#fff; }
+.camera-stage { background:#000; border-radius:14px; overflow:hidden; aspect-ratio:3/4; position:relative; margin-bottom:1rem; }
+.camera-stage video { width:100%; height:100%; object-fit:cover; }
+.camera-frame { position:absolute; inset:1.25rem; border-radius:10px; border:2.5px dashed rgba(255,255,255,.4); pointer-events:none; transition:border-color .25s; }
+.camera-frame.good { border-color:#4ADE80; }
+.camera-frame.bad { border-color:#F87171; }
+.camera-quality { position:absolute; top:1rem; left:50%; transform:translateX(-50%); padding:.5rem 1.125rem; border-radius:100px; font-weight:600; font-size:.85rem; backdrop-filter:blur(12px); white-space:nowrap; }
+.quality-good { background:rgba(34,197,94,.95); color:#fff; }
+.quality-bad { background:rgba(220,38,38,.95); color:#fff; }
 .quality-checking { background:rgba(255,255,255,.9); color:var(--ink); }
 
-/* ---- MODAL ---- */
-.modal-overlay {
-  position:fixed; inset:0; background:rgba(13,17,23,.5); backdrop-filter:blur(4px);
-  display:none; align-items:center; justify-content:center; z-index:200; padding:1rem;
-}
-.modal-overlay.open { display:flex; }
-.modal { background:#fff; border-radius:20px; padding:1.5rem; max-width:440px; width:100%; box-shadow:var(--shadow-lg); animation:fadeUp .25s ease; }
+.loading-state { text-align:center; padding:4rem 1.5rem; }
+.spinner { width:48px; height:48px; border:3px solid var(--paper-soft); border-top-color:var(--ink); border-radius:50%; margin:0 auto 1.5rem; animation:spin 1s linear infinite; }
 
-/* ---- NOTIFICATION ---- */
-.notif {
-  position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
-  background:var(--ink); color:#fff; padding:.75rem 1.5rem; border-radius:100px;
-  font-weight:600; font-size:.9rem; z-index:300; white-space:nowrap;
-  display:none; box-shadow:var(--shadow-lg);
-}
-.notif.show { display:block; animation:notifIn .3s ease; }
-@keyframes notifIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+.toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:.85rem 1.5rem; border-radius:100px; font-weight:500; font-size:.9rem; box-shadow:var(--shadow-lg); z-index:1000; opacity:0; pointer-events:none; transition:all .3s; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(-8px); }
 
-/* ---- CHART ---- */
-.chart-svg { width:100%; height:140px; }
+.modal { position:fixed; inset:0; background:rgba(10,14,20,.45); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center; z-index:200; padding:1rem; }
+.modal.open { display:flex; }
+.modal-content { background:var(--paper); border-radius:16px; padding:2rem; max-width:460px; width:100%; box-shadow:var(--shadow-lg); animation:enter .3s; }
 
-/* ---- SKILL BAR ---- */
-.skill-row { margin-bottom:.875rem; }
-.skill-label { display:flex; justify-content:space-between; font-size:.875rem; margin-bottom:.3rem; }
-.skill-bar { height:8px; background:var(--warm); border-radius:4px; overflow:hidden; }
-.skill-fill { height:100%; border-radius:4px; transition:width .8s cubic-bezier(.4,0,.2,1); }
-
-/* ---- AI RESULT ---- */
-.ai-insight {
-  padding:1rem; border-radius:12px; margin-bottom:.75rem;
-  display:flex; align-items:flex-start; gap:.75rem;
-}
-.ai-icon { font-size:1.25rem; flex-shrink:0; }
-
-/* ---- RESPONSIVE ---- */
-@media(max-width:480px) { .wrap { padding:1.25rem 1rem; } .btn-lg { padding:.875rem 1.5rem; } }
+@media (max-width:640px) { .container, .container-narrow { padding:1.5rem 1rem; } .topbar-inner { padding:.875rem 1rem; } .dash-hero { padding:1.75rem 1.5rem; } .price-card.featured { transform:none; } .auth-card { padding:2rem 1.5rem; } }
 </style>
 </head>
 <body>
 
-<!-- NOTIFICATION -->
-<div class="notif" id="notif"></div>
+<div class="toast" id="toast"></div>
 
-<!-- ========== SCREEN: LANDING ========== -->
+<!-- ========== LANDING ========== -->
 <div class="screen active" id="s-landing">
-  <div style="min-height:100vh;background:radial-gradient(ellipse at top right,rgba(196,151,58,.07),transparent 50%),radial-gradient(ellipse at bottom left,rgba(26,92,58,.05),transparent 50%),var(--paper);display:flex;flex-direction:column;">
+  <div class="landing-hero">
     <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">צ</div>
-        <div class="brand-name">ציון</div>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn btn-secondary" style="padding:.5rem 1rem;font-size:.875rem;" onclick="go('s-login')">כניסה</button>
-        <button class="btn btn-primary" style="padding:.5rem 1rem;font-size:.875rem;" onclick="go('s-login')">התחילו</button>
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">צ</div>
+          <div><div class="brand-text">ציון</div><div class="brand-sub">Tziun</div></div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost" onclick="go('s-pricing')">תמחור</button>
+          <button class="btn btn-secondary" onclick="go('s-login')">כניסה</button>
+          <button class="btn btn-primary" onclick="goSignup()">פתיחת חשבון</button>
+        </div>
       </div>
     </header>
-
-    <div style="flex:1;display:flex;align-items:center;padding:2rem 1.25rem;">
-      <div style="max-width:600px;margin:0 auto;width:100%;">
-        <div class="badge badge-green" style="margin-bottom:1.25rem;">● מערכת ניהול ציונים לבתי ספר</div>
-        <h1 style="font-size:clamp(2.5rem,6vw,4rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:1rem;">
-          פחות בירוקרטיה,<br><span style="color:var(--green);">יותר הוראה.</span>
-        </h1>
-        <p style="font-size:1.125rem;color:#6B7280;line-height:1.6;margin-bottom:2rem;max-width:480px;">
-          AI שבודק מבחנים מצולמים, מעקב שיעורי בית, תיק תלמיד דיגיטלי, ודוחות להורים — הכל במקום אחד.
-        </p>
-        <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2.5rem;">
-          <button class="btn btn-primary btn-lg" onclick="go('s-login')">צפו בהדגמה</button>
-          <button class="btn btn-secondary btn-lg" onclick="go('s-pricing')">תמחור</button>
+    <div class="hero-content">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-tag"><span class="hero-tag-dot"></span><span>מערכת חכמה לבתי ספר יסודיים</span></div>
+          <h1 class="h1 hero-title">הוראה בלי<br><em>בירוקרטיה.</em></h1>
+          <p class="hero-desc">פלטפורמה מקצועית לניהול ציונים, בדיקת מבחנים אוטומטית בבינה מלאכותית, ומעקב פדגוגי אישי לכל תלמיד.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" onclick="goSignup()">התחילו את הניסיון</button>
+            <button class="btn btn-secondary btn-lg" onclick="go('s-pricing')">צפו בתוכניות</button>
+          </div>
         </div>
-        <div style="display:flex;gap:2rem;padding-top:1.5rem;border-top:1.5px solid var(--line);">
-          <div><div style="font-size:2rem;font-weight:900;color:var(--green);">85%</div><div style="font-size:.875rem;color:#6B7280;">חיסכון בזמן בדיקה</div></div>
-          <div><div style="font-size:2rem;font-weight:900;color:var(--green);">AI</div><div style="font-size:.875rem;color:#6B7280;">בדיקה אוטומטית</div></div>
-          <div><div style="font-size:2rem;font-weight:900;color:var(--green);">∞</div><div style="font-size:.875rem;color:#6B7280;">תיקים דיגיטליים</div></div>
+        <div>
+          <div class="mock-screen">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;border-bottom:1px solid var(--line-soft);margin-bottom:1rem;">
+              <div><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">כיתה ה'2</div><div style="font-size:.75rem;color:var(--ink-faint);">מתמטיקה</div></div>
+              <span class="tag tag-forest">פעיל</span>
+            </div>
+            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--forest);font-size:.85rem;">דל</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">דניאל לוי</div><div style="font-size:.75rem;color:var(--ink-faint);">12 מבחנים</div></div><div class="grade grade-excellent">92</div></div>
+            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--gold);font-size:.85rem;">רנ</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">רוני נחום</div><div style="font-size:.75rem;color:var(--ink-faint);">10 מבחנים</div></div><div class="grade grade-good">78</div></div>
+            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--slate);font-size:.85rem;">יע</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">יואב עזרא</div><div style="font-size:.75rem;color:var(--ink-faint);">11 מבחנים</div></div><div class="grade grade-excellent">95</div></div>
+            <div style="padding-top:1rem;border-top:1px solid var(--line-soft);margin-top:.5rem;display:flex;justify-content:space-between;font-size:.85rem;"><span class="muted">ממוצע כיתה</span><span style="font-weight:700;">86.3</span></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <section class="features">
+    <div style="max-width:1100px;margin:0 auto;text-align:center;">
+      <div class="eyebrow" style="margin-bottom:1rem;">מה כלול</div>
+      <h2 class="h2">מערכת אחת. כל מה שמורה צריכה.</h2>
+    </div>
+    <div class="features-grid">
+      <div><span class="feature-num">I</span><h3 class="feature-title">בדיקת מבחנים בבינה מלאכותית</h3><p class="feature-desc">סריקה אוטומטית של מבחנים בכתב יד עברי. ציון, משוב, ומיפוי כישורים — תוך שניות.</p></div>
+      <div><span class="feature-num">II</span><h3 class="feature-title">תיק תלמיד דיגיטלי</h3><p class="feature-desc">פרופיל מקיף לכל תלמיד עם היסטוריה, גרפי התקדמות, ומטריצת כישורים.</p></div>
+      <div><span class="feature-num">III</span><h3 class="feature-title">מעקב שיעורי בית</h3><p class="feature-desc">תיעוד הגשה במגע אחד. הנתונים מתחברים לציון המשוקלל של התלמיד.</p></div>
+      <div><span class="feature-num">IV</span><h3 class="feature-title">ניתוח כיתתי</h3><p class="feature-desc">תובנות פדגוגיות ברמת הכיתה — איתור אוטומטי של נושאים שדורשים חזרה.</p></div>
+      <div><span class="feature-num">V</span><h3 class="feature-title">דוחות הורים</h3><p class="feature-desc">הפקה מהירה של דוח אישי, מותאם לפגישת הורים או לשליחה בוואטסאפ.</p></div>
+      <div><span class="feature-num">VI</span><h3 class="feature-title">הגנת פרטיות מלאה</h3><p class="feature-desc">אבטחה ברמת מערכות מוסדיות. עומד בתקני משרד החינוך.</p></div>
+    </div>
+  </section>
+
+  <section class="pricing">
+    <div style="max-width:1100px;margin:0 auto;text-align:center;">
+      <div class="eyebrow" style="margin-bottom:1rem;">תמחור</div>
+      <h2 class="h2">תוכנית אחת לכל בית הספר.</h2>
+      <p class="lead" style="margin-top:.875rem;max-width:560px;margin-left:auto;margin-right:auto;">מתאים לתקציב גפ"ן. ללא הגבלת מבחנים או מורים.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card"><div class="price-tier">ניצן</div><div class="price-students">עד 250 תלמידים</div><div><span class="price-amount">13,800</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>בדיקת AI מלאה</li><li>תיק תלמיד</li><li>ניתוח כיתתי</li><li>דוחות הורים</li></ul><button class="btn btn-secondary btn-block" onclick="goSignup()">דברו איתנו</button></div>
+      <div class="price-card featured"><div style="position:absolute;top:-12px;right:24px;background:var(--ink);color:var(--paper);padding:.25rem .75rem;border-radius:4px;font-size:.7rem;font-weight:600;">מומלץ</div><div class="price-tier">אלון</div><div class="price-students">250–500 תלמידים</div><div><span class="price-amount">19,800</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "ניצן"</li><li>דשבורד מנהל</li><li>השוואה בין כיתות</li><li>תמיכה מועדפת</li></ul><button class="btn btn-primary btn-block" onclick="goSignup()">דברו איתנו</button></div>
+      <div class="price-card"><div class="price-tier">עץ הדעת</div><div class="price-students">500–1,000 תלמידים</div><div><span class="price-amount">24,500</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "אלון"</li><li>מנהל הצלחה ייעודי</li><li>הטמעה במקום</li></ul><button class="btn btn-secondary btn-block" onclick="goSignup()">דברו איתנו</button></div>
+    </div>
+    <p style="text-align:center;margin-top:3rem;color:var(--ink-soft);font-size:.9rem;">כל החבילות מתחת ל-25,000 ₪ — מאושר במסגרת גפ"ן.</p>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-brand">ציון</div>
+    <div class="footer-sub">מערכת ניהול ציונים חכמה לבתי ספר</div>
+    <div style="font-size:.8rem;color:rgba(250,250,247,.4);">© 2026 Tziun · נבנה בישראל</div>
+  </footer>
 </div>
 
-<!-- ========== SCREEN: PRICING ========== -->
+<!-- ========== PRICING (standalone) ========== -->
 <div class="screen" id="s-pricing">
   <header class="topbar">
-    <button class="back-btn" onclick="go('s-landing')">← חזרה</button>
-    <div class="brand-mark">צ</div>
-    <div style="width:60px;"></div>
+    <div class="topbar-inner">
+      <button class="back-link" onclick="go('s-landing')">←&nbsp; חזרה</button>
+      <div class="brand"><div class="brand-mark">צ</div></div>
+      <div style="width:60px;"></div>
+    </div>
   </header>
-  <div class="wrap">
-    <h1 style="font-size:1.75rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.5rem;">תמחור פשוט</h1>
-    <p style="color:#6B7280;margin-bottom:1.5rem;">בית ספר אחד · כל המורות · AI מובנה · מתאים לתקציב גפ"ן</p>
-
-    <div class="card" style="border:2px solid var(--line);">
-      <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">🌱 ניצן</div>
-      <div style="color:#6B7280;font-size:.875rem;margin-bottom:.875rem;">עד 250 תלמידים</div>
-      <div style="font-size:2.75rem;font-weight:900;color:var(--green);line-height:1;">13,800₪</div>
-      <div style="color:#6B7280;font-size:.875rem;margin-bottom:1rem;">לשנה / כל המורות</div>
-      <button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button>
+  <section class="pricing" style="min-height:calc(100vh - 80px);">
+    <div style="max-width:1100px;margin:0 auto;text-align:center;">
+      <div class="eyebrow" style="margin-bottom:1rem;">תמחור</div>
+      <h2 class="h2">תוכניות לבית הספר שלכם.</h2>
     </div>
-
-    <div class="card" style="border:2px solid var(--green);position:relative;">
-      <div class="badge badge-green" style="position:absolute;top:-12px;right:16px;">הכי פופולרי</div>
-      <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">🌳 אלון</div>
-      <div style="color:#6B7280;font-size:.875rem;margin-bottom:.875rem;">250-500 תלמידים</div>
-      <div style="font-size:2.75rem;font-weight:900;color:var(--green);line-height:1;">19,800₪</div>
-      <div style="color:#6B7280;font-size:.875rem;margin-bottom:1rem;">לשנה / כל המורות</div>
-      <button class="btn btn-primary btn-block" onclick="go('s-login')">דברו איתנו</button>
+    <div class="pricing-grid">
+      <div class="price-card"><div class="price-tier">ניצן</div><div class="price-students">עד 250 תלמידים</div><div><span class="price-amount">13,800</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>בדיקת AI מלאה</li><li>תיק תלמיד</li><li>ניתוח כיתתי</li><li>דוחות הורים</li></ul><button class="btn btn-secondary btn-block" onclick="goSignup()">דברו איתנו</button></div>
+      <div class="price-card featured"><div style="position:absolute;top:-12px;right:24px;background:var(--ink);color:var(--paper);padding:.25rem .75rem;border-radius:4px;font-size:.7rem;font-weight:600;">מומלץ</div><div class="price-tier">אלון</div><div class="price-students">250–500 תלמידים</div><div><span class="price-amount">19,800</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "ניצן"</li><li>דשבורד מנהל</li><li>השוואה בין כיתות</li></ul><button class="btn btn-primary btn-block" onclick="goSignup()">דברו איתנו</button></div>
+      <div class="price-card"><div class="price-tier">עץ הדעת</div><div class="price-students">500–1,000 תלמידים</div><div><span class="price-amount">24,500</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "אלון"</li><li>מנהל הצלחה</li></ul><button class="btn btn-secondary btn-block" onclick="goSignup()">דברו איתנו</button></div>
     </div>
-
-    <div class="card">
-      <div style="font-size:1.25rem;font-weight:800;margin-bottom:.25rem;">🌟 עץ הדעת</div>
-      <div style="color:#6B7280;font-size:.875rem;margin-bottom:.875rem;">500-1000 תלמידים</div>
-      <div style="font-size:2.75rem;font-weight:900;color:var(--green);line-height:1;">24,500₪</div>
-      <div style="color:#6B7280;font-size:.875rem;margin-bottom:1rem;">לשנה / כל המורות</div>
-      <button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button>
-    </div>
-
-    <div style="background:var(--green-soft);border:1.5px solid #b6d8c6;border-radius:14px;padding:1rem;text-align:center;">
-      <div style="font-weight:700;margin-bottom:.25rem;">💚 מתאים לתקציב גפ"ן</div>
-      <div style="font-size:.875rem;color:#6B7280;">כל החבילות מתחת ל-25,000₪ — ללא אישור הקצאה מיוחד</div>
-    </div>
-  </div>
+  </section>
 </div>
 
-<!-- ========== SCREEN: LOGIN ========== -->
+<!-- ========== LOGIN ========== -->
 <div class="screen" id="s-login">
-  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:linear-gradient(180deg,var(--paper),var(--warm));">
-    <div style="width:100%;max-width:400px;background:#fff;border-radius:24px;padding:2rem;box-shadow:var(--shadow-lg);border:1.5px solid var(--line);">
-      <div style="text-align:center;margin-bottom:1.75rem;">
-        <div class="brand-mark" style="width:52px;height:52px;font-size:1.375rem;margin:0 auto 1rem;">צ</div>
-        <h2 style="font-size:1.5rem;font-weight:900;letter-spacing:-.03em;margin-bottom:.25rem;">כניסה לבית הספר</h2>
-        <p style="color:#6B7280;font-size:.875rem;">כניסה משותפת לכל מורות בית הספר</p>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand">צ</div>
+        <h2 class="h3" id="auth-title">כניסה לבית הספר</h2>
+        <p class="muted" style="margin-top:.5rem;font-size:.9rem;" id="auth-sub">חשבון משותף לכל מורי בית הספר</p>
       </div>
-      <div class="input-wrap">
-        <label class="label">מייל בית הספר</label>
-        <input type="email" class="input" id="login-email" placeholder="school@example.com" dir="ltr" value="demo@school.com">
+      <div class="auth-toggle">
+        <button class="auth-toggle-btn active" id="tab-login" onclick="setAuthMode('login')">כניסה</button>
+        <button class="auth-toggle-btn" id="tab-signup" onclick="setAuthMode('signup')">בית ספר חדש</button>
       </div>
-      <div class="input-wrap">
-        <label class="label">סיסמה</label>
-        <input type="password" class="input" id="login-pass" placeholder="••••••••" dir="ltr" value="demo123">
+      <div id="signup-fields" style="display:none;">
+        <div class="field"><label class="label">שם בית הספר</label><input type="text" class="input" id="login-school" placeholder="לדוגמה: בית ספר אופק, רעננה"></div>
       </div>
-      <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()" style="margin-bottom:.875rem;">כניסה</button>
-      <p style="text-align:center;font-size:.8rem;color:#6B7280;">בית ספר חדש? <a href="#" style="color:var(--green);font-weight:700;">צרו קשר לקבל גישה</a></p>
-      <p style="text-align:center;margin-top:.75rem;"><button class="btn btn-ghost" style="font-size:.875rem;" onclick="go('s-landing')">← חזרה לדף הבית</button></p>
+      <div class="field"><label class="label">כתובת מייל</label><input type="email" class="input" id="login-email" placeholder="school@example.com" dir="ltr"></div>
+      <div class="field"><label class="label">סיסמה</label><input type="password" class="input" id="login-pass" placeholder="••••••••" dir="ltr"></div>
+      <button class="btn btn-primary btn-block btn-lg" id="login-submit" onclick="doLogin()">המשך</button>
+      <p style="text-align:center;margin-top:1.5rem;"><button class="back-link" onclick="go('s-landing')">← חזרה לדף הבית</button></p>
     </div>
   </div>
 </div>
 
-<!-- ========== SCREEN: PROFILES ========== -->
+<!-- ========== PROFILES ========== -->
 <div class="screen" id="s-profiles">
-  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.25rem;background:radial-gradient(ellipse at top,rgba(26,92,58,.04),transparent 60%),var(--paper);">
-    <div style="text-align:center;margin-bottom:2.5rem;">
-      <div class="brand-mark" style="width:44px;height:44px;margin:0 auto 1rem;">צ</div>
-      <h2 id="school-greeting" style="font-size:1.375rem;font-weight:800;margin-bottom:.25rem;">בית ספר אופק</h2>
-      <h1 style="font-size:2rem;font-weight:900;letter-spacing:-.03em;">מי משתמש/ת עכשיו?</h1>
+  <div class="profiles-page">
+    <div class="profiles-content">
+      <div class="profiles-header">
+        <div class="brand-mark" style="width:48px;height:48px;font-size:1.3rem;margin:0 auto 1.5rem;">צ</div>
+        <div class="eyebrow" id="profiles-school"></div>
+        <h1 class="h1" style="margin-top:.75rem;">מי משתמש עכשיו?</h1>
+      </div>
+      <div class="profiles-grid" id="profiles-grid"></div>
+      <div style="text-align:center;"><button class="btn btn-secondary" onclick="openProfileModal()">הוספת פרופיל חדש</button></div>
     </div>
-    <div id="profiles-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:1.25rem;width:100%;max-width:600px;margin-bottom:2rem;"></div>
-    <button onclick="showAddProfile()" class="btn btn-secondary">+ הוספת פרופיל</button>
   </div>
 </div>
 
-<!-- ========== SCREEN: DASHBOARD ========== -->
+<!-- ========== DASHBOARD ========== -->
 <div class="screen" id="s-dash">
   <header class="topbar">
-    <div class="brand" onclick="go('s-profiles')">
-      <div class="brand-mark">צ</div>
-      <div>
-        <div class="brand-name" id="dash-class-name" style="font-size:1rem;">ציון</div>
-        <div id="dash-subtitle" style="font-size:.7rem;color:#6B7280;"></div>
+    <div class="topbar-inner">
+      <div class="brand" onclick="go('s-profiles')">
+        <div class="brand-mark">צ</div>
+        <div><div class="brand-text" style="font-size:1.1rem;" id="dash-school-name">ציון</div><div class="brand-sub" id="dash-profile-name"></div></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="go('s-students')" title="תלמידים"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></button>
+        <button class="icon-btn" onclick="go('s-settings')" title="הגדרות"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
       </div>
     </div>
-    <div class="topbar-actions">
-      <button class="icon-btn" onclick="go('s-students')">👥</button>
-      <button class="icon-btn" onclick="go('s-settings')">⚙️</button>
-    </div>
   </header>
-  <div class="wrap">
-    <div class="hero-card">
-      <div style="position:relative;z-index:1;">
-        <div id="dash-greeting" style="font-size:1.375rem;font-weight:800;margin-bottom:.25rem;">בוקר טוב!</div>
-        <div style="opacity:.85;font-size:.9rem;" id="dash-sub">ברוכה הבאה</div>
-        <div style="display:flex;gap:1.5rem;margin-top:1.25rem;">
-          <div><div style="font-size:1.75rem;font-weight:900;" id="dash-students">28</div><div style="font-size:.8rem;opacity:.8;">תלמידים</div></div>
-          <div><div style="font-size:1.75rem;font-weight:900;" id="dash-subjects">3</div><div style="font-size:.8rem;opacity:.8;">מקצועות</div></div>
+  <div class="container">
+    <div class="dash-hero">
+      <div class="dash-hero-content">
+        <div class="dash-greeting" id="dash-greeting">בוקר טוב</div>
+        <div class="dash-sub" id="dash-welcome"></div>
+        <div class="dash-stats">
+          <div><div class="dash-stat-num" id="dash-stat-students">0</div><div class="dash-stat-label">תלמידים</div></div>
+          <div><div class="dash-stat-num" id="dash-stat-subjects">0</div><div class="dash-stat-label">מקצועות</div></div>
+          <div><div class="dash-stat-num" id="dash-stat-classes">0</div><div class="dash-stat-label">כיתות</div></div>
         </div>
       </div>
     </div>
-
-    <h3 style="font-weight:800;font-size:1.125rem;letter-spacing:-.02em;margin-bottom:.875rem;">המקצועות שלי</h3>
-    <div id="subjects-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1.5rem;"></div>
-
-    <h3 style="font-weight:800;font-size:1.125rem;letter-spacing:-.02em;margin-bottom:.875rem;">פעולות מהירות</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-      <div class="card card-click" onclick="go('s-homework')" style="padding:1rem;">
-        <div style="font-size:1.5rem;margin-bottom:.375rem;">📓</div>
-        <div style="font-weight:700;font-size:.9rem;">שיעורי בית</div>
-        <div style="font-size:.75rem;color:#6B7280;">תיעוד יומי</div>
+    <div id="dash-empty">
+      <div class="empty-state">
+        <div class="empty-icon">צ</div>
+        <h3 class="empty-title">בואו נתחיל</h3>
+        <p class="empty-desc">צרו את הכיתה הראשונה — הוסיפו תלמידים ומקצועות בכמה צעדים פשוטים.</p>
+        <button class="btn btn-primary btn-lg" onclick="go('s-onboarding')">יצירת כיתה ראשונה</button>
       </div>
-      <div class="card card-click" onclick="go('s-students')" style="padding:1rem;">
-        <div style="font-size:1.5rem;margin-bottom:.375rem;">📂</div>
-        <div style="font-weight:700;font-size:.9rem;">תיקי תלמידים</div>
-        <div style="font-size:.75rem;color:#6B7280;">צפו בהתקדמות</div>
+    </div>
+    <div id="dash-content" style="display:none;">
+      <div class="section-header"><h3>המקצועות שלי</h3></div>
+      <div class="subject-grid" id="subjects-grid"></div>
+      <div class="section-header"><h3>פעולות מהירות</h3></div>
+      <div class="quick-actions">
+        <a class="quick-action" onclick="go('s-homework')"><div class="quick-action-icon">ש</div><div><div class="qa-title">שיעורי בית</div><div class="qa-desc">תיעוד הגשה יומי</div></div></a>
+        <a class="quick-action" onclick="go('s-students')"><div class="quick-action-icon">ת</div><div><div class="qa-title">תיקי תלמידים</div><div class="qa-desc">צפייה והפקת דוחות</div></div></a>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ========== SCREEN: SUBJECT ========== -->
+<!-- ========== ONBOARDING ========== -->
+<div class="screen" id="s-onboarding">
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">יצירת כיתה</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow">
+    <div id="ob-1">
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 1 מתוך 3</div>
+      <h2 class="h2" style="margin-bottom:.5rem;">פרטי הכיתה</h2>
+      <p class="muted" style="margin-bottom:2rem;">תוכלו להוסיף כיתות נוספות בכל עת.</p>
+      <div class="card card-elevated">
+        <div class="field"><label class="label">שם הכיתה</label><input type="text" class="input" id="ob-name" placeholder="לדוגמה: כיתה ה'2"></div>
+        <div class="field"><label class="label">שכבת גיל</label><select class="select" id="ob-grade"><option value="1">כיתה א'</option><option value="2">כיתה ב'</option><option value="3">כיתה ג'</option><option value="4">כיתה ד'</option><option value="5" selected>כיתה ה'</option><option value="6">כיתה ו'</option></select></div>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="obStep(2)" style="margin-top:1.5rem;">המשך</button>
+    </div>
+    <div id="ob-2" style="display:none;">
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 2 מתוך 3</div>
+      <h2 class="h2" style="margin-bottom:.5rem;">רשימת תלמידים</h2>
+      <p class="muted" style="margin-bottom:2rem;">הדביקו רשימת שמות, תלמיד בכל שורה.</p>
+      <div class="card card-elevated"><textarea class="textarea" id="ob-students" rows="10" placeholder="דניאל לוי&#10;רוני נחום&#10;יואב עזרא"></textarea></div>
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(1)">חזרה</button><button class="btn btn-primary btn-block" onclick="obStep(3)">המשך</button></div>
+    </div>
+    <div id="ob-3" style="display:none;">
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 3 מתוך 3</div>
+      <h2 class="h2" style="margin-bottom:.5rem;">מקצועות הוראה</h2>
+      <p class="muted" style="margin-bottom:2rem;">בחרו את המקצועות שאתם מלמדים.</p>
+      <div id="ob-subjects" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;"></div>
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(2)">חזרה</button><button class="btn btn-primary btn-block" onclick="obFinish()">סיום</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SUBJECT ========== -->
 <div class="screen" id="s-subject">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
-    <div id="subject-title" style="font-weight:700;"></div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
-      <button class="btn btn-primary btn-block" onclick="go('s-scan')">✨ בדיקת AI</button>
-      <button class="btn btn-secondary btn-block" onclick="go('s-manual')">📝 ידנית</button>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div id="subj-title" style="font-weight:600;"></div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem;">
+      <button class="btn btn-primary btn-lg" onclick="go('s-scan')">סריקת AI</button>
+      <button class="btn btn-secondary btn-lg" onclick="go('s-manual')">הזנה ידנית</button>
     </div>
-    <div class="card card-click" onclick="go('s-analytics')" style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
-      <div style="font-size:1.5rem;">📊</div>
-      <div style="flex:1;"><div style="font-weight:700;">ניתוח כיתתי</div><div style="font-size:.8rem;color:#6B7280;">כיצד הכיתה ביצעה</div></div>
-      <div style="color:var(--green);">←</div>
+    <div class="card card-hover" onclick="go('s-analytics')" style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+      <div style="width:44px;height:44px;background:var(--paper-soft);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;">נ</div>
+      <div style="flex:1;"><div class="h4">ניתוח כיתתי</div><div style="font-size:.8rem;color:var(--ink-faint);">תובנות פדגוגיות מבוססות נתונים</div></div>
+      <div style="color:var(--ink-faint);">←</div>
     </div>
-    <h3 style="font-weight:800;margin-bottom:.875rem;">מבחנים אחרונים</h3>
-    <div id="exams-list"></div>
+    <h3 class="h3" style="margin-bottom:1rem;">מבחנים אחרונים</h3>
+    <div id="subj-exams"></div>
   </div>
 </div>
 
-<!-- ========== SCREEN: AI SCAN ========== -->
+<!-- ========== AI SCAN ========== -->
 <div class="screen" id="s-scan">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-subject')">← חזרה</button>
-    <div style="font-weight:700;">✨ בדיקת AI</div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap" id="scan-step-student">
-    <div class="card" style="margin-bottom:1rem;">
-      <div class="input-wrap" style="margin-bottom:.75rem;">
-        <label class="label">שם המבחן</label>
-        <input type="text" class="input" id="scan-exam-name" placeholder="לדוגמה: מבחן פרק 5">
-      </div>
-      <label class="label">בחירת תלמיד</label>
-      <input type="search" class="input" id="scan-search" placeholder="חיפוש..." oninput="filterScanStudents()" style="margin-bottom:.75rem;">
-      <div id="scan-students-list" style="max-height:320px;overflow-y:auto;"></div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="scanBack()">←&nbsp; חזרה</button><div style="font-weight:600;">סריקת AI</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow" id="scan-1">
+    <div class="card card-elevated" style="margin-bottom:1rem;"><div class="field" style="margin-bottom:0;"><label class="label">שם המבחן</label><input type="text" class="input" id="scan-name" placeholder="לדוגמה: מבחן פרק 5"></div></div>
+    <div class="card card-elevated">
+      <label class="label" style="margin-bottom:.75rem;">בחירת תלמיד</label>
+      <input type="search" class="input" id="scan-search" placeholder="חיפוש" oninput="renderScanStudents()" style="margin-bottom:.75rem;">
+      <div id="scan-students" style="max-height:340px;overflow-y:auto;"></div>
     </div>
   </div>
-
-  <div class="wrap" id="scan-step-camera" style="display:none;">
-    <div class="card" style="margin-bottom:1rem;text-align:center;padding:.875rem;">
-      <div id="scan-student-badge" style="font-weight:700;margin-bottom:.25rem;"></div>
-      <div style="font-size:.8rem;color:#6B7280;" id="scan-exam-badge"></div>
-    </div>
-    <div class="camera-box" id="camera-box">
-      <video id="camera-video" autoplay playsinline muted></video>
-      <canvas id="camera-canvas" style="display:none;"></canvas>
-      <div class="camera-frame" id="camera-frame"></div>
-      <div class="quality-badge quality-checking" id="quality-badge">⏳ בודק איכות...</div>
-    </div>
-    <button class="btn btn-primary btn-block btn-lg" id="capture-btn" onclick="capturePhoto()" disabled>📸 צלם</button>
+  <div class="container-narrow" id="scan-2" style="display:none;">
+    <div class="card card-elevated" style="text-align:center;margin-bottom:1rem;padding:1rem;"><div id="scan-student-label" style="font-weight:600;"></div><div id="scan-exam-label" style="font-size:.8rem;color:var(--ink-faint);margin-top:.25rem;"></div></div>
+    <div class="camera-stage" id="camera-stage"><video id="camera-video" autoplay playsinline muted></video><canvas id="camera-canvas" style="display:none;"></canvas><div class="camera-frame" id="camera-frame"></div><div class="camera-quality quality-checking" id="camera-quality">בודק איכות תמונה...</div></div>
+    <button class="btn btn-primary btn-block btn-lg" id="capture-btn" onclick="capture()" disabled>צילום מבחן</button>
     <div style="margin-top:.75rem;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-      <label class="btn btn-secondary">
-        📁 העלאת תמונה
-        <input type="file" accept="image/jpeg,image/png" style="display:none;" onchange="handleFileUpload(event)">
-      </label>
-      <button class="btn btn-ghost" onclick="showScanStudent()">← חזרה</button>
+      <label class="btn btn-secondary">העלאת תמונה<input type="file" accept="image/jpeg,image/png" style="display:none;" onchange="onUpload(event)"></label>
+      <button class="btn btn-ghost" onclick="scan1()">← תלמיד אחר</button>
     </div>
   </div>
-
-  <div class="wrap" id="scan-step-loading" style="display:none;">
-    <div class="card" style="text-align:center;padding:3rem 1.5rem;">
-      <div style="font-size:3rem;margin-bottom:1rem;" id="loading-icon">🤖</div>
-      <div style="font-weight:700;font-size:1.125rem;margin-bottom:.5rem;">ה-AI בודק את המבחן...</div>
-      <div style="color:#6B7280;font-size:.875rem;">עוד 15-30 שניות</div>
-      <div style="margin-top:1.5rem;height:4px;background:var(--warm);border-radius:2px;overflow:hidden;">
-        <div id="loading-bar" style="height:100%;background:var(--green);border-radius:2px;width:0%;transition:width 25s linear;"></div>
-      </div>
+  <div class="container-narrow" id="scan-3" style="display:none;">
+    <div class="card card-elevated loading-state">
+      <div class="spinner"></div>
+      <h3 class="h3" style="margin-bottom:.5rem;">Claude בודק את המבחן</h3>
+      <p class="muted">תהליך הסריקה אורך 20–40 שניות</p>
     </div>
   </div>
-
-  <div class="wrap" id="scan-step-result" style="display:none;"></div>
-  <div class="wrap" id="scan-step-fallback" style="display:none;"></div>
+  <div class="container-narrow" id="scan-4" style="display:none;"></div>
+  <div class="container-narrow" id="scan-5" style="display:none;"></div>
 </div>
 
-<!-- ========== SCREEN: MANUAL ========== -->
+<!-- ========== MANUAL ========== -->
 <div class="screen" id="s-manual">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-subject')">← חזרה</button>
-    <div style="font-weight:700;">📝 הזנה ידנית</div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap">
-    <div class="card" style="margin-bottom:1rem;">
-      <div class="input-wrap">
-        <label class="label">שם המבחן</label>
-        <input type="text" class="input" id="manual-exam-name" placeholder="לדוגמה: מבחן פרק 6">
-      </div>
-      <div>
-        <label class="label">תאריך</label>
-        <input type="date" class="input" id="manual-date">
-      </div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;">הזנת מבחן ידנית</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow">
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div class="field"><label class="label">שם המבחן</label><input type="text" class="input" id="m-name" placeholder="לדוגמה: מבחן פרק 6"></div>
+      <div class="field" style="margin-bottom:0;"><label class="label">תאריך</label><input type="date" class="input" id="m-date"></div>
     </div>
-    <div class="card">
-      <div style="font-weight:700;margin-bottom:.875rem;" id="manual-count-label">הזנת ציונים</div>
-      <div id="manual-students-list"></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;margin-top:1rem;position:sticky;bottom:1rem;">
-      <button class="btn btn-secondary" onclick="go('s-subject')">ביטול</button>
-      <button class="btn btn-primary" onclick="saveManualExam()">✓ שמור מבחן</button>
-    </div>
+    <div class="card card-elevated"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h4 class="h4">ציונים</h4><span class="muted" id="m-count" style="font-size:.85rem;">0 הוזנו</span></div><div id="m-list"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="go('s-subject')">ביטול</button><button class="btn btn-primary" onclick="saveManual()">שמירה</button></div>
   </div>
 </div>
 
-<!-- ========== SCREEN: STUDENTS LIST ========== -->
+<!-- ========== STUDENTS ========== -->
 <div class="screen" id="s-students">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
-    <div style="font-weight:700;">תיקי תלמידים</div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap">
-    <input type="search" class="input" id="students-search" placeholder="חיפוש תלמיד..." oninput="filterStudents()" style="margin-bottom:1rem;">
-    <div class="pill-tabs">
-      <div class="pill active" onclick="setStudentFilter('all',this)">הכל</div>
-      <div class="pill" onclick="setStudentFilter('top',this)">מצטיינים</div>
-      <div class="pill" onclick="setStudentFilter('low',this)">דורשים עזרה</div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">תיקי תלמידים</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow">
+    <input type="search" class="input" id="st-search" placeholder="חיפוש תלמיד" oninput="renderStudents()" style="margin-bottom:1rem;">
+    <div class="filter-row">
+      <button class="filter-pill active" onclick="setStFilter('all',this)">כל התלמידים</button>
+      <button class="filter-pill" onclick="setStFilter('top',this)">מצטיינים</button>
+      <button class="filter-pill" onclick="setStFilter('low',this)">דורשים עזרה</button>
     </div>
-    <div id="students-list"></div>
+    <div id="st-list"></div>
   </div>
 </div>
 
-<!-- ========== SCREEN: STUDENT FOLDER ========== -->
+<!-- ========== STUDENT FOLDER ========== -->
 <div class="screen" id="s-student">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-students')">← חזרה</button>
-    <div id="student-folder-name" style="font-weight:700;"></div>
-    <button class="btn btn-secondary" style="padding:.4rem .8rem;font-size:.8rem;" onclick="showWhatsApp()">📤 WhatsApp</button>
-  </header>
-  <div class="wrap">
-    <div class="card" style="overflow:hidden;padding:0;margin-bottom:1rem;">
-      <div style="height:80px;background:linear-gradient(135deg,var(--green),var(--green-light));"></div>
-      <div style="padding:0 1.25rem 1.25rem;margin-top:-36px;">
-        <div id="student-avatar-lg" class="avatar" style="width:72px;height:72px;font-size:1.5rem;border:4px solid #fff;box-shadow:var(--shadow);margin-bottom:.875rem;"></div>
-        <div id="student-name-lg" style="font-size:1.5rem;font-weight:900;letter-spacing:-.02em;"></div>
-        <div id="student-meta-lg" style="color:#6B7280;font-size:.875rem;"></div>
-      </div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-students')">←&nbsp; חזרה</button><div id="sf-title" style="font-weight:600;"></div><button class="btn btn-secondary" style="padding:.5rem .875rem;font-size:.85rem;" onclick="openWAModal()">שליחה להורה</button></div></header>
+  <div class="container-narrow">
+    <div class="profile-banner"><div class="profile-banner-bg"></div><div class="profile-banner-content"><div class="profile-big-avatar" id="sf-avatar"></div><h2 class="h2" id="sf-name"></h2><p class="muted" id="sf-meta"></p></div></div>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="stat-value" id="sf-avg" style="color:var(--forest);">–</div><div class="stat-label">ממוצע</div></div>
+      <div class="stat-tile"><div class="stat-value" id="sf-hw" style="color:var(--ink);">–</div><div class="stat-label">שיעורי בית</div></div>
+      <div class="stat-tile"><div class="stat-value" id="sf-w" style="color:var(--gold);">–</div><div class="stat-label">משוקלל</div></div>
     </div>
-
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem;">
-      <div class="card" style="text-align:center;padding:1rem;">
-        <div id="sf-exam-avg" style="font-size:2rem;font-weight:900;color:var(--green);line-height:1;">-</div>
-        <div style="font-size:.75rem;color:#6B7280;margin-top:.25rem;">מבחנים</div>
-      </div>
-      <div class="card" style="text-align:center;padding:1rem;">
-        <div id="sf-hw" style="font-size:2rem;font-weight:900;color:#15803D;line-height:1;">95</div>
-        <div style="font-size:.75rem;color:#6B7280;margin-top:.25rem;">שיעורי בית</div>
-      </div>
-      <div class="card" style="text-align:center;padding:1rem;">
-        <div id="sf-weighted" style="font-size:2rem;font-weight:900;color:var(--gold);line-height:1;">-</div>
-        <div style="font-size:.75rem;color:#6B7280;margin-top:.25rem;">משוקלל</div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:1rem;">
-      <div style="font-weight:700;margin-bottom:.875rem;">📈 קו התקדמות</div>
-      <svg class="chart-svg" viewBox="0 0 400 140" id="student-chart"></svg>
-    </div>
-
-    <div class="card" style="margin-bottom:1rem;">
-      <div style="font-weight:700;margin-bottom:.875rem;">🎯 מטריצת כישורים</div>
-      <div id="skill-matrix"></div>
-    </div>
-
-    <div class="card" style="margin-bottom:1rem;">
-      <div style="font-weight:700;margin-bottom:.875rem;">📚 מבחנים אחרונים</div>
-      <div id="student-exams-list"></div>
-    </div>
+    <div class="chart-card" id="sf-chart-wrap" style="display:none;"><h4 class="h4" style="margin-bottom:1rem;">קו התקדמות</h4><svg style="width:100%;height:160px;" id="sf-chart" viewBox="0 0 400 160"></svg></div>
+    <div class="card card-elevated"><h4 class="h4" style="margin-bottom:1rem;">היסטוריית מבחנים</h4><div id="sf-exams"></div></div>
   </div>
 </div>
 
-<!-- ========== SCREEN: HOMEWORK ========== -->
+<!-- ========== HOMEWORK ========== -->
 <div class="screen" id="s-homework">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
-    <div style="font-weight:700;">📓 שיעורי בית</div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap">
-    <div class="card" style="margin-bottom:1rem;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.875rem;">
-        <div>
-          <label class="label">מקצוע</label>
-          <select class="select" id="hw-subject" onchange="loadHW()"></select>
-        </div>
-        <div>
-          <label class="label">תאריך</label>
-          <input type="date" class="input" id="hw-date" onchange="loadHW()">
-        </div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">שיעורי בית</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow">
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div><label class="label">מקצוע</label><select class="select" id="hw-subject" onchange="renderHW()"></select></div>
+        <div><label class="label">תאריך</label><input type="date" class="input" id="hw-date" onchange="renderHW()"></div>
       </div>
-      <div style="display:flex;gap:1rem;font-size:.875rem;padding-top:.875rem;border-top:1.5px solid var(--line);">
-        <span><strong id="hw-v-count" style="color:#15803D;">0</strong> הגישו</span>
-        <span><strong id="hw-half-count" style="color:var(--gold);">0</strong> חלקי</span>
-        <span><strong id="hw-x-count" style="color:var(--red);">0</strong> חסר</span>
+      <div style="display:flex;gap:1.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line-soft);font-size:.85rem;">
+        <span><strong id="hw-v-c" style="color:var(--forest);">0</strong> הגישו</span>
+        <span><strong id="hw-h-c" style="color:var(--gold);">0</strong> חלקי</span>
+        <span><strong id="hw-x-c" style="color:var(--rust);">0</strong> חסר</span>
       </div>
     </div>
     <div id="hw-list"></div>
   </div>
 </div>
 
-<!-- ========== SCREEN: ANALYTICS ========== -->
+<!-- ========== ANALYTICS ========== -->
 <div class="screen" id="s-analytics">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-subject')">← חזרה</button>
-    <div style="font-weight:700;">📊 ניתוח כיתתי</div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap">
-    <div class="card" style="margin-bottom:1rem;background:var(--green-soft);border-color:#b6d8c6;">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;text-align:center;">
-        <div><div style="font-size:1.5rem;font-weight:900;color:var(--green);">81.4</div><div style="font-size:.7rem;color:#6B7280;">ממוצע</div></div>
-        <div><div style="font-size:1.5rem;font-weight:900;color:#15803D;">96</div><div style="font-size:.7rem;color:#6B7280;">גבוה</div></div>
-        <div><div style="font-size:1.5rem;font-weight:900;color:var(--red);">52</div><div style="font-size:.7rem;color:#6B7280;">נמוך</div></div>
-        <div><div style="font-size:1.5rem;font-weight:900;">28</div><div style="font-size:.7rem;color:#6B7280;">נבדקו</div></div>
-      </div>
-    </div>
-    <div style="background:var(--red-soft);border-right:4px solid var(--red);border-radius:12px;padding:.875rem;margin-bottom:1rem;">
-      <div style="font-weight:700;color:#7F1D1D;margin-bottom:.25rem;">⚠️ תובנה</div>
-      <div style="color:#991B1B;font-size:.875rem;"><strong>71%</strong> מהכיתה נכשלו בשאלה 6 — חיבור שברים עם מכנה משותף.</div>
-    </div>
-    <h3 style="font-weight:800;margin-bottom:.875rem;">פירוט שאלות</h3>
-    <div id="analytics-questions"></div>
-  </div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;">ניתוח כיתתי</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow"><div class="empty-state"><div class="empty-icon">N</div><h3 class="empty-title">אין נתונים עדיין</h3><p class="empty-desc">הניתוח יופיע לאחר המבחן הראשון.</p><button class="btn btn-primary" onclick="go('s-scan')">בצע מבחן ראשון</button></div></div>
 </div>
 
-<!-- ========== SCREEN: SETTINGS ========== -->
+<!-- ========== SETTINGS ========== -->
 <div class="screen" id="s-settings">
-  <header class="topbar">
-    <button class="back-btn" onclick="go('s-dash')">← חזרה</button>
-    <div style="font-weight:700;">⚙️ הגדרות</div>
-    <div style="width:60px;"></div>
-  </header>
-  <div class="wrap">
-    <div class="card" style="margin-bottom:.75rem;">
-      <div style="font-weight:800;margin-bottom:.875rem;">🏫 בית הספר</div>
-      <div style="font-size:.875rem;color:#6B7280;">שם</div>
-      <div style="font-weight:600;margin-bottom:.5rem;" id="settings-school"></div>
-      <div style="font-size:.875rem;color:#6B7280;">חבילה</div>
-      <div class="badge badge-green">🌳 אלון</div>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">הגדרות</div><div style="width:60px;"></div></div></header>
+  <div class="container-narrow">
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div class="eyebrow" style="margin-bottom:1rem;">בית הספר</div>
+      <div><div class="label" style="margin-bottom:.25rem;">שם בית הספר</div><div style="font-weight:600;font-size:1.05rem;" id="se-school"></div></div>
+      <div style="margin-top:1rem;"><div class="label" style="margin-bottom:.25rem;">חבילה</div><span class="tag tag-forest">תקופת ניסיון</span></div>
     </div>
-    <div class="card" style="margin-bottom:.75rem;">
-      <div style="font-weight:800;margin-bottom:.875rem;">👤 פרופיל פעיל</div>
-      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.875rem;">
-        <div id="settings-avatar" class="avatar" style="width:44px;height:44px;font-size:1rem;"></div>
-        <div><div id="settings-profile-name" style="font-weight:700;"></div><div style="font-size:.8rem;color:#6B7280;">פרופיל פעיל</div></div>
-      </div>
-      <button class="btn btn-secondary btn-block" onclick="go('s-profiles')">החלף פרופיל</button>
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div class="eyebrow" style="margin-bottom:1rem;">פרופיל פעיל</div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;"><div class="avatar" style="width:48px;height:48px;font-size:1.1rem;" id="se-avatar"></div><div><div style="font-weight:600;" id="se-name"></div><div style="font-size:.8rem;color:var(--ink-faint);" id="se-role"></div></div></div>
+      <button class="btn btn-secondary btn-block" onclick="go('s-profiles')">החלפת פרופיל</button>
     </div>
-    <div style="text-align:center;margin-top:1.5rem;">
-      <button class="btn btn-danger" onclick="doLogout()">🚪 התנתק</button>
-    </div>
+    <div style="text-align:center;margin-top:2rem;"><button class="btn btn-ghost" onclick="doLogout()" style="color:var(--rust);">התנתקות</button></div>
   </div>
 </div>
 
-<!-- ========== ADD PROFILE MODAL ========== -->
-<div class="modal-overlay" id="modal-profile">
-  <div class="modal">
-    <h3 style="font-size:1.25rem;font-weight:900;letter-spacing:-.02em;margin-bottom:.375rem;">פרופיל חדש</h3>
-    <p style="color:#6B7280;font-size:.875rem;margin-bottom:1.25rem;">הוסיפו את הפרטים שלכם</p>
-    <div class="input-wrap">
-      <label class="label">שם מלא</label>
-      <input type="text" class="input" id="profile-name" placeholder="לדוגמה: רחל ברק">
-    </div>
-    <div style="margin-bottom:1rem;">
-      <label class="label">מין</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-        <button id="gender-f" class="card" style="text-align:center;padding:.875rem;cursor:pointer;border:2px solid var(--green);background:var(--green-soft);" onclick="setGender('female')">
-          <div style="font-size:1.75rem;">👩‍🏫</div><div style="font-weight:700;font-size:.875rem;margin-top:.25rem;">מורה</div>
-        </button>
-        <button id="gender-m" class="card" style="text-align:center;padding:.875rem;cursor:pointer;" onclick="setGender('male')">
-          <div style="font-size:1.75rem;">👨‍🏫</div><div style="font-weight:700;font-size:.875rem;margin-top:.25rem;">מורה</div>
-        </button>
-      </div>
-    </div>
-    <div style="margin-bottom:1.25rem;">
-      <label class="label">צבע</label>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="color-picks"></div>
-    </div>
-    <label style="display:flex;align-items:center;gap:.75rem;background:var(--warm);border-radius:12px;padding:.875rem;margin-bottom:1.25rem;cursor:pointer;">
-      <input type="checkbox" id="is-homeroom" style="width:18px;height:18px;">
-      <div><div style="font-weight:700;font-size:.875rem;">אני מחנכת/מחנך</div><div style="font-size:.75rem;color:#6B7280;">גישה לכלי תעודות</div></div>
-    </label>
-    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
-      <button class="btn btn-secondary" onclick="closeModal('modal-profile')">ביטול</button>
-      <button class="btn btn-primary" onclick="createProfile()">צור פרופיל ✨</button>
-    </div>
+<!-- ========== MODALS ========== -->
+<div class="modal" id="m-profile">
+  <div class="modal-content">
+    <h3 class="h3" style="margin-bottom:.5rem;">פרופיל חדש</h3>
+    <p class="muted" style="margin-bottom:1.5rem;font-size:.9rem;">הוסיפו את הפרטים שלכם</p>
+    <div class="field"><label class="label">שם מלא</label><input type="text" class="input" id="np-name" placeholder="לדוגמה: רחל ברק"></div>
+    <div class="field"><label class="label">מין</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <button type="button" id="gn-f" style="padding:.875rem;cursor:pointer;text-align:center;border-radius:12px;border:2px solid var(--ink);background:var(--paper-soft);font-family:inherit;" onclick="setGender('female')"><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">נקבה</div></button>
+      <button type="button" id="gn-m" style="padding:.875rem;cursor:pointer;text-align:center;border-radius:12px;border:1px solid var(--line);background:var(--paper);font-family:inherit;" onclick="setGender('male')"><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">זכר</div></button>
+    </div></div>
+    <div class="field"><label class="label">צבע</label><div style="display:flex;gap:.5rem;flex-wrap:wrap;" id="cl-picks"></div></div>
+    <label style="display:flex;align-items:center;gap:.75rem;padding:.875rem;background:var(--paper-soft);border-radius:8px;margin-bottom:1.5rem;cursor:pointer;"><input type="checkbox" id="np-home" style="width:18px;height:18px;"><div><div style="font-weight:600;font-size:.9rem;">אני מחנכ/ת הכיתה</div><div style="font-size:.75rem;color:var(--ink-faint);">גישה לכלי תעודות</div></div></label>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="closeModal('m-profile')">ביטול</button><button class="btn btn-primary" onclick="createProfile()">יצירה</button></div>
   </div>
 </div>
 
-<!-- ========== WHATSAPP MODAL ========== -->
-<div class="modal-overlay" id="modal-wa">
-  <div class="modal">
-    <h3 style="font-size:1.25rem;font-weight:900;margin-bottom:.375rem;">📤 שליחה להורה</h3>
-    <p style="color:#6B7280;font-size:.875rem;margin-bottom:1.25rem;">שלח דוח ישירות לוואטסאפ של ההורה</p>
-    <div class="input-wrap">
-      <label class="label">מספר טלפון הורה</label>
-      <input type="tel" class="input" id="wa-phone" placeholder="050-1234567" dir="ltr">
-    </div>
-    <button class="btn btn-block btn-lg" style="background:#25D366;color:#fff;margin-bottom:.75rem;" onclick="sendWA()">
-      💬 שלח בוואטסאפ
-    </button>
-    <button class="btn btn-ghost btn-block" onclick="closeModal('modal-wa')">ביטול</button>
+<div class="modal" id="m-wa">
+  <div class="modal-content">
+    <h3 class="h3" style="margin-bottom:.5rem;">שליחת דוח להורה</h3>
+    <p class="muted" style="margin-bottom:1.5rem;font-size:.9rem;">הדוח יישלח בוואטסאפ</p>
+    <div class="field"><label class="label">מספר טלפון</label><input type="tel" class="input" id="wa-num" placeholder="050-1234567" dir="ltr"></div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="closeModal('m-wa')">ביטול</button><button class="btn btn-primary" onclick="sendWA()">שליחה</button></div>
   </div>
 </div>
 
 <script>
 // ============ STATE ============
-const COLORS = ['#1A5C3A','#C4973A','#2A7A50','#B83232','#1E4D8C','#7B5EA7','#8B4513','#4A7C59'];
-let selectedGender = 'female';
-let selectedColor = COLORS[0];
-let activeProfile = null;
-let activeSchool = { name:'בית ספר אופק', email:'demo@school.com' };
-let activeSubject = null;
-let activeStudent = null;
-let studentFilter = 'all';
-let hwMarks = {};
-let scanSelectedStudent = null;
+const COLORS = ['#1F4A38','#475569','#B8924A','#A04030','#2E6850','#5B6B7C','#7B5C3A','#445A4F'];
+const DB_KEY = 'tziun_v2';
+const SUBJECTS = [{name:'מתמטיקה',sym:'M'},{name:'עברית',sym:'ע'},{name:'תנ"ך',sym:'ת'},{name:'מדעים',sym:'מד'},{name:'אנגלית',sym:'E'},{name:'גיאוגרפיה',sym:'ג'}];
+
+let db = loadDB();
+let authMode = 'login';
+let activeProfileId = null;
+let activeSubjectId = null;
+let activeStudentId = null;
+let scanStudentId = null;
+let stFilter = 'all';
 let stream = null;
-let qualityTimer = null;
+let qInterval = null;
+let newGender = 'female';
+let newColor = COLORS[0];
+let obStepNum = 1;
 
-// ============ DEMO DATA ============
-const profiles = [
-  { id:1, name:'רחל ברק', gender:'female', color:'#1A5C3A', homeroom:true },
-  { id:2, name:'מיכאל כהן', gender:'male', color:'#1E4D8C', homeroom:false }
-];
-
-const subjects = [
-  { id:1, name:'מתמטיקה', icon:'🔢', exams:12 },
-  { id:2, name:'עברית', icon:'📖', exams:8 },
-  { id:3, name:'תנ"ך', icon:'📜', exams:5 }
-];
-
-const students = [
-  { id:1, name:'דניאל לוי', avg:86, exams:[92,88,75,90,86], hw:95 },
-  { id:2, name:'רוני נחום', avg:68, exams:[65,70,62,72,68], hw:72 },
-  { id:3, name:'יואב עזרא', avg:92, exams:[88,95,90,96,92], hw:98 },
-  { id:4, name:'מיה כהן', avg:89, exams:[87,91,86,92,89], hw:94 },
-  { id:5, name:'איתי שרון', avg:74, exams:[70,76,72,78,74], hw:80 },
-  { id:6, name:'נועה גרינברג', avg:81, exams:[78,84,80,82,81], hw:90 },
-  { id:7, name:'תמר אבני', avg:95, exams:[93,96,94,97,95], hw:99 },
-  { id:8, name:'עומר רוזנברג', avg:77, exams:[74,80,75,79,77], hw:85 },
-];
-
-const hwData = {};
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { school:null, profiles:[], classes:[], subjects:[], students:[], exams:[], homework:{} };
+}
+function saveDB() { try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch(e) {} }
 
 // ============ NAVIGATION ============
-function go(screenId) {
+function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(screenId).classList.add('active');
+  document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  onEnterScreen(screenId);
-}
-
-function onEnterScreen(id) {
   if (id === 's-profiles') renderProfiles();
   if (id === 's-dash') renderDash();
   if (id === 's-students') renderStudents();
   if (id === 's-subject') renderSubject();
   if (id === 's-manual') renderManual();
-  if (id === 's-scan') renderScanStudents();
-  if (id === 's-homework') renderHW();
-  if (id === 's-analytics') renderAnalytics();
+  if (id === 's-scan') scan1();
+  if (id === 's-homework') initHW();
   if (id === 's-settings') renderSettings();
-  if (id === 's-student') renderStudentFolder();
+  if (id === 's-student') renderSF();
+  if (id === 's-onboarding') initOnboarding();
 }
 
-// ============ LOGIN ============
+function goSignup() { setAuthMode('signup'); go('s-login'); }
+
+// ============ AUTH ============
+function setAuthMode(m) {
+  authMode = m;
+  document.getElementById('tab-login').classList.toggle('active', m === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', m === 'signup');
+  document.getElementById('signup-fields').style.display = m === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-title').textContent = m === 'signup' ? 'פתיחת חשבון לבית הספר' : 'כניסה לבית הספר';
+  document.getElementById('auth-sub').textContent = m === 'signup' ? 'תקופת ניסיון של 14 ימים' : 'חשבון משותף לכל מורי בית הספר';
+  document.getElementById('login-submit').textContent = m === 'signup' ? 'יצירת חשבון' : 'כניסה';
+}
+
 function doLogin() {
-  const e = document.getElementById('login-email').value;
-  const p = document.getElementById('login-pass').value;
-  if (!e || !p) { notify('נא למלא מייל וסיסמה'); return; }
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  if (!email || !pass) { toast('נא למלא את כל השדות'); return; }
+
+  if (authMode === 'signup') {
+    const schoolName = document.getElementById('login-school').value.trim();
+    if (!schoolName) { toast('נא להזין שם בית ספר'); return; }
+    db = { school:{name:schoolName,email,createdAt:Date.now()}, profiles:[], classes:[], subjects:[], students:[], exams:[], homework:{} };
+    saveDB();
+  } else {
+    if (!db.school) {
+      db.school = { name:'בית הספר שלי', email, createdAt:Date.now() };
+      saveDB();
+    }
+  }
   go('s-profiles');
 }
 
 function doLogout() {
-  activeProfile = null;
-  go('s-landing');
+  if (confirm('להתנתק מהמערכת? הנתונים יישמרו במכשיר.')) {
+    activeProfileId = null;
+    go('s-landing');
+  }
 }
 
 // ============ PROFILES ============
 function renderProfiles() {
-  document.getElementById('school-greeting').textContent = activeSchool.name;
+  document.getElementById('profiles-school').textContent = db.school?.name || '';
   const grid = document.getElementById('profiles-grid');
   grid.innerHTML = '';
-  profiles.forEach(p => {
-    const div = document.createElement('div');
-    div.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:.625rem;cursor:pointer;';
-    div.innerHTML = `
-      <div class="avatar" style="width:88px;height:88px;font-size:1.75rem;background:${p.color};border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:transform .2s;"
-        onmouseenter="this.style.transform='translateY(-4px)'"
-        onmouseleave="this.style.transform='translateY(0)'">
-        ${getInitials(p.name)}
-      </div>
-      <div style="text-align:center;">
-        <div style="font-weight:700;font-size:.9rem;">${p.name}</div>
-        <div style="font-size:.75rem;color:#6B7280;">${p.homeroom ? 'מחנכת' : 'מורה'}</div>
-      </div>`;
-    div.onclick = () => selectProfile(p);
-    grid.appendChild(div);
+  db.profiles.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'profile-item';
+    btn.onclick = () => selectProfile(p.id);
+    btn.innerHTML = `<div class="profile-avatar-lg" style="background:${p.color};">${getInitials(p.name)}</div><div style="text-align:center;"><div class="profile-name">${escapeHTML(p.name)}</div><div class="profile-role">${p.isHomeroom?'מחנכ/ת':'מורה'}</div></div>`;
+    grid.appendChild(btn);
   });
 }
 
-function selectProfile(p) {
-  activeProfile = p;
-  go('s-dash');
+function selectProfile(id) { activeProfileId = id; go('s-dash'); }
+
+function openProfileModal() {
+  document.getElementById('np-name').value = '';
+  document.getElementById('np-home').checked = false;
+  newGender = 'female'; newColor = COLORS[0];
+  setGender('female');
+  renderColors();
+  document.getElementById('m-profile').classList.add('open');
 }
 
-function showAddProfile() {
-  const picks = document.getElementById('color-picks');
-  picks.innerHTML = '';
-  COLORS.forEach(c => {
+function renderColors() {
+  const c = document.getElementById('cl-picks');
+  c.innerHTML = '';
+  COLORS.forEach(col => {
     const b = document.createElement('button');
-    b.style.cssText = `width:32px;height:32px;border-radius:8px;background:${c};border:3px solid transparent;cursor:pointer;transition:all .15s;`;
-    if (c === selectedColor) b.style.borderColor = '#fff';
-    b.onclick = () => { selectedColor = c; document.getElementById('color-picks').querySelectorAll('button').forEach(x => x.style.borderColor='transparent'); b.style.borderColor='var(--ink)'; };
-    picks.appendChild(b);
+    b.type = 'button';
+    b.style.cssText = `width:34px;height:34px;border-radius:8px;background:${col};border:3px solid ${col===newColor?'var(--ink)':'transparent'};cursor:pointer;`;
+    b.onclick = () => { newColor = col; renderColors(); };
+    c.appendChild(b);
   });
-  document.getElementById('modal-profile').classList.add('open');
 }
 
 function setGender(g) {
-  selectedGender = g;
-  document.getElementById('gender-f').style.cssText = g==='female' ? 'text-align:center;padding:.875rem;cursor:pointer;border:2px solid var(--green);background:var(--green-soft);border-radius:14px;' : 'text-align:center;padding:.875rem;cursor:pointer;border:1.5px solid var(--line);border-radius:14px;background:#fff;';
-  document.getElementById('gender-m').style.cssText = g==='male' ? 'text-align:center;padding:.875rem;cursor:pointer;border:2px solid var(--green);background:var(--green-soft);border-radius:14px;' : 'text-align:center;padding:.875rem;cursor:pointer;border:1.5px solid var(--line);border-radius:14px;background:#fff;';
+  newGender = g;
+  document.getElementById('gn-f').style.cssText = 'padding:.875rem;cursor:pointer;text-align:center;border-radius:12px;font-family:inherit;' + (g==='female'?'border:2px solid var(--ink);background:var(--paper-soft);':'border:1px solid var(--line);background:var(--paper);');
+  document.getElementById('gn-m').style.cssText = 'padding:.875rem;cursor:pointer;text-align:center;border-radius:12px;font-family:inherit;' + (g==='male'?'border:2px solid var(--ink);background:var(--paper-soft);':'border:1px solid var(--line);background:var(--paper);');
 }
 
 function createProfile() {
-  const name = document.getElementById('profile-name').value.trim();
-  if (!name) { notify('נא להזין שם'); return; }
-  profiles.push({ id: Date.now(), name, gender: selectedGender, color: selectedColor, homeroom: document.getElementById('is-homeroom').checked });
-  closeModal('modal-profile');
-  document.getElementById('profile-name').value = '';
-  notify('פרופיל נוצר! ✨');
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) { toast('נא להזין שם'); return; }
+  db.profiles.push({ id:Date.now(), name, gender:newGender, color:newColor, isHomeroom:document.getElementById('np-home').checked, createdAt:Date.now() });
+  saveDB();
+  closeModal('m-profile');
+  toast('פרופיל נוצר');
   renderProfiles();
 }
 
 // ============ DASHBOARD ============
 function renderDash() {
-  if (!activeProfile) return;
+  const p = activeProfile();
+  if (!p) { go('s-profiles'); return; }
   const h = new Date().getHours();
-  const g = h < 12 ? 'בוקר טוב' : h < 17 ? 'צהריים טובים' : 'ערב טוב';
-  document.getElementById('dash-greeting').textContent = `${g}, ${activeProfile.name.split(' ')[0]}`;
-  document.getElementById('dash-sub').textContent = activeProfile.gender === 'female' ? 'ברוכה הבאה' : 'ברוך הבא';
-  document.getElementById('dash-class-name').textContent = 'כיתה ה׳2';
-  document.getElementById('dash-subtitle').textContent = `${students.length} תלמידים · ${activeProfile.name}`;
-  document.getElementById('dash-students').textContent = students.length;
-  document.getElementById('dash-subjects').textContent = subjects.length;
+  const greeting = h<12?'בוקר טוב':h<17?'צהריים טובים':h<20?'ערב טוב':'לילה טוב';
+  document.getElementById('dash-greeting').textContent = `${greeting}, ${p.name.split(' ')[0]}`;
+  document.getElementById('dash-welcome').textContent = p.gender==='female'?'ברוכה הבאה למרכז הבקרה':'ברוך הבא למרכז הבקרה';
+  document.getElementById('dash-school-name').textContent = db.school?.name || 'ציון';
+  document.getElementById('dash-profile-name').textContent = p.name;
+
+  const mySubjects = db.subjects.filter(s => s.teacherId === activeProfileId);
+  const myClasses = [...new Set(mySubjects.map(s => s.classId))];
+  const myStudentIds = db.students.filter(s => myClasses.includes(s.classId)).map(s => s.id);
+
+  document.getElementById('dash-stat-students').textContent = myStudentIds.length;
+  document.getElementById('dash-stat-subjects').textContent = mySubjects.length;
+  document.getElementById('dash-stat-classes').textContent = myClasses.length;
+
+  if (db.classes.length === 0) {
+    document.getElementById('dash-empty').style.display = 'block';
+    document.getElementById('dash-content').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('dash-empty').style.display = 'none';
+  document.getElementById('dash-content').style.display = 'block';
 
   const grid = document.getElementById('subjects-grid');
   grid.innerHTML = '';
-  subjects.forEach(s => {
-    const d = document.createElement('div');
-    d.className = 'card card-click';
-    d.style.cssText = 'text-align:center;padding:1.25rem .75rem;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.375rem;';
-    d.innerHTML = `<div style="font-size:2rem;">${s.icon}</div><div style="font-weight:700;font-size:.9rem;">${s.name}</div><div style="font-size:.75rem;color:#6B7280;">${s.exams} מבחנים</div>`;
-    d.onclick = () => { activeSubject = s; go('s-subject'); };
-    grid.appendChild(d);
+  mySubjects.forEach(s => {
+    const examCount = db.exams.filter(e => e.subjectId === s.id).length;
+    const el = document.createElement('a');
+    el.className = 'subject-card';
+    el.onclick = () => { activeSubjectId = s.id; go('s-subject'); };
+    el.innerHTML = `<div class="subject-icon">${s.sym || 'מ'}</div><div class="subject-name">${escapeHTML(s.name)}</div><div class="subject-meta">${examCount} מבחנים</div>`;
+    grid.appendChild(el);
   });
+
+  const add = document.createElement('a');
+  add.className = 'subject-card add';
+  add.onclick = () => { toast('בקרוב — הוספת מקצוע'); };
+  add.innerHTML = `<div class="subject-icon">+</div><div class="subject-name muted">הוסף מקצוע</div>`;
+  grid.appendChild(add);
+}
+
+// ============ ONBOARDING ============
+function initOnboarding() {
+  obStepNum = 1;
+  obStep(1);
+  document.getElementById('ob-name').value = '';
+  document.getElementById('ob-students').value = '';
+  const sub = document.getElementById('ob-subjects');
+  sub.innerHTML = '';
+  SUBJECTS.forEach((s,i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.idx = i;
+    btn.dataset.selected = i < 3 ? '1' : '0';
+    btn.style.cssText = 'padding:1rem;cursor:pointer;text-align:right;border-radius:12px;font-family:inherit;display:flex;align-items:center;gap:.75rem;' + (i < 3 ? 'border:2px solid var(--ink);background:var(--paper-soft);' : 'border:1px solid var(--line);background:var(--paper);');
+    btn.innerHTML = `<div style="width:32px;height:32px;background:var(--forest-bg);color:var(--forest);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;">${s.sym}</div><div style="font-weight:600;font-size:.95rem;">${s.name}</div>`;
+    btn.onclick = () => {
+      const sel = btn.dataset.selected === '1';
+      btn.dataset.selected = sel ? '0' : '1';
+      btn.style.cssText = 'padding:1rem;cursor:pointer;text-align:right;border-radius:12px;font-family:inherit;display:flex;align-items:center;gap:.75rem;' + (!sel ? 'border:2px solid var(--ink);background:var(--paper-soft);' : 'border:1px solid var(--line);background:var(--paper);');
+    };
+    sub.appendChild(btn);
+  });
+}
+
+function obStep(n) {
+  obStepNum = n;
+  document.getElementById('ob-1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('ob-2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('ob-3').style.display = n === 3 ? 'block' : 'none';
+  if (n === 2 && !document.getElementById('ob-name').value.trim()) {
+    toast('נא להזין שם כיתה'); obStep(1); return;
+  }
+  if (n === 3) {
+    const students = document.getElementById('ob-students').value.split('\n').filter(s => s.trim());
+    if (students.length === 0) { toast('נא להוסיף תלמידים'); obStep(2); return; }
+  }
+}
+
+function obFinish() {
+  const name = document.getElementById('ob-name').value.trim();
+  const grade = parseInt(document.getElementById('ob-grade').value);
+  const studentList = document.getElementById('ob-students').value.split('\n').map(s => s.trim()).filter(Boolean);
+  const subjects = Array.from(document.querySelectorAll('#ob-subjects button[data-selected="1"]')).map(b => SUBJECTS[parseInt(b.dataset.idx)]);
+
+  if (subjects.length === 0) { toast('בחרו לפחות מקצוע אחד'); return; }
+
+  const classId = Date.now();
+  db.classes.push({ id:classId, name, grade, createdAt:Date.now() });
+
+  studentList.forEach((sn, i) => {
+    db.students.push({ id:classId+i+1, classId, name:sn });
+  });
+
+  subjects.forEach((s, i) => {
+    db.subjects.push({ id:classId+1000+i, classId, teacherId:activeProfileId, name:s.name, sym:s.sym });
+  });
+
+  saveDB();
+  toast('הכיתה נוצרה בהצלחה');
+  go('s-dash');
 }
 
 // ============ SUBJECT ============
 function renderSubject() {
-  if (!activeSubject) return;
-  document.getElementById('subject-title').textContent = `${activeSubject.icon} ${activeSubject.name}`;
-  const list = document.getElementById('exams-list');
-  list.innerHTML = '';
-  const exams = [
-    { name:'מבחן פרק 5 — שברים', date:'15.05.2026', avg:81.4, count:28 },
-    { name:'מבחן פרק 4 — חילוק', date:'28.04.2026', avg:85.2, count:27 },
-    { name:'מבחן פרק 3 — כפל', date:'10.04.2026', avg:88.1, count:28 }
-  ];
+  const s = db.subjects.find(x => x.id === activeSubjectId);
+  if (!s) { go('s-dash'); return; }
+  document.getElementById('subj-title').textContent = s.name;
+  const exams = db.exams.filter(e => e.subjectId === activeSubjectId);
+  const groups = {};
   exams.forEach(e => {
+    if (!groups[e.examName]) groups[e.examName] = { name:e.examName, date:e.date, scores:[] };
+    groups[e.examName].scores.push(e.score);
+  });
+  const list = document.getElementById('subj-exams');
+  if (Object.keys(groups).length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">מ</div><h3 class="empty-title">אין מבחנים עדיין</h3><p class="empty-desc">התחילו עם מבחן ראשון</p><button class="btn btn-primary" onclick="go('s-scan')">סריקת AI</button></div>`;
+    return;
+  }
+  list.innerHTML = '';
+  Object.values(groups).forEach(g => {
+    const avg = Math.round(g.scores.reduce((a,b)=>a+b,0) / g.scores.length);
     const d = document.createElement('div');
     d.className = 'card';
-    d.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
-    d.innerHTML = `<div><div style="font-weight:700;">${e.name}</div><div style="font-size:.8rem;color:#6B7280;">${e.date} · ${e.count} תלמידים</div></div>
-      <div style="text-align:left;"><div style="font-size:1.5rem;font-weight:900;color:var(--green);line-height:1;">${e.avg}</div><div style="font-size:.7rem;color:#6B7280;">ממוצע</div></div>`;
+    d.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;';
+    d.innerHTML = `<div><div style="font-weight:600;">${escapeHTML(g.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${formatDate(g.date)} · ${g.scores.length} תלמידים</div></div><div style="text-align:left;"><div style="font-family:'Frank Ruhl Libre',serif;font-size:1.5rem;font-weight:700;color:var(--forest);">${avg}</div><div style="font-size:.7rem;color:var(--ink-faint);">ממוצע</div></div>`;
     list.appendChild(d);
   });
 }
 
-// ============ STUDENTS ============
+// ============ STUDENTS LIST ============
 function renderStudents() {
-  const search = document.getElementById('students-search').value;
-  const list = document.getElementById('students-list');
-  list.innerHTML = '';
-  students.filter(s => {
-    if (search && !s.name.includes(search)) return false;
-    if (studentFilter === 'top') return s.avg >= 90;
-    if (studentFilter === 'low') return s.avg < 75;
-    return true;
-  }).forEach(s => {
-    const gc = gradeClass(s.avg);
-    const d = document.createElement('div');
-    d.className = 'card card-click';
-    d.style.cssText = 'display:flex;align-items:center;gap:.875rem;';
-    d.innerHTML = `
-      <div class="avatar" style="width:44px;height:44px;font-size:.9rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
-      <div style="flex:1;">
-        <div style="font-weight:700;">${s.name}</div>
-        <div style="font-size:.8rem;color:#6B7280;">${s.exams.length} מבחנים</div>
-        <div style="height:5px;background:var(--warm);border-radius:3px;margin-top:.375rem;overflow:hidden;width:80px;">
-          <div style="height:100%;background:var(--green);width:${s.avg}%;"></div>
-        </div>
-      </div>
-      <div class="grade ${gc}">${s.avg}</div>`;
-    d.onclick = () => { activeStudent = s; go('s-student'); };
-    list.appendChild(d);
+  const mySubjects = db.subjects.filter(s => s.teacherId === activeProfileId);
+  const myClasses = [...new Set(mySubjects.map(s => s.classId))];
+  let students = db.students.filter(s => myClasses.includes(s.classId));
+  const q = document.getElementById('st-search')?.value || '';
+  if (q) students = students.filter(s => s.name.includes(q));
+
+  const enriched = students.map(s => {
+    const scores = db.exams.filter(e => e.studentId === s.id).map(e => e.score);
+    const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+    return { ...s, avg, examCount:scores.length };
   });
+
+  let filtered = enriched;
+  if (stFilter === 'top') filtered = enriched.filter(s => s.avg >= 90);
+  if (stFilter === 'low') filtered = enriched.filter(s => s.avg > 0 && s.avg < 75);
+
+  const list = document.getElementById('st-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">ת</div><h3 class="empty-title">${q ? 'לא נמצאו תוצאות' : 'אין תלמידים'}</h3></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(s => {
+    const gc = gradeClass(s.avg);
+    return `<a class="student-row" onclick="openStudent(${s.id})">
+      <div class="avatar" style="width:44px;height:44px;font-size:.9rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;min-width:0;"><div class="student-name">${escapeHTML(s.name)}</div><div class="student-meta">${s.examCount ? s.examCount + ' מבחנים' : 'אין מבחנים עדיין'}</div></div>
+      ${s.avg ? `<div class="grade ${gc}">${s.avg}</div>` : ''}
+    </a>`;
+  }).join('');
 }
 
-function filterStudents() { renderStudents(); }
-function setStudentFilter(f, el) {
-  studentFilter = f;
-  document.querySelectorAll('#s-students .pill').forEach(p => p.classList.remove('active'));
+function setStFilter(f, el) {
+  stFilter = f;
+  document.querySelectorAll('#s-students .filter-pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
   renderStudents();
 }
 
-// ============ STUDENT FOLDER ============
-function renderStudentFolder() {
-  const s = activeStudent;
-  if (!s) return;
-  document.getElementById('student-folder-name').textContent = s.name;
-  document.getElementById('student-name-lg').textContent = s.name;
-  document.getElementById('student-meta-lg').textContent = `${s.exams.length} מבחנים השנה`;
+function openStudent(id) { activeStudentId = id; go('s-student'); }
 
-  const av = document.getElementById('student-avatar-lg');
+// ============ STUDENT FOLDER ============
+function renderSF() {
+  const s = db.students.find(x => x.id === activeStudentId);
+  if (!s) { go('s-students'); return; }
+  document.getElementById('sf-title').textContent = s.name;
+  document.getElementById('sf-name').textContent = s.name;
+  const av = document.getElementById('sf-avatar');
   av.textContent = getInitials(s.name);
   av.style.background = avatarColor(s.name);
+  av.style.color = '#fff';
 
-  const avg = s.avg;
-  const hw = s.hw;
-  const weighted = Math.round(avg * .7 + hw * .3);
+  const exams = db.exams.filter(e => e.studentId === s.id);
+  document.getElementById('sf-meta').textContent = `${exams.length} מבחנים השנה`;
 
-  document.getElementById('sf-exam-avg').textContent = avg;
-  document.getElementById('sf-hw').textContent = hw;
-  document.getElementById('sf-weighted').textContent = weighted;
+  const scores = exams.map(e => e.score);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  document.getElementById('sf-avg').textContent = avg || '–';
+  document.getElementById('sf-hw').textContent = '–';
+  document.getElementById('sf-w').textContent = avg ? Math.round(avg * .7 + 95 * .3) : '–';
 
-  // Chart
-  const svg = document.getElementById('student-chart');
-  const data = s.exams;
-  const maxV = 100, minV = 40;
-  const W = 400, H = 140, pad = 20;
-  const xs = data.map((_, i) => pad + (i / (data.length-1)) * (W - 2*pad));
-  const ys = data.map(v => H - pad - ((v - minV) / (maxV - minV)) * (H - 2*pad));
-  const points = xs.map((x, i) => `${x},${ys[i]}`).join(' ');
-  const areaPoints = `${xs[0]},${H-pad} ${points} ${xs[xs.length-1]},${H-pad}`;
+  if (exams.length >= 2) {
+    document.getElementById('sf-chart-wrap').style.display = 'block';
+    drawChart(exams);
+  } else {
+    document.getElementById('sf-chart-wrap').style.display = 'none';
+  }
+
+  const ex = document.getElementById('sf-exams');
+  if (exams.length === 0) {
+    ex.innerHTML = `<p class="muted" style="text-align:center;padding:1.5rem;">אין מבחנים עדיין</p>`;
+    return;
+  }
+  ex.innerHTML = exams.slice().reverse().map(e => {
+    const gc = gradeClass(e.score);
+    return `<div class="exam-list-item"><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">${escapeHTML(e.examName)}</div><div style="font-size:.75rem;color:var(--ink-faint);">${formatDate(e.date)}</div></div><div class="grade ${gc}">${e.score}</div></div>`;
+  }).join('');
+}
+
+function drawChart(exams) {
+  const svg = document.getElementById('sf-chart');
+  const data = exams.map(e => e.score);
+  const W = 400, H = 160, pad = 24;
+  const min = 40, max = 100;
+  const xs = data.map((_,i) => pad + (i/(Math.max(1,data.length-1))) * (W-2*pad));
+  const ys = data.map(v => H-pad - ((v-min)/(max-min)) * (H-2*pad));
+  const pts = xs.map((x,i) => `${x},${ys[i]}`).join(' ');
+  const area = `${xs[0]},${H-pad} ${pts} ${xs[xs.length-1]},${H-pad}`;
   svg.innerHTML = `
-    <polyline points="${areaPoints}" fill="rgba(26,92,58,.08)" stroke="none"/>
-    <polyline points="${points}" fill="none" stroke="#1A5C3A" stroke-width="2.5" stroke-linejoin="round"/>
-    ${xs.map((x,i) => `<circle cx="${x}" cy="${ys[i]}" r="${i===data.length-1?7:4}" fill="${i===data.length-1?'#1A5C3A':'white'}" stroke="#1A5C3A" stroke-width="2.5"/>`).join('')}
-    <text x="${xs[xs.length-1]}" y="${ys[data.length-1]-12}" text-anchor="middle" font-size="11" fill="#1A5C3A" font-weight="700">${data[data.length-1]}</text>`;
-
-  // Skill matrix
-  const skills = [
-    { name:'חיבור וחיסור', score:95 },
-    { name:'חילוק ארוך', score:85 },
-    { name:'לוח הכפל', score:68 },
-    { name:'שברים - מכנה משותף', score:42 },
-    { name:'בעיות מילוליות', score:90 }
-  ];
-  document.getElementById('skill-matrix').innerHTML = skills.map(sk => {
-    const color = sk.score>=85 ? '#15803D' : sk.score>=70 ? '#1D4ED8' : sk.score>=50 ? '#92400E' : '#B91C1C';
-    const bg = sk.score>=85 ? '#22C55E' : sk.score>=70 ? '#3B82F6' : sk.score>=50 ? '#F59E0B' : '#EF4444';
-    return `<div class="skill-row">
-      <div class="skill-label"><span>${sk.name}</span><span style="font-weight:700;color:${color};">${sk.score}%</span></div>
-      <div class="skill-bar"><div class="skill-fill" style="width:${sk.score}%;background:${bg};"></div></div>
-    </div>`;
-  }).join('');
-
-  // Exams
-  const exNames = ['מבחן שברים','מבחן חילוק','מבחן כפל','מבחן חיבור','מבחן גיאומטריה'];
-  document.getElementById('student-exams-list').innerHTML = s.exams.map((sc,i) => {
-    const gc = gradeClass(sc);
-    return `<div style="display:flex;align-items:center;gap:.875rem;padding:.75rem 0;border-bottom:1.5px solid var(--line);">
-      <div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">${exNames[i] || 'מבחן'}</div><div style="font-size:.75rem;color:#6B7280;">אפריל-מאי 2026</div></div>
-      <div class="grade ${gc}">${sc}</div>
-    </div>`;
-  }).join('');
-}
-
-// ============ HOMEWORK ============
-function renderHW() {
-  const sel = document.getElementById('hw-subject');
-  sel.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('hw-date').value = today;
-  hwMarks = {};
-  renderHWList();
-}
-
-function loadHW() { hwMarks = {}; renderHWList(); }
-
-function renderHWList() {
-  const list = document.getElementById('hw-list');
-  list.innerHTML = students.map(s => `
-    <div class="card" style="display:flex;align-items:center;gap:.875rem;padding:.875rem;">
-      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
-      <div style="flex:1;font-weight:600;">${s.name}</div>
-      <div class="hw-marks">
-        <button class="hw-mark v ${hwMarks[s.id]==='v'?'on':''}" onclick="setHW(${s.id},'v',this)">✓</button>
-        <button class="hw-mark half ${hwMarks[s.id]==='half'?'on':''}" onclick="setHW(${s.id},'half',this)">~</button>
-        <button class="hw-mark x ${hwMarks[s.id]==='x'?'on':''}" onclick="setHW(${s.id},'x',this)">✗</button>
-      </div>
-    </div>`).join('');
-  updateHWCounts();
-}
-
-function setHW(id, mark, btn) {
-  if (hwMarks[id] === mark) delete hwMarks[id];
-  else hwMarks[id] = mark;
-  const row = btn.closest('.card');
-  row.querySelectorAll('.hw-mark').forEach(b => { b.classList.remove('on'); });
-  if (hwMarks[id]) btn.classList.add('on');
-  updateHWCounts();
-}
-
-function updateHWCounts() {
-  const vals = Object.values(hwMarks);
-  document.getElementById('hw-v-count').textContent = vals.filter(v=>v==='v').length;
-  document.getElementById('hw-half-count').textContent = vals.filter(v=>v==='half').length;
-  document.getElementById('hw-x-count').textContent = vals.filter(v=>v==='x').length;
+    <polyline points="${area}" fill="rgba(31,74,56,.08)" stroke="none"/>
+    <polyline points="${pts}" fill="none" stroke="#1F4A38" stroke-width="2.5"/>
+    ${xs.map((x,i) => `<circle cx="${x}" cy="${ys[i]}" r="${i===xs.length-1?6:4}" fill="${i===xs.length-1?'#1F4A38':'#fff'}" stroke="#1F4A38" stroke-width="2"/>`).join('')}
+    <text x="${xs[xs.length-1]}" y="${ys[xs.length-1]-12}" text-anchor="middle" font-size="12" fill="#1F4A38" font-weight="700">${data[data.length-1]}</text>`;
 }
 
 // ============ MANUAL ENTRY ============
 function renderManual() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('manual-date').value = today;
-  const scores = {};
-  const list = document.getElementById('manual-students-list');
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('m-name').value = '';
+  const subject = db.subjects.find(s => s.id === activeSubjectId);
+  if (!subject) { go('s-dash'); return; }
+  const students = db.students.filter(s => s.classId === subject.classId);
+  const list = document.getElementById('m-list');
   list.innerHTML = students.map(s => `
-    <div style="display:flex;align-items:center;gap:.875rem;padding:.75rem 0;border-bottom:1.5px solid var(--line);">
+    <div style="display:flex;align-items:center;gap:1rem;padding:.875rem 0;border-bottom:1px solid var(--line-soft);">
       <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
-      <div style="flex:1;font-weight:600;">${s.name}</div>
-      <input type="number" class="input" style="width:80px;text-align:center;padding:.5rem;" placeholder="-" min="0" max="100" id="score-${s.id}">
+      <div style="flex:1;font-weight:500;">${escapeHTML(s.name)}</div>
+      <input type="number" class="input" data-sid="${s.id}" min="0" max="100" placeholder="-" oninput="updateMCount()" style="width:80px;text-align:center;padding:.5rem;">
     </div>`).join('');
+  updateMCount();
 }
 
-function saveManualExam() {
-  const name = document.getElementById('manual-exam-name').value.trim();
-  if (!name) { notify('נא להזין שם מבחן'); return; }
+function updateMCount() {
+  const count = document.querySelectorAll('#m-list input[type="number"]:not([value=""])').length;
+  const actual = Array.from(document.querySelectorAll('#m-list input[type="number"]')).filter(i => i.value).length;
+  document.getElementById('m-count').textContent = `${actual} הוזנו`;
+}
+
+function saveManual() {
+  const name = document.getElementById('m-name').value.trim();
+  const date = document.getElementById('m-date').value;
+  if (!name) { toast('נא להזין שם מבחן'); return; }
+  const inputs = document.querySelectorAll('#m-list input[type="number"]');
   let count = 0;
-  students.forEach(s => { if (document.getElementById(`score-${s.id}`)?.value) count++; });
-  if (!count) { notify('נא להזין ציון לפחות לתלמיד אחד'); return; }
-  notify(`✅ מבחן "${name}" נשמר! (${count} תלמידים)`);
+  inputs.forEach(inp => {
+    if (inp.value) {
+      const sid = parseInt(inp.dataset.sid);
+      db.exams.push({ id:Date.now()+Math.random(), studentId:sid, subjectId:activeSubjectId, examName:name, date, score:parseInt(inp.value), source:'manual' });
+      count++;
+    }
+  });
+  if (count === 0) { toast('נא להזין לפחות ציון אחד'); return; }
+  saveDB();
+  toast(`${count} ציונים נשמרו`);
   go('s-subject');
 }
 
 // ============ AI SCAN ============
-function renderScanStudents() {
-  const list = document.getElementById('scan-students-list');
-  list.innerHTML = students.map(s => `
-    <button onclick="selectScanStudent(${s.id})" style="width:100%;display:flex;align-items:center;gap:.875rem;padding:.75rem;background:var(--warm);border-radius:12px;border:none;cursor:pointer;margin-bottom:.5rem;text-align:right;transition:all .15s;"
-      onmouseenter="this.style.background='var(--green-soft)'" onmouseleave="this.style.background='var(--warm)'">
-      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
-      <div style="flex:1;font-weight:600;">${s.name}</div>
-      <div style="color:var(--green);">←</div>
-    </button>`).join('');
-
-  // Reset steps
-  document.getElementById('scan-step-student').style.display = 'block';
-  document.getElementById('scan-step-camera').style.display = 'none';
-  document.getElementById('scan-step-loading').style.display = 'none';
-  document.getElementById('scan-step-result').style.display = 'none';
-  document.getElementById('scan-step-fallback').style.display = 'none';
+function scan1() {
+  scanStudentId = null;
+  document.getElementById('scan-1').style.display = 'block';
+  document.getElementById('scan-2').style.display = 'none';
+  document.getElementById('scan-3').style.display = 'none';
+  document.getElementById('scan-4').style.display = 'none';
+  document.getElementById('scan-5').style.display = 'none';
+  stopCamera();
+  renderScanStudents();
 }
 
-function filterScanStudents() {
+function renderScanStudents() {
+  const subject = db.subjects.find(s => s.id === activeSubjectId);
+  if (!subject) return;
   const q = document.getElementById('scan-search').value;
-  document.querySelectorAll('#scan-students-list button').forEach((b, i) => {
-    b.style.display = students[i]?.name.includes(q) ? 'flex' : 'none';
-  });
+  let students = db.students.filter(s => s.classId === subject.classId);
+  if (q) students = students.filter(s => s.name.includes(q));
+
+  const list = document.getElementById('scan-students');
+  list.innerHTML = students.map(s => `
+    <button onclick="selectScanStudent(${s.id})" style="width:100%;display:flex;align-items:center;gap:.875rem;padding:.75rem;background:var(--paper-soft);border-radius:10px;border:none;cursor:pointer;margin-bottom:.375rem;text-align:right;font-family:inherit;">
+      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;font-weight:500;">${escapeHTML(s.name)}</div>
+      <div style="color:var(--ink-faint);">←</div>
+    </button>`).join('');
 }
 
 function selectScanStudent(id) {
-  scanSelectedStudent = students.find(s => s.id === id);
-  showScanCamera();
-}
-
-function showScanStudent() {
-  stopCamera();
-  document.getElementById('scan-step-student').style.display = 'block';
-  document.getElementById('scan-step-camera').style.display = 'none';
-}
-
-function showScanCamera() {
-  document.getElementById('scan-step-student').style.display = 'none';
-  document.getElementById('scan-step-camera').style.display = 'block';
-  document.getElementById('scan-student-badge').textContent = scanSelectedStudent.name;
-  document.getElementById('scan-exam-badge').textContent = document.getElementById('scan-exam-name').value || 'מבחן';
+  scanStudentId = id;
+  const s = db.students.find(x => x.id === id);
+  const examName = document.getElementById('scan-name').value || 'מבחן';
+  document.getElementById('scan-student-label').textContent = s.name;
+  document.getElementById('scan-exam-label').textContent = examName;
+  document.getElementById('scan-1').style.display = 'none';
+  document.getElementById('scan-2').style.display = 'block';
   startCamera();
 }
 
 async function startCamera() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment', width:{ideal:1920}, height:{ideal:1080} } });
-    const video = document.getElementById('camera-video');
-    video.srcObject = stream;
-    video.play();
+    const v = document.getElementById('camera-video');
+    v.srcObject = stream;
+    v.play();
     startQualityCheck();
   } catch(e) {
-    document.getElementById('camera-box').innerHTML = '<div style="color:#fff;padding:2rem;text-align:center;"><div style="font-size:2rem;margin-bottom:.75rem;">📁</div><div>לא ניתן לפתוח מצלמה<br>השתמשו בהעלאת קובץ</div></div>';
+    document.getElementById('camera-stage').innerHTML = '<div style="color:#fff;padding:2rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;"><div style="font-size:.95rem;">מצלמה לא זמינה</div><div style="font-size:.8rem;opacity:.7;margin-top:.5rem;">השתמשו ב"העלאת תמונה"</div></div>';
   }
 }
 
 function stopCamera() {
   if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  if (qualityTimer) { clearInterval(qualityTimer); qualityTimer = null; }
+  if (qInterval) { clearInterval(qInterval); qInterval = null; }
 }
 
 function startQualityCheck() {
-  const video = document.getElementById('camera-video');
-  const canvas = document.getElementById('camera-canvas');
+  const v = document.getElementById('camera-video');
+  const c = document.getElementById('camera-canvas');
   const frame = document.getElementById('camera-frame');
-  const badge = document.getElementById('quality-badge');
-  const captureBtn = document.getElementById('capture-btn');
-
-  qualityTimer = setInterval(() => {
-    if (!video.videoWidth) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = 200; canvas.height = 200;
-    ctx.drawImage(video, 0, 0, 200, 200);
+  const q = document.getElementById('camera-quality');
+  const btn = document.getElementById('capture-btn');
+  qInterval = setInterval(() => {
+    if (!v.videoWidth) return;
+    const ctx = c.getContext('2d');
+    c.width = 200; c.height = 200;
+    ctx.drawImage(v, 0, 0, 200, 200);
     const data = ctx.getImageData(0, 0, 200, 200).data;
     let mean = 0, lumas = [];
     for (let i = 0; i < data.length; i += 4) {
@@ -1109,228 +1123,238 @@ function startQualityCheck() {
     const variance = lumas.reduce((s,l) => s+(l-mean)**2, 0) / lumas.length;
     const good = variance > 400;
     frame.className = 'camera-frame ' + (good ? 'good' : 'bad');
-    badge.className = 'quality-badge ' + (good ? 'quality-good' : 'quality-bad');
-    badge.textContent = good ? '✓ איכות טובה' : '✗ מטושטש - קרבו את המצלמה';
-    captureBtn.disabled = !good;
+    q.className = 'camera-quality ' + (good ? 'quality-good' : 'quality-bad');
+    q.textContent = good ? 'איכות טובה' : 'מטושטש — קרב את המצלמה';
+    btn.disabled = !good;
   }, 400);
 }
 
-function capturePhoto() {
-  const video = document.getElementById('camera-video');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  canvas.toBlob(blob => { stopCamera(); runAI(blob); }, 'image/jpeg', .9);
+function capture() {
+  const v = document.getElementById('camera-video');
+  const c = document.createElement('canvas');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  c.toBlob(blob => { stopCamera(); runAI(blob); }, 'image/jpeg', .9);
 }
 
-function handleFileUpload(e) {
+function onUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { notify('התמונה גדולה מ-5MB'); return; }
+  if (file.size > 5*1024*1024) { toast('התמונה גדולה מ-5MB'); return; }
   stopCamera();
   runAI(file);
 }
 
 async function runAI(blob) {
-  document.getElementById('scan-step-camera').style.display = 'none';
-  document.getElementById('scan-step-loading').style.display = 'block';
-  const bar = document.getElementById('loading-bar');
-  setTimeout(() => { bar.style.width = '90%'; }, 100);
+  document.getElementById('scan-2').style.display = 'none';
+  document.getElementById('scan-3').style.display = 'block';
 
-  // Simulate AI (replace with real API call when key is ready)
-  const hasKey = false; // Set to true when ANTHROPIC_API_KEY is configured
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const base64 = reader.result;
+    const student = db.students.find(s => s.id === scanStudentId);
+    const subject = db.subjects.find(s => s.id === activeSubjectId);
+    const teacher = activeProfile();
+    const examName = document.getElementById('scan-name').value.trim() || 'מבחן';
 
-  await new Promise(r => setTimeout(r, 2500));
+    try {
+      const res = await fetch('/api/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: base64,
+          studentName: student.name,
+          examName,
+          subject: subject.name,
+          teacherGender: teacher.gender
+        })
+      });
 
-  if (hasKey) {
-    // Real API call
-    const formData = new FormData();
-    formData.append('image', blob, 'exam.jpg');
-    formData.append('studentId', scanSelectedStudent.id);
-    formData.append('examName', document.getElementById('scan-exam-name').value || 'מבחן');
-    const res = await fetch('/api/grade-exam', { method:'POST', body:formData });
-    const data = await res.json();
-    if (data.needsManualFallback) { showFallback(data.message); return; }
-    showResult(data.result);
-  } else {
-    // Demo mode
-    const confident = Math.random() > .2;
-    if (!confident) { showFallback('כתב היד לא ברור מספיק לניתוח אוטומטי.'); return; }
-    const score = Math.floor(70 + Math.random() * 28);
-    showResult({
-      total_score: score,
-      max_score: 100,
-      confidence: 'high',
-      bottom_line: `${scanSelectedStudent.name} הפגין/ה הבנה טובה של הנושא. יש לחזק את נושא השברים.`,
-      strengths: ['שליטה בחיבור וחיסור', 'פתרון בעיות מילוליות'],
-      weaknesses: ['חיבור שברים עם מכנה משותף'],
-      questions: Array.from({length:5}, (_,i) => ({
-        question_number: i+1,
-        question_text: `שאלה ${i+1}`,
-        is_correct: Math.random() > .3,
-        points_awarded: Math.floor(Math.random()*10)+1,
-        max_points: 10,
-        ai_feedback: 'תשובה טובה, המשך/י כך!'
-      }))
-    });
-  }
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'שגיאת שרת');
+      }
+
+      const data = await res.json();
+      const r = data.result;
+
+      if (!r.is_legible || r.confidence === 'uncertain') {
+        showFallback('כתב היד לא ברור מספיק. אנא הזן/י את הציון ידנית.');
+        return;
+      }
+
+      showResult(r, examName, student, subject);
+    } catch(err) {
+      console.error(err);
+      showFallback(err.message);
+    }
+  };
+  reader.readAsDataURL(blob);
 }
 
-function showResult(r) {
-  document.getElementById('scan-step-loading').style.display = 'none';
-  const el = document.getElementById('scan-step-result');
+function showResult(r, examName, student, subject) {
+  document.getElementById('scan-3').style.display = 'none';
+  const el = document.getElementById('scan-4');
   el.style.display = 'block';
-  const correct = r.questions?.filter(q => q.is_correct).length || 0;
-  const total = r.questions?.length || 5;
   el.innerHTML = `
-    <div class="card" style="margin-bottom:1rem;">
+    <div class="card card-elevated" style="margin-bottom:1rem;">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
-        <div>
-          <div style="font-weight:700;font-size:1.05rem;">${scanSelectedStudent.name}</div>
-          <div style="font-size:.8rem;color:#6B7280;">${document.getElementById('scan-exam-name').value || 'מבחן'}</div>
-        </div>
-        <div style="text-align:left;">
-          <div style="font-size:3rem;font-weight:900;color:var(--green);line-height:1;">${r.total_score}</div>
-          <div style="font-size:.75rem;color:#6B7280;">מתוך 100</div>
-        </div>
+        <div><div style="font-weight:600;">${escapeHTML(student.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${escapeHTML(examName)}</div></div>
+        <div style="text-align:left;"><div style="font-family:'Frank Ruhl Libre',serif;font-size:3rem;font-weight:700;color:var(--forest);line-height:1;">${r.total_score}</div><div style="font-size:.75rem;color:var(--ink-faint);">מתוך ${r.max_score || 100}</div></div>
       </div>
-      <div style="background:var(--green-soft);border-right:4px solid var(--green);border-radius:10px;padding:.875rem;margin-bottom:.875rem;">
-        <div style="font-size:.875rem;">${r.bottom_line}</div>
-      </div>
-      ${r.strengths?.length ? `<div style="margin-bottom:.625rem;"><div style="font-weight:700;font-size:.875rem;color:#15803D;margin-bottom:.375rem;">✓ חוזקות</div>${r.strengths.map(s=>`<div style="font-size:.875rem;">· ${s}</div>`).join('')}</div>` : ''}
-      ${r.weaknesses?.length ? `<div><div style="font-weight:700;font-size:.875rem;color:var(--gold);margin-bottom:.375rem;">⚠️ לחיזוק</div>${r.weaknesses.map(s=>`<div style="font-size:.875rem;">· ${s}</div>`).join('')}</div>` : ''}
-      <div style="margin-top:.875rem;padding:.75rem;background:var(--warm);border-radius:10px;font-size:.8rem;color:#6B7280;">
-        🤖 רמת ביטחון: גבוהה · ${correct}/${total} שאלות נכונות
-      </div>
+      ${r.bottom_line ? `<div style="background:var(--forest-bg);border-right:4px solid var(--forest);border-radius:8px;padding:.875rem;margin-bottom:.875rem;font-size:.875rem;">${escapeHTML(r.bottom_line)}</div>` : ''}
+      ${r.strengths?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--forest);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.375rem;">נקודות חוזק</div>${r.strengths.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
+      ${r.weaknesses?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.375rem;">לחיזוק</div>${r.weaknesses.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
+      <div style="font-size:.75rem;color:var(--ink-faint);background:var(--paper-soft);padding:.625rem .875rem;border-radius:8px;margin-top:.75rem;">בוצע בידי Claude · רמת ביטחון: ${r.confidence==='high'?'גבוהה':r.confidence==='medium'?'בינונית':'נמוכה'}</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-      <button class="btn btn-secondary" onclick="showFallback('עריכה ידנית')">ערוך ידנית</button>
-      <button class="btn btn-primary" onclick="confirmResult(${r.total_score})">✓ אשר ושמור</button>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
+      <button class="btn btn-secondary" onclick="showFallback('עריכת ציון ידנית')">ערוך</button>
+      <button class="btn btn-primary" onclick="confirmAI(${r.total_score},'${escapeHTML(examName)}',${student.id})">אשר ושמור</button>
     </div>`;
 }
 
 function showFallback(msg) {
-  document.getElementById('scan-step-loading').style.display = 'none';
-  document.getElementById('scan-step-result').style.display = 'none';
-  const el = document.getElementById('scan-step-fallback');
+  document.getElementById('scan-2').style.display = 'none';
+  document.getElementById('scan-3').style.display = 'none';
+  document.getElementById('scan-4').style.display = 'none';
+  const student = db.students.find(s => s.id === scanStudentId);
+  const examName = document.getElementById('scan-name').value || 'מבחן';
+  const el = document.getElementById('scan-5');
   el.style.display = 'block';
   el.innerHTML = `
-    ${msg !== 'עריכה ידנית' ? `<div style="background:var(--gold-soft);border:1.5px solid #e0c070;border-radius:14px;padding:.875rem;margin-bottom:1rem;display:flex;gap:.75rem;align-items:start;">
-      <div style="font-size:1.25rem;">⚠️</div>
-      <div><div style="font-weight:700;color:#78350F;">${msg}</div><div style="font-size:.875rem;color:#92400E;margin-top:.25rem;">המשך עם הזנה ידנית מהירה.</div></div>
-    </div>` : ''}
-    <div class="card" style="margin-bottom:1rem;">
-      <div style="text-align:center;margin-bottom:1rem;">
-        <div style="font-weight:700;">${scanSelectedStudent?.name}</div>
+    ${msg && msg !== 'עריכת ציון ידנית' ? `<div style="background:var(--gold-bg);border:1px solid #d4b370;border-radius:10px;padding:.875rem;margin-bottom:1rem;font-size:.875rem;color:var(--gold);">${escapeHTML(msg)}</div>` : ''}
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div style="text-align:center;margin-bottom:1.25rem;">
+        <div style="font-weight:600;">${escapeHTML(student.name)}</div>
+        <div style="font-size:.8rem;color:var(--ink-faint);">${escapeHTML(examName)}</div>
       </div>
-      <div class="input-wrap">
-        <label class="label">ציון סופי (0-100)</label>
-        <input type="number" class="input" id="fallback-score" style="text-align:center;font-size:1.5rem;font-weight:800;" min="0" max="100" autofocus>
-      </div>
-      <div>
-        <label class="label">הערות מורה (אופציונלי)</label>
-        <textarea class="textarea" id="fallback-notes" rows="3" placeholder="לדוגמה: עבודה טובה, לחזק שברים"></textarea>
-      </div>
+      <div class="field"><label class="label">ציון סופי (0–100)</label><input type="number" class="input" id="fb-score" min="0" max="100" style="text-align:center;font-size:1.5rem;font-weight:700;" autofocus></div>
+      <div class="field" style="margin-bottom:0;"><label class="label">הערות (אופציונלי)</label><textarea class="textarea" id="fb-notes" rows="3" placeholder="לדוגמה: חיזוק בשברים"></textarea></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
-      <button class="btn btn-secondary" onclick="showScanStudent()">← חזרה</button>
-      <button class="btn btn-primary" onclick="saveFallback()">✓ שמור</button>
+      <button class="btn btn-secondary" onclick="scan1()">חזרה</button>
+      <button class="btn btn-primary" onclick="saveFallback()">שמירה</button>
     </div>`;
 }
 
-function confirmResult(score) {
-  notify(`✅ מבחן נשמר! ציון: ${score}`);
+function confirmAI(score, examName, studentId) {
+  db.exams.push({ id:Date.now(), studentId, subjectId:activeSubjectId, examName, date:new Date().toISOString().split('T')[0], score, source:'ai' });
+  saveDB();
+  toast('המבחן נשמר');
   go('s-subject');
 }
 
 function saveFallback() {
-  const score = document.getElementById('fallback-score')?.value;
-  if (!score) { notify('נא להזין ציון'); return; }
-  notify(`✅ ציון ${score} נשמר!`);
+  const score = parseInt(document.getElementById('fb-score').value);
+  if (isNaN(score) || score < 0 || score > 100) { toast('ציון לא תקין'); return; }
+  const examName = document.getElementById('scan-name').value || 'מבחן';
+  db.exams.push({ id:Date.now(), studentId:scanStudentId, subjectId:activeSubjectId, examName, date:new Date().toISOString().split('T')[0], score, source:'manual' });
+  saveDB();
+  toast('הציון נשמר');
   go('s-subject');
 }
 
-// ============ ANALYTICS ============
-function renderAnalytics() {
-  const qs = [
-    { n:1, desc:'חיבור בסיסי', correct:26, total:28 },
-    { n:2, desc:'שבר פשוט', correct:24, total:28 },
-    { n:3, desc:'שוויון שברים', correct:22, total:28 },
-    { n:4, desc:'המרת שבר', correct:20, total:28 },
-    { n:6, desc:'מכנה משותף', correct:8, total:28, critical:true },
-    { n:7, desc:'בעיה מילולית', correct:19, total:28 }
-  ];
-  document.getElementById('analytics-questions').innerHTML = qs.map(q => {
-    const pct = Math.round(q.correct/q.total*100);
-    const color = pct>=80 ? '#15803D' : pct>=65 ? '#1D4ED8' : pct>=50 ? '#D97706' : '#B91C1C';
-    const bg = pct>=80 ? '#22C55E' : pct>=65 ? '#3B82F6' : pct>=50 ? '#F59E0B' : '#EF4444';
-    return `<div class="card" style="${q.critical?'border:2px solid var(--red);background:var(--red-soft);':''}margin-bottom:.75rem;">
-      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:.625rem;">
-        <div>
-          <div style="font-weight:700;${q.critical?'color:#7F1D1D;':''}">${q.critical?'⚠️ ':''}שאלה ${q.n} — ${q.desc}</div>
-          <div style="font-size:.8rem;color:${q.critical?'#991B1B':'#6B7280'};">${q.correct} מתוך ${q.total} נכון</div>
-        </div>
-        <div style="font-size:1.5rem;font-weight:900;color:${color};">${pct}%</div>
+function scanBack() {
+  stopCamera();
+  if (document.getElementById('scan-2').style.display === 'block') { scan1(); return; }
+  go('s-subject');
+}
+
+// ============ HOMEWORK ============
+function initHW() {
+  const sel = document.getElementById('hw-subject');
+  const mySubjects = db.subjects.filter(s => s.teacherId === activeProfileId);
+  sel.innerHTML = mySubjects.map(s => `<option value="${s.id}">${escapeHTML(s.name)}</option>`).join('');
+  document.getElementById('hw-date').value = new Date().toISOString().split('T')[0];
+  renderHW();
+}
+
+function renderHW() {
+  const subjectId = parseInt(document.getElementById('hw-subject').value);
+  const date = document.getElementById('hw-date').value;
+  const subject = db.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+  const students = db.students.filter(s => s.classId === subject.classId);
+  const key = `${subjectId}_${date}`;
+  const marks = db.homework[key] || {};
+
+  let v=0,h=0,x=0;
+  Object.values(marks).forEach(m => { if(m==='v')v++; else if(m==='half')h++; else if(m==='x')x++; });
+  document.getElementById('hw-v-c').textContent = v;
+  document.getElementById('hw-h-c').textContent = h;
+  document.getElementById('hw-x-c').textContent = x;
+
+  const list = document.getElementById('hw-list');
+  list.innerHTML = students.map(s => `
+    <div class="hw-row">
+      <div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div>
+      <div style="flex:1;font-weight:500;">${escapeHTML(s.name)}</div>
+      <div class="hw-marks">
+        <button class="hw-btn v ${marks[s.id]==='v'?'on':''}" onclick="toggleHW(${s.id},'v')">✓</button>
+        <button class="hw-btn half ${marks[s.id]==='half'?'on':''}" onclick="toggleHW(${s.id},'half')">~</button>
+        <button class="hw-btn x ${marks[s.id]==='x'?'on':''}" onclick="toggleHW(${s.id},'x')">✗</button>
       </div>
-      <div class="skill-bar"><div class="skill-fill" style="width:${pct}%;background:${bg};"></div></div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
+}
+
+function toggleHW(studentId, mark) {
+  const subjectId = parseInt(document.getElementById('hw-subject').value);
+  const date = document.getElementById('hw-date').value;
+  const key = `${subjectId}_${date}`;
+  if (!db.homework[key]) db.homework[key] = {};
+  if (db.homework[key][studentId] === mark) delete db.homework[key][studentId];
+  else db.homework[key][studentId] = mark;
+  saveDB();
+  renderHW();
 }
 
 // ============ SETTINGS ============
 function renderSettings() {
-  document.getElementById('settings-school').textContent = activeSchool.name;
-  if (activeProfile) {
-    document.getElementById('settings-profile-name').textContent = activeProfile.name;
-    const av = document.getElementById('settings-avatar');
-    av.textContent = getInitials(activeProfile.name);
-    av.style.background = activeProfile.color;
+  document.getElementById('se-school').textContent = db.school?.name || '';
+  const p = activeProfile();
+  if (p) {
+    document.getElementById('se-name').textContent = p.name;
+    document.getElementById('se-role').textContent = p.isHomeroom ? 'מחנכ/ת' : 'מורה';
+    const a = document.getElementById('se-avatar');
+    a.textContent = getInitials(p.name);
+    a.style.background = p.color;
   }
 }
 
 // ============ WHATSAPP ============
-function showWhatsApp() {
-  document.getElementById('modal-wa').classList.add('open');
-}
+function openWAModal() { document.getElementById('m-wa').classList.add('open'); }
 
 function sendWA() {
-  const phone = document.getElementById('wa-phone').value.replace(/[^\d]/g,'');
-  if (!phone) { notify('נא להזין מספר טלפון'); return; }
-  let cleanPhone = phone;
-  if (cleanPhone.startsWith('0')) cleanPhone = '972' + cleanPhone.slice(1);
-  const s = activeStudent;
-  const msg = encodeURIComponent(`שלום רב,\n\nשמי ${activeProfile?.name || 'המורה'}.\nמצורף דוח התקדמות של ${s.name}.\nממוצע עדכני: ${s.avg}.\n\nבברכה,\n${activeProfile?.name || 'המורה'}`);
-  window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
-  closeModal('modal-wa');
+  const phone = document.getElementById('wa-num').value.replace(/[^\d]/g,'');
+  if (!phone) { toast('נא להזין מספר'); return; }
+  let p = phone;
+  if (p.startsWith('0')) p = '972' + p.slice(1);
+  const s = db.students.find(x => x.id === activeStudentId);
+  const teacher = activeProfile();
+  const exams = db.exams.filter(e => e.studentId === s.id);
+  const avg = exams.length ? Math.round(exams.map(e=>e.score).reduce((a,b)=>a+b,0)/exams.length) : '–';
+  const msg = encodeURIComponent(`שלום רב,\n\nשמי ${teacher.name}.\nמצורף סיכום התקדמות של ${s.name}.\nממוצע ציונים עדכני: ${avg}.\n\nבברכה,\n${teacher.name}`);
+  window.open(`https://wa.me/${p}?text=${msg}`, '_blank');
+  closeModal('m-wa');
 }
 
-// ============ MODALS ============
+// ============ HELPERS ============
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
-});
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
 
-// ============ NOTIFY ============
-function notify(msg) {
-  const n = document.getElementById('notif');
-  n.textContent = msg;
-  n.classList.add('show');
-  setTimeout(() => n.classList.remove('show'), 2800);
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ============ UTILS ============
-function getInitials(name) {
-  return name.split(' ').map(w=>w[0]).slice(0,2).join('');
-}
-function avatarColor(name) {
-  return COLORS[name.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % COLORS.length];
-}
-function gradeClass(score) {
-  return score>=90 ? 'grade-90' : score>=75 ? 'grade-75' : score>=60 ? 'grade-60' : 'grade-low';
-}
-
-// Init
-document.addEventListener('DOMContentLoaded', () => {});
+function activeProfile() { return db.profiles.find(p => p.id === activeProfileId); }
+function getInitials(name) { return name.split(' ').map(w => w[0]).slice(0,2).join(''); }
+function avatarColor(name) { return COLORS[name.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % COLORS.length]; }
+function gradeClass(s) { return s>=90?'grade-excellent':s>=75?'grade-good':s>=60?'grade-ok':'grade-low'; }
+function escapeHTML(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function formatDate(d) { return new Date(d).toLocaleDateString('he-IL',{day:'numeric',month:'long'}); }
 </script>
 </body>
 </html>
