@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
   try {
-    const { image, studentName, examName, subject, teacherGender } = req.body;
+    const { image, studentName, examName, subject, teacherGender, school_id, student_id } = req.body;
     if (!image || !studentName) return res.status(400).json({ error: 'Missing required fields' });
 
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
@@ -21,42 +21,37 @@ export default async function handler(req, res) {
 
 **חוקי בדיקה קריטיים:**
 
-1. **בדיקה מדויקת של תשובות**: עבור כל שאלה - קרא בעיון את שאלת המבחן ואת תשובת התלמיד שכתב בכתב יד. **בדוק האם התשובה נכונה מבחינה מתמטית/לוגית**. אל תניח שהתשובה נכונה רק כי היא קיימת - חשב את התשובה הנכונה ובדוק התאמה.
+1. **בדיקה מדויקת**: עבור כל שאלה - קרא את שאלת המבחן ואת תשובת התלמיד. חשב את התשובה הנכונה בעצמך, ואז השווה. אל תניח שהתשובה נכונה רק כי היא קיימת.
 
-2. **משוב מפורט לכל שאלה**: עבור כל שאלה כתוב:
-   - מה השאלה שאלה
-   - מה התלמיד ענה (בדיוק כפי שכתב)
-   - האם זה נכון/שגוי
-   - אם שגוי - מה התשובה הנכונה ומה הטעות שעשה התלמיד
-   - הסבר פדגוגי קצר
+2. **משוב מפורט לכל שאלה**: כתוב מה השאלה, מה התלמיד ענה, האם נכון, ואם שגוי - מה התשובה הנכונה ומה הטעות.
 
-3. **חישוב ציון לפי מערכת ישראלית**: הציון תמיד מתוך **100** (לא 30, לא משהו אחר). חשב לפי כמות השאלות הנכונות מתוך הסך הכל, ומכפל ב-100. למשל: 4 נכון מתוך 6 = 67. אם יש ניקוד שונה לכל שאלה - חלק לפי משקל יחסי.
+3. **ציון מתוך 100 (סטנדרט ישראלי)**. תמיד.
 
-4. **אמת מוחלטת**: אם כתב היד לא ברור - החזר is_legible: false ו-confidence: "uncertain". אל תנחש.
+4. **אמת מוחלטת**: אם כתב היד לא ברור - is_legible: false, confidence: "uncertain". אל תנחש.
 
-5. **מגדר**: ${teacherTitle}. כל המשוב צריך להיות מנוסח בהתאם.
+5. **מגדר**: ${teacherTitle}. נסח בהתאם.
 
-6. **שם התלמיד**: ${studentName}. השתמש בשם במשוב הכללי.
+6. **שם התלמיד**: ${studentName}.
 
-**פורמט החזרה - JSON בלבד, ללא markdown:**
+**פורמט JSON בלבד, ללא markdown:**
 {
   "total_score": 67,
   "max_score": 100,
-  "bottom_line": "סיכום של 2-3 משפטים על הביצוע הכללי ועל הנושאים החזקים והחלשים",
-  "strengths": ["נקודת חוזק 1 ספציפית", "נקודת חוזק 2 ספציפית"],
-  "weaknesses": ["נקודה לחיזוק ספציפית 1", "נקודה לחיזוק ספציפית 2"],
+  "bottom_line": "סיכום של 2-3 משפטים",
+  "strengths": ["נקודה ספציפית"],
+  "weaknesses": ["נקודה ספציפית"],
   "confidence": "high",
   "is_legible": true,
   "questions": [
     {
       "number": 1,
-      "question_text": "השאלה כפי שמופיעה במבחן",
-      "student_answer": "התשובה שהתלמיד כתב",
+      "question_text": "השאלה",
+      "student_answer": "תשובת התלמיד",
       "correct_answer": "התשובה הנכונה",
       "is_correct": true,
       "points": 17,
       "max": 17,
-      "feedback": "הסבר מפורט - מה התלמיד ענה, האם נכון, ואם לא - מה התשובה הנכונה והטעות"
+      "feedback": "הסבר מפורט"
     }
   ]
 }`;
@@ -78,10 +73,10 @@ export default async function handler(req, res) {
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Data } },
             { type: 'text', text: `בדוק את המבחן "${examName || 'מבחן'}" של ${studentName} ב${subject || 'מקצוע'}.
 
-חשוב מאוד:
-- לכל שאלה: חשב את התשובה הנכונה בעצמך, ואז השווה לתשובה שהתלמיד כתב.
-- ציון סופי תמיד מתוך 100 (סטנדרט ישראלי).
-- כתוב משוב מפורט לכל שאלה - לא הסבר כללי.
+חשוב:
+- לכל שאלה: חשב את התשובה הנכונה בעצמך, ואז השווה.
+- ציון מתוך 100.
+- משוב מפורט לכל שאלה.
 
 החזר JSON בלבד.` }
           ]
@@ -102,11 +97,28 @@ export default async function handler(req, res) {
     const cleaned = textBlock.text.replace(/```json\s*|```\s*$/g, '').trim();
     const result = JSON.parse(cleaned);
 
-    // Safety check - force max_score to 100
     if (result.max_score !== 100) {
       const ratio = 100 / (result.max_score || 100);
       result.total_score = Math.round(result.total_score * ratio);
       result.max_score = 100;
+    }
+
+    // Log AI usage (fire and forget)
+    if (school_id) {
+      const SUPABASE_URL = process.env.SUPABASE_URL;
+      const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+      if (SUPABASE_URL && SERVICE_KEY) {
+        fetch(`${SUPABASE_URL}/rest/v1/ai_usage`, {
+          method: 'POST',
+          headers: {
+            'apikey': SERVICE_KEY,
+            'Authorization': `Bearer ${SERVICE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ school_id, student_id })
+        }).catch(e => console.error('Log AI failed', e));
+      }
     }
 
     return res.status(200).json({ success: true, result });
