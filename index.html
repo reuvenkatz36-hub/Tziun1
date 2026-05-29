@@ -536,6 +536,50 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
   </div>
 </div>
 
+<!-- ========== GRADE SCAN (from pending exam) ========== -->
+<div class="screen" id="s-grade-scan">
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="gradeScanBack()">←&nbsp; חזרה</button><div id="gs-title" style="font-weight:600;">בדיקת מבחן</div><div style="width:60px;"></div></div></header>
+
+  <div class="container-narrow" id="gs-1">
+    <div class="card card-elevated" style="margin-bottom:1rem;text-align:center;padding:1rem;">
+      <div style="font-weight:600;" id="gs-exam-name"></div>
+      <div style="font-size:.8rem;color:var(--ink-faint);margin-top:.25rem;">בחרו תלמיד כדי לסרוק את המבחן שלו</div>
+    </div>
+    <div class="card card-elevated">
+      <input type="search" class="input" id="gs-search" placeholder="חיפוש תלמיד" oninput="renderGradeStudents()" style="margin-bottom:.75rem;">
+      <div id="gs-students" style="max-height:400px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <div class="container-narrow" id="gs-2" style="display:none;">
+    <div class="card card-elevated" style="text-align:center;margin-bottom:1rem;padding:1rem;"><div id="gs-student-label" style="font-weight:600;"></div><div id="gs-exam-label" style="font-size:.8rem;color:var(--ink-faint);margin-top:.25rem;"></div></div>
+    <div class="camera-stage" id="gs-camera-stage"><video id="gs-video" autoplay playsinline muted></video><div class="camera-frame" id="gs-frame"></div><div class="camera-quality quality-checking" id="gs-quality">בודק איכות תמונה...</div></div>
+    <button class="btn btn-primary btn-block btn-lg" id="gs-capture" onclick="gradeCapture()" disabled>צילום מבחן</button>
+    <div style="margin-top:.75rem;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+      <label class="btn btn-secondary">העלאת תמונה<input type="file" accept="image/jpeg,image/png" style="display:none;" onchange="gradeUpload(event)"></label>
+      <button class="btn btn-ghost" onclick="gradeScan1()">← תלמיד אחר</button>
+    </div>
+  </div>
+
+  <div class="container-narrow" id="gs-3" style="display:none;">
+    <div class="card card-elevated loading-state">
+      <div class="tziun-loader">
+        <svg class="tziun-loader-svg logo-anim" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 20 10 L 60 10 L 35 50 L 60 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M 75 10 L 75 50 M 65 10 L 85 10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M 100 25 Q 110 10 120 25 Q 120 35 110 38 L 110 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M 135 10 L 135 50 M 125 10 L 145 10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M 160 50 L 160 25 Q 165 15 175 25 L 175 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <div><div class="tziun-loader-text">Tziun בודק מול התשובות</div><div class="tziun-loader-sub">בדיקה מדויקת · 20–40 שניות</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-narrow" id="gs-4" style="display:none;"></div>
+  <div class="container-narrow" id="gs-5" style="display:none;"></div>
+</div>
+
 <!-- ========== AI SCAN ========== -->
 <div class="screen" id="s-scan">
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="scanBack()">←&nbsp; חזרה</button><div style="font-weight:600;">סריקת AI</div><div style="width:60px;"></div></div></header>
@@ -806,6 +850,7 @@ function go(id) {
   if (id === 's-student') renderSF();
   if (id === 's-onboarding') initOnboarding();
   if (id === 's-generate') initChat();
+  if (id === 's-grade-scan') gradeScan1();
   if (id === 's-admin') loadAdmin();
 }
 
@@ -1075,17 +1120,27 @@ async function renderPendingExams() {
       box.innerHTML = `<div style="text-align:center;padding:1.25rem;background:var(--paper-soft);border-radius:10px;color:var(--ink-faint);font-size:.9rem;">אין מבחנים שממתינים לבדיקה. צרו מבחן חדש כדי להתחיל.</div>`;
       return;
     }
-    box.innerHTML = exams.map(e => `<div class="card" style="display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;"><div style="width:40px;height:40px;background:var(--gold-bg);color:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;flex-shrink:0;">מ</div><div style="flex:1;min-width:0;"><div style="font-weight:600;">${escapeHTML(e.title)}</div><div style="font-size:.78rem;color:var(--ink-faint);">נוצר ${formatDate(e.created_at)} · ${e.total_points} נק'</div></div><div style="display:flex;gap:.375rem;"><button class="btn btn-secondary" style="padding:.4rem .7rem;font-size:.8rem;" onclick='reprintPending(${JSON.stringify(JSON.stringify(e.exam_structure))})'>הדפס</button><button class="btn btn-ghost" style="padding:.4rem .6rem;font-size:.8rem;color:var(--rust);" onclick="deletePending('${e.id}')">✕</button></div></div>`).join('');
+    pendingExamsCache = {};
+    exams.forEach(e => { pendingExamsCache[e.id] = e; });
+    box.innerHTML = exams.map(e => `<div class="card" style="display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;flex-wrap:wrap;"><div style="width:40px;height:40px;background:var(--gold-bg);color:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;flex-shrink:0;">מ</div><div style="flex:1;min-width:0;"><div style="font-weight:600;">${escapeHTML(e.title)}</div><div style="font-size:.78rem;color:var(--ink-faint);">נוצר ${formatDate(e.created_at)} · ${e.total_points} נק'</div></div><div style="display:flex;gap:.375rem;"><button class="btn btn-primary" style="padding:.4rem .8rem;font-size:.8rem;" onclick="checkPending('${e.id}')">בדוק מבחנים</button><button class="btn btn-secondary" style="padding:.4rem .7rem;font-size:.8rem;" onclick="reprintPending('${e.id}')">הדפס</button><button class="btn btn-ghost" style="padding:.4rem .6rem;font-size:.8rem;color:var(--rust);" onclick="deletePending('${e.id}')">✕</button></div></div>`).join('');
   } catch(err) {
     box.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--rust);font-size:.85rem;">שגיאה בטעינה</div>`;
   }
 }
 
-function reprintPending(examJSON) {
-  try {
-    const exam = JSON.parse(examJSON);
-    openPrintWindow(exam);
-  } catch(e) { toast('שגיאה'); }
+let pendingExamsCache = {};
+
+function reprintPending(id) {
+  const e = pendingExamsCache[id];
+  if (!e) { toast('שגיאה'); return; }
+  openPrintWindow(e.exam_structure);
+}
+
+function checkPending(id) {
+  const e = pendingExamsCache[id];
+  if (!e) { toast('שגיאה'); return; }
+  gradingExam = e;
+  go('s-grade-scan');
 }
 
 async function deletePending(id) {
@@ -1688,6 +1743,204 @@ async function toggleActive(id, isActive) {
   } catch(err) {
     toast('שגיאה: ' + err.message);
   }
+}
+
+// ============================================================
+// GRADE SCAN (from pending generated exam)
+// ============================================================
+let gradingExam = null;
+let gradeStudentId = null;
+let lastGradeResult = null;
+let gsStream = null;
+let gsQInterval = null;
+
+function gradeScan1() {
+  gradeStudentId = null;
+  if (!gradingExam) { go('s-subject'); return; }
+  document.getElementById('gs-exam-name').textContent = gradingExam.title;
+  document.getElementById('gs-1').style.display = 'block';
+  ['gs-2','gs-3','gs-4','gs-5'].forEach(id => document.getElementById(id).style.display = 'none');
+  stopGradeCamera();
+  renderGradeStudents();
+}
+
+function renderGradeStudents() {
+  const subject = state.subjects.find(s => s.id === gradingExam.subject_id);
+  let students = subject ? state.students.filter(s => s.class_id === subject.class_id) : [];
+  const q = document.getElementById('gs-search').value;
+  if (q) students = students.filter(s => s.name.includes(q));
+  // Which students already graded for this exam?
+  const gradedNames = new Set(state.exams.filter(e => e.exam_name === gradingExam.title).map(e => e.student_id));
+  document.getElementById('gs-students').innerHTML = students.map(s => {
+    const done = gradedNames.has(s.id);
+    return `<button onclick="selectGradeStudent('${s.id}')" style="width:100%;display:flex;align-items:center;gap:.875rem;padding:.75rem;background:var(--paper-soft);border-radius:10px;border:none;cursor:pointer;margin-bottom:.375rem;text-align:right;font-family:inherit;"><div class="avatar" style="width:36px;height:36px;font-size:.8rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div><div style="flex:1;font-weight:500;">${escapeHTML(s.name)}</div>${done?'<span class="tag tag-forest" style="font-size:.7rem;">נבדק</span>':'<div style="color:var(--ink-faint);">←</div>'}</button>`;
+  }).join('');
+}
+
+function selectGradeStudent(id) {
+  gradeStudentId = id;
+  const s = state.students.find(x => x.id === id);
+  document.getElementById('gs-student-label').textContent = s.name;
+  document.getElementById('gs-exam-label').textContent = gradingExam.title;
+  document.getElementById('gs-1').style.display = 'none';
+  document.getElementById('gs-2').style.display = 'block';
+  startGradeCamera();
+}
+
+async function startGradeCamera() {
+  try {
+    gsStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment', width:{ideal:1920}, height:{ideal:1080} } });
+    const v = document.getElementById('gs-video');
+    v.srcObject = gsStream; v.play();
+    gradeQualityCheck();
+  } catch(e) {
+    document.getElementById('gs-camera-stage').innerHTML = '<div style="color:#fff;padding:2rem;text-align:center;display:flex;flex-direction:column;justify-content:center;height:100%;"><div>מצלמה לא זמינה</div><div style="font-size:.8rem;opacity:.7;margin-top:.5rem;">השתמשו ב"העלאת תמונה"</div></div>';
+  }
+}
+
+function stopGradeCamera() {
+  if (gsStream) { gsStream.getTracks().forEach(t => t.stop()); gsStream = null; }
+  if (gsQInterval) { clearInterval(gsQInterval); gsQInterval = null; }
+}
+
+function gradeQualityCheck() {
+  const v = document.getElementById('gs-video');
+  const frame = document.getElementById('gs-frame');
+  const q = document.getElementById('gs-quality');
+  const btn = document.getElementById('gs-capture');
+  const c = document.createElement('canvas');
+  gsQInterval = setInterval(() => {
+    if (!v.videoWidth) return;
+    const ctx = c.getContext('2d');
+    c.width = 200; c.height = 200;
+    ctx.drawImage(v, 0, 0, 200, 200);
+    const data = ctx.getImageData(0, 0, 200, 200).data;
+    let mean = 0, lumas = [];
+    for (let i = 0; i < data.length; i += 4) { const l = .299*data[i]+.587*data[i+1]+.114*data[i+2]; lumas.push(l); mean += l; }
+    mean /= lumas.length;
+    const variance = lumas.reduce((s,l) => s+(l-mean)**2, 0) / lumas.length;
+    const good = variance > 400;
+    frame.className = 'camera-frame ' + (good ? 'good' : 'bad');
+    q.className = 'camera-quality ' + (good ? 'quality-good' : 'quality-bad');
+    q.textContent = good ? 'איכות טובה' : 'מטושטש';
+    btn.disabled = !good;
+  }, 400);
+}
+
+function gradeCapture() {
+  const v = document.getElementById('gs-video');
+  const c = document.createElement('canvas');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  c.getContext('2d').drawImage(v, 0, 0);
+  c.toBlob(blob => { stopGradeCamera(); runGradeAI(blob); }, 'image/jpeg', .9);
+}
+
+function gradeUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  stopGradeCamera();
+  runGradeAI(file);
+}
+
+async function runGradeAI(blob) {
+  document.getElementById('gs-2').style.display = 'none';
+  document.getElementById('gs-3').style.display = 'block';
+  try {
+    const studentBase64 = await compressImage(blob, 1600, 0.8);
+    const student = state.students.find(s => s.id === gradeStudentId);
+    const teacher = activeProfile();
+    const data = await api('grade', {
+      studentImage: studentBase64,
+      examStructure: gradingExam.exam_structure,
+      studentName: student.name,
+      examName: gradingExam.title,
+      teacherGender: teacher.gender,
+      school_id: state.school.id,
+      student_id: student.id
+    });
+    const r = data.result;
+    if (!r.is_legible || r.confidence === 'uncertain') {
+      gradeFallback(r.message || 'כתב היד לא ברור מספיק. הזינו ציון ידנית.');
+      return;
+    }
+    showGradeResult(r, student);
+  } catch(err) {
+    gradeFallback(err.message);
+  }
+}
+
+function showGradeResult(r, student) {
+  document.getElementById('gs-3').style.display = 'none';
+  const el = document.getElementById('gs-4');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+        <div><div style="font-weight:600;">${escapeHTML(student.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${escapeHTML(gradingExam.title)}</div></div>
+        <div style="text-align:left;"><div style="font-family:'Frank Ruhl Libre',serif;font-size:3rem;font-weight:700;color:var(--forest);line-height:1;">${r.total_score}</div><div style="font-size:.75rem;color:var(--ink-faint);">מתוך 100</div></div>
+      </div>
+      ${r.bottom_line ? `<div style="background:var(--forest-bg);border-right:4px solid var(--forest);border-radius:8px;padding:.875rem;margin-bottom:.875rem;font-size:.875rem;">${escapeHTML(r.bottom_line)}</div>` : ''}
+      ${r.errors_summary?.length ? `<div style="background:var(--rust-bg);border-right:4px solid var(--rust);border-radius:8px;padding:.875rem;margin-bottom:.875rem;"><div style="font-weight:700;font-size:.85rem;color:var(--rust);margin-bottom:.375rem;">שאלות שבהן נפלו טעויות</div><div style="display:flex;flex-wrap:wrap;gap:.375rem;">${r.errors_summary.map(e=>`<span style="background:var(--paper);border:1px solid var(--rust);color:var(--rust);padding:.2rem .6rem;border-radius:100px;font-size:.8rem;font-weight:600;">${escapeHTML(e)}</span>`).join('')}</div></div>` : ''}
+      ${r.weaknesses?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.375rem;">לחיזוק</div>${r.weaknesses.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
+      ${r.questions?.length ? `<details style="margin-top:1rem;" open><summary style="cursor:pointer;font-weight:600;font-size:.85rem;color:var(--ink-soft);">פירוט לפי שאלות (${r.questions.length})</summary><div style="margin-top:.75rem;">${r.questions.map(q=>{const cl=q.is_correct==='full'?'נכון':q.is_correct==='partial'?'חלקי':q.is_correct==='unclear'?'לא ברור':'שגוי';const co=q.is_correct==='full'?'var(--forest)':q.is_correct==='partial'?'var(--gold)':'var(--rust)';const partsHTML=(q.has_parts&&q.parts&&q.parts.length)?`<div style="margin-top:.5rem;padding-top:.5rem;border-top:1px dashed var(--line);">${q.parts.map(p=>{const pcl=p.is_correct==='full'?'נכון':p.is_correct==='partial'?'חלקי':'שגוי';const pco=p.is_correct==='full'?'var(--forest)':p.is_correct==='partial'?'var(--gold)':'var(--rust)';return `<div style="display:flex;justify-content:space-between;padding:.25rem 0;font-size:.8rem;"><span><strong>סעיף ${escapeHTML(p.label||'')}</strong>${p.student_answer?` — ${escapeHTML(p.student_answer)}`:''}</span><span style="color:${pco};font-weight:600;white-space:nowrap;">${pcl} (${formatPts(p.points)}/${formatPts(p.max)})</span></div>`}).join('')}</div>`:'';return `<div style="padding:.75rem;background:var(--paper-soft);border-radius:8px;margin-bottom:.5rem;font-size:.85rem;border-right:3px solid ${co};"><div style="display:flex;justify-content:space-between;margin-bottom:.375rem;"><strong>שאלה ${q.number}</strong><span style="color:${co};font-weight:600;">${cl} (${formatPts(q.points)}/${formatPts(q.max)})</span></div>${!q.has_parts&&q.student_answer?`<div style="font-size:.8rem;color:var(--ink-soft);margin-top:.25rem;"><strong>תלמיד:</strong> ${escapeHTML(q.student_answer)}</div>`:''}${!q.has_parts&&q.correct_answer?`<div style="font-size:.8rem;color:var(--ink-soft);margin-top:.25rem;"><strong>נכון:</strong> ${escapeHTML(q.correct_answer)}</div>`:''}${q.feedback?`<div style="margin-top:.375rem;">${escapeHTML(q.feedback)}</div>`:''}${partsHTML}</div>`}).join('')}</div></details>` : ''}
+      <div style="font-size:.75rem;color:var(--ink-faint);background:var(--paper-soft);padding:.625rem .875rem;border-radius:8px;margin-top:.75rem;">בוצע בידי Tziun · אומת ב-2 בדיקות${r.verification?` · ${r.verification.scores.join(', ')}`:''}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
+      <button class="btn btn-secondary" onclick="gradeFallback('עריכה ידנית')">ערוך</button>
+      <button class="btn btn-primary" onclick='confirmGrade()'>אשר ושמור</button>
+    </div>`;
+  lastGradeResult = r;
+}
+
+function gradeFallback(msg) {
+  ['gs-2','gs-3','gs-4'].forEach(id => document.getElementById(id).style.display = 'none');
+  const student = state.students.find(s => s.id === gradeStudentId);
+  const el = document.getElementById('gs-5');
+  el.style.display = 'block';
+  el.innerHTML = `
+    ${msg && msg !== 'עריכה ידנית' ? `<div style="background:var(--gold-bg);border:1px solid #d4b370;border-radius:10px;padding:.875rem;margin-bottom:1rem;font-size:.875rem;color:var(--gold);">${escapeHTML(msg)}</div>` : ''}
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div style="text-align:center;margin-bottom:1.25rem;"><div style="font-weight:600;">${escapeHTML(student.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${escapeHTML(gradingExam.title)}</div></div>
+      <div class="field"><label class="label">ציון (0–100)</label><input type="number" class="input" id="gs-fb-score" min="0" max="100" style="text-align:center;font-size:1.5rem;font-weight:700;" autofocus></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="gradeScan1()">חזרה</button><button class="btn btn-primary" onclick="saveGradeFallback()">שמירה</button></div>`;
+}
+
+async function confirmGrade() {
+  if (!lastGradeResult) { toast('שגיאה'); return; }
+  await saveGrade(lastGradeResult.total_score, 'ai', lastGradeResult);
+}
+
+async function saveGradeFallback() {
+  const score = parseInt(document.getElementById('gs-fb-score').value);
+  if (isNaN(score) || score < 0 || score > 100) { toast('ציון לא תקין'); return; }
+  await saveGrade(score, 'manual', null);
+}
+
+async function saveGrade(score, source, aiData) {
+  try {
+    await api('data', {
+      action: 'saveExam',
+      school_id: state.school.id,
+      student_id: gradeStudentId,
+      subject_id: gradingExam.subject_id,
+      exam_name: gradingExam.title,
+      exam_date: new Date().toISOString().split('T')[0],
+      score, source, ai_data: aiData
+    });
+    await loadAllData();
+    toast('הציון נשמר לתיק התלמיד');
+    gradeScan1(); // back to student list to grade next student
+  } catch(err) {
+    toast('שגיאה: ' + err.message);
+  }
+}
+
+function gradeScanBack() {
+  stopGradeCamera();
+  const gs2 = document.getElementById('gs-2');
+  if (gs2.style.display === 'block') { gradeScan1(); return; }
+  go('s-subject');
 }
 
 // ============================================================
