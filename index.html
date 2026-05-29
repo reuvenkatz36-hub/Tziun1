@@ -269,6 +269,39 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
 .admin-row.header { background:var(--paper-soft); font-weight:600; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); }
 .admin-row:last-child { border-bottom:none; }
 
+/* CHAT */
+.chat-wrap { display:flex; flex-direction:column; height:calc(100vh - 70px); }
+.chat-messages { flex:1; overflow-y:auto; padding:1.5rem; display:flex; flex-direction:column; gap:1rem; }
+.chat-msg { max-width:85%; padding:.875rem 1.125rem; border-radius:14px; font-size:.95rem; line-height:1.5; }
+.chat-msg.user { align-self:flex-start; background:var(--ink); color:var(--paper); border-bottom-right-radius:4px; }
+.chat-msg.ai { align-self:flex-end; background:var(--paper-soft); color:var(--ink); border-bottom-left-radius:4px; }
+.chat-input-bar { padding:1rem 1.5rem; border-top:1px solid var(--line-soft); background:var(--paper); display:flex; gap:.75rem; align-items:flex-end; }
+.chat-input-bar textarea { flex:1; resize:none; min-height:48px; max-height:120px; padding:.75rem 1rem; border:1px solid var(--line); border-radius:10px; font-family:inherit; font-size:.95rem; outline:none; }
+.chat-input-bar textarea:focus { border-color:var(--ink); }
+.chat-typing { align-self:flex-end; display:flex; gap:.3rem; padding:.875rem 1.125rem; }
+.chat-typing span { width:8px; height:8px; border-radius:50%; background:var(--ink-faint); animation:typing 1.2s infinite; }
+.chat-typing span:nth-child(2) { animation-delay:.2s; }
+.chat-typing span:nth-child(3) { animation-delay:.4s; }
+@keyframes typing { 0%,60%,100%{opacity:.3;transform:translateY(0)} 30%{opacity:1;transform:translateY(-4px)} }
+
+/* EXAM PAPER */
+.exam-paper { background:#fff; border:1px solid var(--line); border-radius:8px; padding:2.5rem; max-width:680px; margin:0 auto; box-shadow:var(--shadow); font-family:'Heebo',sans-serif; }
+.exam-paper-head { text-align:center; border-bottom:2px solid var(--ink); padding-bottom:1.25rem; margin-bottom:1.5rem; }
+.exam-paper-title { font-family:'Frank Ruhl Libre',serif; font-size:1.5rem; font-weight:700; margin-bottom:.5rem; }
+.exam-paper-meta { display:flex; justify-content:center; gap:1.5rem; font-size:.85rem; color:var(--ink-soft); }
+.exam-paper-fields { display:flex; gap:1rem; margin-bottom:1.75rem; }
+.exam-field { flex:1; display:flex; align-items:center; gap:.5rem; font-size:.9rem; }
+.exam-field-box { flex:1; border:1px solid var(--ink); border-radius:4px; height:32px; }
+.exam-q { border:1.5px solid var(--ink); border-radius:8px; padding:1.125rem 1.25rem; margin-bottom:1rem; }
+.exam-q-head { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; }
+.exam-q-num { width:30px; height:30px; border:2px solid var(--ink); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem; flex-shrink:0; }
+.exam-q-text { flex:1; font-weight:500; }
+.exam-q-points { font-size:.8rem; color:var(--ink-soft); white-space:nowrap; }
+.exam-answer-label { font-size:.85rem; color:var(--ink-soft); margin-bottom:.375rem; }
+.exam-answer-box { border:1.5px dashed var(--ink-faint); border-radius:6px; min-height:60px; background:#fafafa; }
+.exam-part { margin-top:.875rem; }
+.exam-part-label { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border:1.5px solid var(--ink-soft); border-radius:50%; font-size:.8rem; font-weight:600; margin-left:.5rem; }
+
 @media (max-width:640px) {
   .container, .container-narrow, .container-wide { padding:1.5rem 1rem; }
   .topbar-inner { padding:.875rem 1rem; }
@@ -277,6 +310,7 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
   .auth-card { padding:2rem 1.5rem; }
   .admin-row { grid-template-columns:1fr; gap:.5rem; }
   .admin-row.header { display:none; }
+  .exam-paper { padding:1.5rem; }
 }
 </style>
 </head>
@@ -477,12 +511,26 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
 <div class="screen" id="s-subject">
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div id="subj-title" style="font-weight:600;"></div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
+    <button class="btn btn-primary btn-lg btn-block" onclick="go('s-generate')" style="margin-bottom:.75rem;">יצירת מבחן חדש עם Tziun</button>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem;">
-      <button class="btn btn-primary btn-lg" onclick="go('s-scan')">סריקת AI</button>
+      <button class="btn btn-secondary btn-lg" onclick="go('s-scan')">סריקת AI</button>
       <button class="btn btn-secondary btn-lg" onclick="go('s-manual')">הזנה ידנית</button>
     </div>
     <h3 class="h3" style="margin-bottom:1rem;">מבחנים אחרונים</h3>
     <div id="subj-exams"></div>
+  </div>
+</div>
+
+<!-- ========== GENERATE EXAM (CHAT) ========== -->
+<div class="screen" id="s-generate">
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;">יצירת מבחן</div><button class="btn btn-ghost" onclick="resetChat()" style="font-size:.85rem;">התחל מחדש</button></div></header>
+  <div class="chat-wrap">
+    <div class="chat-messages" id="chat-messages"></div>
+    <div id="exam-preview-area"></div>
+    <div class="chat-input-bar">
+      <textarea id="chat-input" placeholder="לדוגמה: מבחן בחיבור וחיסור עד 100, 5 שאלות, רמה בינונית" rows="1" onkeydown="chatKeydown(event)" oninput="autoGrow(this)"></textarea>
+      <button class="btn btn-primary" onclick="sendChat()" id="chat-send" style="height:48px;">שלח</button>
+    </div>
   </div>
 </div>
 
@@ -755,6 +803,7 @@ function go(id) {
   if (id === 's-settings') renderSettings();
   if (id === 's-student') renderSF();
   if (id === 's-onboarding') initOnboarding();
+  if (id === 's-generate') initChat();
   if (id === 's-admin') loadAdmin();
 }
 
@@ -1602,6 +1651,138 @@ async function toggleActive(id, isActive) {
   } catch(err) {
     toast('שגיאה: ' + err.message);
   }
+}
+
+// ============================================================
+// EXAM GENERATOR CHAT
+// ============================================================
+let chatMessages = [];
+let chatDisplay = [];
+let currentExam = null;
+
+function initChat() {
+  chatMessages = [];
+  chatDisplay = [];
+  currentExam = null;
+  document.getElementById('chat-input').value = '';
+  document.getElementById('exam-preview-area').innerHTML = '';
+  const subject = state.subjects.find(s => s.id === activeSubjectId);
+  const greeting = `שלום! אני אעזור לך ליצור מבחן ב${subject ? subject.name : 'מקצוע'}. ספרי לי מה תרצי: אילו נושאים, כמה שאלות, ואיזו רמת קושי.`;
+  chatDisplay = [{ role: 'assistant', text: greeting }];
+  renderChatMessages(chatDisplay);
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChat();
+  }
+}
+
+function renderChatMessages(displayMsgs) {
+  const box = document.getElementById('chat-messages');
+  box.innerHTML = displayMsgs.map(m =>
+    `<div class="chat-msg ${m.role === 'user' ? 'user' : 'ai'}">${escapeHTML(m.text)}</div>`
+  ).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function resetChat() {
+  initChat();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Add user message
+  chatMessages.push({ role: 'user', content: text });
+  chatDisplay.push({ role: 'user', text });
+  input.value = '';
+  input.style.height = '48px';
+  renderChatMessages(chatDisplay);
+
+  // Show typing indicator
+  const box = document.getElementById('chat-messages');
+  const typing = document.createElement('div');
+  typing.className = 'chat-typing';
+  typing.id = 'chat-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  box.appendChild(typing);
+  box.scrollTop = box.scrollHeight;
+
+  const sendBtn = document.getElementById('chat-send');
+  sendBtn.disabled = true;
+
+  try {
+    const subject = state.subjects.find(s => s.id === activeSubjectId);
+    const cls = subject ? state.classes.find(c => c.id === subject.class_id) : null;
+    const data = await api('generate', {
+      messages: chatMessages,
+      subject: subject ? subject.name : '',
+      grade: cls ? cls.grade : ''
+    });
+
+    document.getElementById('chat-typing')?.remove();
+
+    // Add AI response to history
+    chatMessages.push({ role: 'assistant', content: JSON.stringify(data) });
+    chatDisplay.push({ role: 'assistant', text: data.message || 'הנה המבחן.' });
+    renderChatMessages(chatDisplay);
+
+    if (data.exam) {
+      currentExam = data.exam;
+      renderExamPaper(data.exam);
+    }
+  } catch(err) {
+    document.getElementById('chat-typing')?.remove();
+    chatDisplay.push({ role: 'assistant', text: 'מצטער, היתה שגיאה. נסי שוב.' });
+    renderChatMessages(chatDisplay);
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+function renderExamPaper(exam) {
+  const area = document.getElementById('exam-preview-area');
+  const qHTML = (exam.questions || []).map(q => {
+    let inner = `<div class="exam-q-head"><div class="exam-q-num">${q.number}</div><div class="exam-q-text">${escapeHTML(q.text || '')}</div><div class="exam-q-points">${formatPts(q.points)} נק'</div></div>`;
+    if (q.has_parts && q.parts && q.parts.length) {
+      inner += q.parts.map(p => `<div class="exam-part"><div style="display:flex;align-items:center;margin-bottom:.375rem;"><span class="exam-part-label">${escapeHTML(p.label||'')}</span><span style="font-size:.9rem;">${escapeHTML(p.text||'')}</span><span style="margin-right:auto;font-size:.75rem;color:var(--ink-soft);">${formatPts(p.points)} נק'</span></div><div class="exam-answer-box" style="min-height:44px;"></div></div>`).join('');
+    } else {
+      inner += `<div class="exam-answer-label">תשובה:</div><div class="exam-answer-box"></div>`;
+    }
+    return `<div class="exam-q">${inner}</div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div style="padding:1.5rem;">
+      <div class="exam-paper">
+        <div class="exam-paper-head">
+          <div class="exam-paper-title">${escapeHTML(exam.title || 'מבחן')}</div>
+          <div class="exam-paper-meta"><span>${escapeHTML(exam.subject || '')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div>
+        </div>
+        <div class="exam-paper-fields">
+          <div class="exam-field">שם: <div class="exam-field-box"></div></div>
+          <div class="exam-field">כיתה: <div class="exam-field-box" style="max-width:80px;"></div></div>
+        </div>
+        ${qHTML}
+      </div>
+      <div style="max-width:680px;margin:1rem auto 0;padding-bottom:1rem;text-align:center;">
+        <p style="font-size:.85rem;color:var(--ink-faint);">זוהי תצוגה מקדימה. אפשר לבקש שינויים בצ'אט. בשלב הבא נוסיף הורדה והדפסה.</p>
+      </div>
+    </div>`;
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function formatPts(n) {
+  return Math.round(n * 10) / 10;
 }
 
 // ============================================================
