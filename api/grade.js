@@ -1,4 +1,6 @@
-// Vercel Serverless Function - Tziun AI Grading with Answer Key Comparison
+// Vercel Serverless Function - Tziun AI Grading
+// Mode A: known exam structure (answers as text) - from Tziun-generated exams
+// Mode B: answer key image - legacy fallback
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -11,59 +13,68 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
   try {
-    const { studentImage, answerKeyImage, studentName, examName, teacherGender, school_id, student_id } = req.body;
-    if (!studentImage || !answerKeyImage || !studentName) {
+    const { studentImage, answerKeyImage, examStructure, studentName, examName, teacherGender, school_id, student_id } = req.body;
+    if (!studentImage || !studentName) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+    if (!examStructure && !answerKeyImage) {
+      return res.status(400).json({ error: 'Missing answer key or exam structure' });
     }
 
     const studentB64 = studentImage.replace(/^data:image\/\w+;base64,/, '');
-    const keyB64 = answerKeyImage.replace(/^data:image\/\w+;base64,/, '');
     const teacherTitle = teacherGender === 'female' ? 'בלשון נקבה' : 'בלשון זכר';
+
+    // Build the answer reference
+    let answerReference = '';
+    let questionCount = 0;
+    if (examStructure && examStructure.questions) {
+      questionCount = examStructure.questions.length;
+      answerReference = examStructure.questions.map(q => {
+        if (q.has_parts && q.parts && q.parts.length) {
+          const parts = q.parts.map(p => `   סעיף ${p.label} (${p.points} נק'): ${p.text}\n   תשובה נכונה: ${p.correct_answer}`).join('\n');
+          return `שאלה ${q.number} (${q.points} נק') - ${q.text}\n${parts}`;
+        }
+        return `שאלה ${q.number} (${q.points} נק'): ${q.text}\n   תשובה נכונה: ${q.correct_answer}`;
+      }).join('\n\n');
+    }
 
     const systemPrompt = `אתה מורה ישראלי מומחה לבדיקת מבחנים בעברית בכיתות יסודי.
 
-**משימה: השוואה רעיונית בין שני מבחנים**
+**משימה: בדיקת מבחן של ${studentName} מול התשובות הנכונות הידועות.**
 
-קיבלת **שתי תמונות**:
-1. **מפתח תשובות**: מבחן פתור על-ידי המורה (ציון מלא 100/100)
-2. **מבחן תלמיד**: מבחן של ${studentName} שצריך לבדוק
+${examStructure ? `יש לך את **מבנה המבחן המלא והתשובות הנכונות** (המבחן נוצר על-ידי המערכת, אז התשובות ודאיות):
+
+${answerReference}
+
+**הניקוד כבר ידוע** - כל שאלה והסעיפים שלה כבר עם הניקוד שלהם למעלה. אל תשנה אותו.` : ''}
 
 **איך לבדוק:**
-
-1. **זהה את כל השאלות** במפתח התשובות. ספור כמה שאלות ראשיות יש.
-2. **חלק את 100 הנקודות בשווה בין השאלות הראשיות.** למשל:
-   - 4 שאלות = 25 נקודות לכל שאלה
-   - 5 שאלות = 20 נקודות לכל שאלה
-   - 8 שאלות = 12.5 נקודות לכל שאלה
-3. **אם לשאלה יש סעיפים** - חלק את ניקוד השאלה בשווה בין הסעיפים. למשל:
-   - שאלה ששווה 25 נקודות עם 3 סעיפים = כל סעיף שווה 25/3 ≈ 8.33 נקודות
-   - שאלה ששווה 20 נקודות עם 2 סעיפים = כל סעיף שווה 10 נקודות
-   - תן ניקוד נפרד לכל סעיף, וסכום הסעיפים = ניקוד השאלה
-4. **לכל שאלה/סעיף במבחן התלמיד:**
-   - הבן מה התלמיד ענה.
-   - הבן מה התשובה הנכונה (מהמפתח).
-   - שפוט אם התשובות **תואמות רעיונית** (לא חייב להיות זהה מילולית או מבחינה ויזואלית).
-   - אפשרויות: נכון מלא / נכון חלקית / שגוי.
-5. **חישוב סופי**: סכום הנקודות לכל השאלות והסעיפים.
+1. קרא מהתמונה מה התלמיד כתב בכל תיבת תשובה.
+2. השווה לתשובה הנכונה הידועה.
+3. שפוט אם תשובת התלמיד **תואמת רעיונית** לתשובה הנכונה - לא חייב להיות זהה מילולית!
+   - "81 ÷ 9 = 9" שווה ל "81/9 = 9"
+   - תשובה בניסוח שונה אבל אותו רעיון = נכונה
+   - תשובה חלקית = ניקוד יחסי מתוך ניקוד השאלה/סעיף
+4. סכום הנקודות = הציון הסופי.
 
 **חוקים קריטיים:**
-- **השוואה רעיונית**: אם התלמיד כתב את התשובה הנכונה בדרך שונה - זה נכון!
-  - "81 ÷ 9 = 9" שווה ל "81/9 = 9"
-  - תשובה בעברית בניסוח שונה אבל אותו רעיון - נכונה
-- **תשובה חלקית**: אם התלמיד הבין חלק מהרעיון - תן ניקוד יחסי.
-- **חובה: ציין בבירור באילו שאלות/סעיפים התלמיד טעה** - זה הדבר הכי חשוב למורה.
-- בשדה "weaknesses" - רשום רשימה מפורשת של השאלות שבהן טעה, למשל: "שאלה 3 - טעות בחישוב שברים", "שאלה 5 סעיף ב - לא ענה".
-- **לא ברור?** אם כתב היד באמת לא ניתן לקריאה, סמן is_legible: false.
+- **חובה לציין בבירור באילו שאלות/סעיפים התלמיד טעה.**
+- בשדה weaknesses רשום רשימה מפורשת, למשל: "שאלה 3 - טעות בחישוב", "שאלה 5 סעיף ב - לא ענה".
+- בשדה errors_summary רשום רק את מספרי השאלות/סעיפים השגויים, למשל: ["שאלה 3", "שאלה 5ב"].
+- **קרא בעיון את כל תיבות התשובה** - אל תפספס שאלות.
+- אם תיבת תשובה ריקה = התלמיד לא ענה = 0 נקודות לאותה שאלה.
+- אם כתב היד בתיבה מסוימת לא קריא, סמן באותה שאלה is_correct: "unclear" ותן 0, וציין זאת ב-weaknesses.
+- רק אם **רוב** המבחן לא קריא, סמן is_legible: false.
 - ${teacherTitle}. ניסוח המשוב בהתאם.
 
-**פורמט JSON בלבד:**
+**פורמט JSON בלבד, ללא markdown:**
 {
   "total_score": 75,
   "max_score": 100,
   "bottom_line": "סיכום של 2-3 משפטים",
-  "strengths": ["נקודת חוזק ספציפית"],
-  "weaknesses": ["שאלה 3 - טעות בחישוב", "שאלה 5 סעיף ב - חסר"],
-  "errors_summary": ["שאלה 3", "שאלה 5ב"],
+  "strengths": ["נקודת חוזק"],
+  "weaknesses": ["שאלה 3 - טעות בחישוב"],
+  "errors_summary": ["שאלה 3"],
   "confidence": "high",
   "is_legible": true,
   "questions": [
@@ -71,32 +82,31 @@ export default async function handler(req, res) {
       "number": 1,
       "question_text": "מה השאלה",
       "has_parts": false,
-      "correct_answer": "תשובה נכונה מהמפתח",
+      "correct_answer": "התשובה הנכונה",
       "student_answer": "מה התלמיד כתב",
       "is_correct": "full",
       "points": 25,
       "max": 25,
-      "feedback": "הסבר מפורט",
+      "feedback": "הסבר קצר",
       "parts": []
-    },
-    {
-      "number": 2,
-      "question_text": "שאלה עם סעיפים",
-      "has_parts": true,
-      "is_correct": "partial",
-      "points": 16,
-      "max": 25,
-      "feedback": "סיכום השאלה",
-      "parts": [
-        { "label": "א", "student_answer": "מה ענה", "correct_answer": "הנכון", "is_correct": "full", "points": 8.33, "max": 8.33 },
-        { "label": "ב", "student_answer": "מה ענה", "correct_answer": "הנכון", "is_correct": "wrong", "points": 0, "max": 8.33 }
-      ]
     }
   ]
-}`;
+}
+(is_correct: "full" / "partial" / "wrong" / "unclear")`;
 
-    // Run TWO independent gradings for verification
-    const runGrading = async (attemptNumber) => {
+    const userContent = [];
+    if (answerKeyImage && !examStructure) {
+      const keyB64 = answerKeyImage.replace(/^data:image\/\w+;base64,/, '');
+      userContent.push({ type: 'text', text: 'תמונה 1: מפתח תשובות (פתרון מלא 100/100):' });
+      userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: keyB64 } });
+      userContent.push({ type: 'text', text: `תמונה 2: מבחן של ${studentName}:` });
+    } else {
+      userContent.push({ type: 'text', text: `מבחן של ${studentName} (התשובות הנכונות ידועות לך מהמבנה למעלה):` });
+    }
+    userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: studentB64 } });
+    userContent.push({ type: 'text', text: 'בדוק את המבחן והחזר JSON בלבד.' });
+
+    const runGrading = async () => {
       const r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -108,19 +118,9 @@ export default async function handler(req, res) {
           model: 'claude-sonnet-4-5',
           max_tokens: 4096,
           system: systemPrompt,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'text', text: 'תמונה 1: מפתח תשובות (פתרון המורה - 100/100):' },
-              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: keyB64 } },
-              { type: 'text', text: `תמונה 2: מבחן של ${studentName}:` },
-              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: studentB64 } },
-              { type: 'text', text: `בדיקה #${attemptNumber}: השווה את תשובות התלמיד למפתח התשובות. תן ציון לכל שאלה לפי התאמה רעיונית. החזר JSON בלבד.` }
-            ]
-          }]
+          messages: [{ role: 'user', content: userContent }]
         })
       });
-
       if (!r.ok) {
         const errText = await r.text();
         throw new Error(`AI error: ${errText.substring(0, 200)}`);
@@ -132,61 +132,47 @@ export default async function handler(req, res) {
       return JSON.parse(cleaned);
     };
 
-    // Run 2 times in parallel for verification
+    // Run twice in parallel for verification
     let results;
     try {
-      results = await Promise.all([runGrading(1), runGrading(2)]);
+      results = await Promise.all([runGrading(), runGrading()]);
     } catch (err) {
-      console.error('Multi-grading error:', err);
+      console.error('Grading error:', err);
       return res.status(500).json({ error: 'שגיאה בבדיקה. נסו שוב.', detail: err.message });
     }
 
-    // Check legibility
     const allLegible = results.every(r => r.is_legible !== false);
     if (!allLegible) {
       return res.status(200).json({
         success: true,
-        result: {
-          is_legible: false,
-          confidence: 'uncertain',
-          message: 'כתב היד לא ברור מספיק. אנא הזינו ציון ידנית.'
-        }
+        result: { is_legible: false, confidence: 'uncertain', message: 'רוב המבחן לא ברור מספיק. אנא הזינו ציון ידנית.' }
       });
     }
 
-    // Check agreement between the 2 grades
     const scores = results.map(r => r.total_score);
     const range = Math.max(...scores) - Math.min(...scores);
 
-    if (range > 5) {
+    // With known answers, the two runs should agree closely. Allow small gap.
+    if (range > 6) {
       return res.status(200).json({
         success: true,
-        result: {
-          is_legible: false,
-          confidence: 'uncertain',
-          message: `ה-AI לא הצליח לקבוע ציון מדויק (הבדיקות נתנו: ${scores.join(', ')}). אנא הזינו ידנית.`
-        }
+        result: { is_legible: false, confidence: 'uncertain', message: `הבדיקה לא הגיעה לתוצאה אחידה (${scores.join(', ')}). אנא הזינו ידנית.` }
       });
     }
 
-    // Use the average / consensus
-    const avgScore = Math.round(scores.reduce((a,b) => a+b, 0) / scores.length);
-    const consensus = { ...results[0], total_score: avgScore };
+    // Use the run with more detail (more questions filled), fallback to first
+    let consensus = results[0];
+    if ((results[1].questions?.length || 0) > (results[0].questions?.length || 0)) consensus = results[1];
+    consensus.total_score = Math.round((scores[0] + scores[1]) / 2);
 
-    // Force max_score to 100
     if (consensus.max_score !== 100) {
       const ratio = 100 / (consensus.max_score || 100);
       consensus.total_score = Math.round(consensus.total_score * ratio);
       consensus.max_score = 100;
     }
 
-    consensus.verification = {
-      attempts: 2,
-      scores: scores,
-      range: range
-    };
+    consensus.verification = { attempts: 2, scores };
 
-    // Log AI usage
     if (school_id) {
       const SUPABASE_URL = process.env.SUPABASE_URL;
       const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -212,7 +198,5 @@ export default async function handler(req, res) {
 }
 
 export const config = {
-  api: {
-    bodyParser: { sizeLimit: '15mb' }
-  }
+  api: { bodyParser: { sizeLimit: '15mb' } }
 };
