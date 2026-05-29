@@ -490,8 +490,12 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
 <div class="screen" id="s-scan">
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="scanBack()">←&nbsp; חזרה</button><div style="font-weight:600;">סריקת AI</div><div style="width:60px;"></div></div></header>
   <div class="container-narrow" id="scan-1">
-    <div class="card card-elevated" style="margin-bottom:1rem;"><div class="field" style="margin-bottom:0;"><label class="label">שם המבחן</label><input type="text" class="input" id="scan-name" placeholder="לדוגמה: מבחן פרק 5"></div></div>
-    <div class="card card-elevated">
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <label class="label" style="margin-bottom:.75rem;">בחירת מבחן</label>
+      <div id="scan-exams-list"></div>
+      <button class="btn btn-primary btn-block" onclick="openNewExamModal()" style="margin-top:.75rem;">+ מבחן חדש (העלאת מפתח תשובות)</button>
+    </div>
+    <div class="card card-elevated" id="scan-students-card" style="display:none;">
       <label class="label" style="margin-bottom:.75rem;">בחירת תלמיד</label>
       <input type="search" class="input" id="scan-search" placeholder="חיפוש" oninput="renderScanStudents()" style="margin-bottom:.75rem;">
       <div id="scan-students" style="max-height:340px;overflow-y:auto;"></div>
@@ -517,8 +521,8 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
           <path d="M 160 50 L 160 25 Q 165 15 175 25 L 175 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>
         <div>
-          <div class="tziun-loader-text">Tziun בודק את המבחן</div>
-          <div class="tziun-loader-sub">בודק 3 פעמים כדי להבטיח דיוק · 30–60 שניות</div>
+          <div class="tziun-loader-text">Tziun משווה למפתח התשובות</div>
+          <div class="tziun-loader-sub">בדיקה מדויקת · 30–60 שניות</div>
         </div>
       </div>
     </div>
@@ -669,6 +673,27 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
     <div class="field"><label class="label">סיסמה</label><input type="text" class="input" id="ns-pass" placeholder="לדוגמה: ofeq2026" dir="ltr"></div>
     <div class="field" style="margin-bottom:1.5rem;"><label class="label">חבילה</label><select class="select" id="ns-tier"><option value="trial">תקופת ניסיון</option><option value="nitzan">ניצן</option><option value="alon">אלון</option><option value="etz">עץ הדעת</option></select></div>
     <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="closeModal('m-school')">ביטול</button><button class="btn btn-primary" onclick="addSchool()">הוספה</button></div>
+  </div>
+</div>
+
+<!-- ========== NEW EXAM MODAL ========== -->
+<div class="modal" id="m-new-exam">
+  <div class="modal-content">
+    <h3 class="h3" style="margin-bottom:.5rem;">מבחן חדש</h3>
+    <p class="muted" style="margin-bottom:1.5rem;font-size:.9rem;">העלו את מפתח התשובות שלכם - דף מבחן שפתרתם ב-100/100. ה-AI ישתמש בו כדי לבדוק את התלמידים.</p>
+    <div class="field"><label class="label">שם המבחן</label><input type="text" class="input" id="ne-name" placeholder="לדוגמה: מבחן פרק 5 — שברים"></div>
+    <div class="field" style="margin-bottom:1.5rem;">
+      <label class="label">מפתח תשובות (תמונה)</label>
+      <input type="file" id="ne-file" accept="image/jpeg,image/png" style="display:none;" onchange="onAnswerKeyUpload(event)">
+      <button class="btn btn-secondary btn-block" onclick="document.getElementById('ne-file').click()" id="ne-upload-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        בחירת תמונת מפתח תשובות
+      </button>
+      <div id="ne-preview" style="display:none;margin-top:.75rem;padding:.75rem;background:var(--forest-bg);border-radius:8px;font-size:.85rem;color:var(--forest);">
+        ✓ תמונה נטענה — <span id="ne-filename"></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="closeModal('m-new-exam')">ביטול</button><button class="btn btn-primary" onclick="saveNewExam()">שמירה</button></div>
   </div>
 </div>
 
@@ -1120,12 +1145,86 @@ async function saveManual() {
 // ============================================================
 // AI SCAN
 // ============================================================
+// Stored exams with answer keys (per subject, in localStorage)
+let selectedScanExam = null;
+let pendingAnswerKeyImage = null;
+
+function getAnswerKeys() {
+  try {
+    return JSON.parse(localStorage.getItem('tziun_answer_keys') || '{}');
+  } catch(e) { return {}; }
+}
+function saveAnswerKeys(keys) {
+  try { localStorage.setItem('tziun_answer_keys', JSON.stringify(keys)); } catch(e) {}
+}
+
 function scan1() {
   scanStudentId = null;
+  selectedScanExam = null;
   document.getElementById('scan-1').style.display = 'block';
   ['scan-2','scan-3','scan-4','scan-5'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('scan-students-card').style.display = 'none';
   stopCamera();
+  renderScanExams();
+}
+
+function renderScanExams() {
+  const keys = getAnswerKeys();
+  const subjectId = activeSubjectId;
+  const subjectKeys = Object.values(keys).filter(k => k.subject_id === subjectId);
+  const list = document.getElementById('scan-exams-list');
+  if (subjectKeys.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--ink-faint);font-size:.9rem;">אין מבחנים עדיין. לחצו "+ מבחן חדש" כדי להעלות מפתח תשובות.</div>`;
+    return;
+  }
+  list.innerHTML = subjectKeys.map(k => `<button onclick="selectScanExam('${k.id}')" style="width:100%;display:flex;align-items:center;gap:.875rem;padding:.875rem;background:${selectedScanExam===k.id?'var(--forest-bg)':'var(--paper-soft)'};border:1px solid ${selectedScanExam===k.id?'var(--forest)':'transparent'};border-radius:10px;cursor:pointer;margin-bottom:.375rem;text-align:right;font-family:inherit;"><div style="width:36px;height:36px;background:var(--forest);color:var(--paper);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;">מ</div><div style="flex:1;"><div style="font-weight:600;">${escapeHTML(k.name)}</div><div style="font-size:.75rem;color:var(--ink-faint);">מפתח תשובות מוכן · ${formatDate(k.created_at)}</div></div><div style="color:var(--ink-faint);">←</div></button>`).join('');
+}
+
+function selectScanExam(id) {
+  selectedScanExam = id;
+  renderScanExams();
+  document.getElementById('scan-students-card').style.display = 'block';
   renderScanStudents();
+}
+
+function openNewExamModal() {
+  document.getElementById('ne-name').value = '';
+  document.getElementById('ne-file').value = '';
+  document.getElementById('ne-preview').style.display = 'none';
+  pendingAnswerKeyImage = null;
+  document.getElementById('m-new-exam').classList.add('open');
+}
+
+function onAnswerKeyUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 8*1024*1024) { toast('התמונה גדולה מ-8MB'); return; }
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    pendingAnswerKeyImage = reader.result;
+    document.getElementById('ne-filename').textContent = file.name;
+    document.getElementById('ne-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveNewExam() {
+  const name = document.getElementById('ne-name').value.trim();
+  if (!name) { toast('נא להזין שם מבחן'); return; }
+  if (!pendingAnswerKeyImage) { toast('נא להעלות תמונת מפתח תשובות'); return; }
+  const id = Date.now().toString();
+  const keys = getAnswerKeys();
+  keys[id] = {
+    id, name,
+    subject_id: activeSubjectId,
+    school_id: state.school.id,
+    answer_key_image: pendingAnswerKeyImage,
+    created_at: new Date().toISOString()
+  };
+  saveAnswerKeys(keys);
+  closeModal('m-new-exam');
+  toast('מפתח התשובות נשמר');
+  renderScanExams();
 }
 
 function renderScanStudents() {
@@ -1138,11 +1237,13 @@ function renderScanStudents() {
 }
 
 function selectScanStudent(id) {
+  if (!selectedScanExam) { toast('בחרו תחילה מבחן'); return; }
   scanStudentId = id;
   const s = state.students.find(x => x.id === id);
-  const examName = document.getElementById('scan-name').value || 'מבחן';
+  const keys = getAnswerKeys();
+  const exam = keys[selectedScanExam];
   document.getElementById('scan-student-label').textContent = s.name;
-  document.getElementById('scan-exam-label').textContent = examName;
+  document.getElementById('scan-exam-label').textContent = exam ? exam.name : 'מבחן';
   document.getElementById('scan-1').style.display = 'none';
   document.getElementById('scan-2').style.display = 'block';
   startCamera();
@@ -1214,17 +1315,19 @@ async function runAI(blob) {
 
   const reader = new FileReader();
   reader.onloadend = async () => {
-    const base64 = reader.result;
+    const studentBase64 = reader.result;
     const student = state.students.find(s => s.id === scanStudentId);
-    const subject = state.subjects.find(s => s.id === activeSubjectId);
     const teacher = activeProfile();
-    const examName = document.getElementById('scan-name').value.trim() || 'מבחן';
+    const keys = getAnswerKeys();
+    const exam = keys[selectedScanExam];
+    if (!exam) { showFallback('מפתח התשובות לא נמצא'); return; }
 
     try {
       const data = await api('grade', {
-        image: base64,
+        studentImage: studentBase64,
+        answerKeyImage: exam.answer_key_image,
         studentName: student.name,
-        examName, subject: subject.name,
+        examName: exam.name,
         teacherGender: teacher.gender,
         school_id: state.school.id,
         student_id: student.id
@@ -1234,7 +1337,7 @@ async function runAI(blob) {
         showFallback(r.message || 'כתב היד לא ברור מספיק. אנא הזן/י ציון ידנית.');
         return;
       }
-      showResult(r, examName, student, subject);
+      showResult(r, exam.name, student);
     } catch(err) {
       showFallback(err.message);
     }
@@ -1242,7 +1345,7 @@ async function runAI(blob) {
   reader.readAsDataURL(blob);
 }
 
-function showResult(r, examName, student, subject) {
+function showResult(r, examName, student) {
   document.getElementById('scan-3').style.display = 'none';
   const el = document.getElementById('scan-4');
   el.style.display = 'block';
@@ -1255,8 +1358,8 @@ function showResult(r, examName, student, subject) {
       ${r.bottom_line ? `<div style="background:var(--forest-bg);border-right:4px solid var(--forest);border-radius:8px;padding:.875rem;margin-bottom:.875rem;font-size:.875rem;">${escapeHTML(r.bottom_line)}</div>` : ''}
       ${r.strengths?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--forest);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.375rem;">חוזקות</div>${r.strengths.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
       ${r.weaknesses?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.375rem;">לחיזוק</div>${r.weaknesses.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
-      ${r.questions?.length ? `<details style="margin-top:1rem;"><summary style="cursor:pointer;font-weight:600;font-size:.85rem;color:var(--ink-soft);">פירוט לפי שאלות (${r.questions.length})</summary><div style="margin-top:.75rem;">${r.questions.map(q=>`<div style="padding:.75rem;background:var(--paper-soft);border-radius:8px;margin-bottom:.5rem;font-size:.85rem;"><div style="display:flex;justify-content:space-between;margin-bottom:.375rem;"><strong>שאלה ${q.number}</strong><span style="color:${q.is_correct?'var(--forest)':'var(--rust)'};font-weight:600;">${q.is_correct?'נכון':'שגוי'} (${q.points}/${q.max})</span></div>${q.feedback?`<div>${escapeHTML(q.feedback)}</div>`:''}</div>`).join('')}</div></details>` : ''}
-      <div style="font-size:.75rem;color:var(--ink-faint);background:var(--paper-soft);padding:.625rem .875rem;border-radius:8px;margin-top:.75rem;">בוצע בידי Tziun · אומת ב-3 בדיקות${r.verification?` · ${r.verification.scores.join(', ')}`:''}</div>
+      ${r.questions?.length ? `<details style="margin-top:1rem;"><summary style="cursor:pointer;font-weight:600;font-size:.85rem;color:var(--ink-soft);">פירוט לפי שאלות (${r.questions.length})</summary><div style="margin-top:.75rem;">${r.questions.map(q=>{const cl=q.is_correct==='full'?'נכון':q.is_correct==='partial'?'חלקי':'שגוי';const co=q.is_correct==='full'?'var(--forest)':q.is_correct==='partial'?'var(--gold)':'var(--rust)';return `<div style="padding:.75rem;background:var(--paper-soft);border-radius:8px;margin-bottom:.5rem;font-size:.85rem;"><div style="display:flex;justify-content:space-between;margin-bottom:.375rem;"><strong>שאלה ${q.number}</strong><span style="color:${co};font-weight:600;">${cl} (${q.points}/${q.max})</span></div>${q.student_answer?`<div style="font-size:.8rem;color:var(--ink-soft);margin-top:.25rem;"><strong>תלמיד:</strong> ${escapeHTML(q.student_answer)}</div>`:''}${q.correct_answer?`<div style="font-size:.8rem;color:var(--ink-soft);margin-top:.25rem;"><strong>נכון:</strong> ${escapeHTML(q.correct_answer)}</div>`:''}${q.feedback?`<div style="margin-top:.375rem;">${escapeHTML(q.feedback)}</div>`:''}</div>`}).join('')}</div></details>` : ''}
+      <div style="font-size:.75rem;color:var(--ink-faint);background:var(--paper-soft);padding:.625rem .875rem;border-radius:8px;margin-top:.75rem;">בוצע בידי Tziun · אומת ב-2 בדיקות${r.verification?` · ${r.verification.scores.join(', ')}`:''}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
       <button class="btn btn-secondary" onclick="showFallback('עריכה ידנית')">ערוך</button>
@@ -1267,7 +1370,9 @@ function showResult(r, examName, student, subject) {
 function showFallback(msg) {
   ['scan-2','scan-3','scan-4'].forEach(id => document.getElementById(id).style.display = 'none');
   const student = state.students.find(s => s.id === scanStudentId);
-  const examName = document.getElementById('scan-name').value || 'מבחן';
+  const keys = getAnswerKeys();
+  const exam = keys[selectedScanExam];
+  const examName = exam ? exam.name : 'מבחן';
   const el = document.getElementById('scan-5');
   el.style.display = 'block';
   el.innerHTML = `
@@ -1301,7 +1406,9 @@ async function confirmAI(score, examName, studentId, aiData) {
 async function saveFallback() {
   const score = parseInt(document.getElementById('fb-score').value);
   if (isNaN(score) || score < 0 || score > 100) { toast('ציון לא תקין'); return; }
-  const examName = document.getElementById('scan-name').value || 'מבחן';
+  const keys = getAnswerKeys();
+  const exam = keys[selectedScanExam];
+  const examName = exam ? exam.name : 'מבחן';
   try {
     await api('data', {
       action: 'saveExam',
