@@ -516,6 +516,8 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
       <button class="btn btn-secondary btn-lg" onclick="go('s-scan')">סריקת AI</button>
       <button class="btn btn-secondary btn-lg" onclick="go('s-manual')">הזנה ידנית</button>
     </div>
+    <h3 class="h3" style="margin-bottom:1rem;">ממתינים לבדיקה</h3>
+    <div id="subj-pending" style="margin-bottom:1.5rem;"></div>
     <h3 class="h3" style="margin-bottom:1rem;">מבחנים אחרונים</h3>
     <div id="subj-exams"></div>
   </div>
@@ -1045,6 +1047,7 @@ function renderSubject() {
   const s = state.subjects.find(x => x.id === activeSubjectId);
   if (!s) { go('s-dash'); return; }
   document.getElementById('subj-title').textContent = s.name;
+  renderPendingExams();
   const exams = state.exams.filter(e => e.subject_id === activeSubjectId);
   const groups = {};
   exams.forEach(e => {
@@ -1053,13 +1056,47 @@ function renderSubject() {
   });
   const list = document.getElementById('subj-exams');
   if (Object.keys(groups).length === 0) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">מ</div><h3 class="empty-title">אין מבחנים</h3><p class="empty-desc">התחילו עם מבחן ראשון</p><button class="btn btn-primary" onclick="go('s-scan')">סריקת AI</button></div>`;
+    list.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--ink-faint);font-size:.9rem;">עדיין אין מבחנים שנבדקו</div>`;
     return;
   }
   list.innerHTML = Object.values(groups).map(g => {
     const avg = Math.round(g.scores.reduce((a,b)=>a+b,0)/g.scores.length);
     return `<div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><div><div style="font-weight:600;">${escapeHTML(g.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${formatDate(g.date)} · ${g.scores.length} תלמידים</div></div><div style="text-align:left;"><div style="font-family:'Frank Ruhl Libre',serif;font-size:1.5rem;font-weight:700;color:var(--forest);">${avg}</div><div style="font-size:.7rem;color:var(--ink-faint);">ממוצע</div></div></div>`;
   }).join('');
+}
+
+async function renderPendingExams() {
+  const box = document.getElementById('subj-pending');
+  box.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--ink-faint);font-size:.85rem;">טוען...</div>`;
+  try {
+    const data = await api('exams', { action: 'listPending', school_id: state.school.id, subject_id: activeSubjectId });
+    const exams = data.exams || [];
+    if (exams.length === 0) {
+      box.innerHTML = `<div style="text-align:center;padding:1.25rem;background:var(--paper-soft);border-radius:10px;color:var(--ink-faint);font-size:.9rem;">אין מבחנים שממתינים לבדיקה. צרו מבחן חדש כדי להתחיל.</div>`;
+      return;
+    }
+    box.innerHTML = exams.map(e => `<div class="card" style="display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;"><div style="width:40px;height:40px;background:var(--gold-bg);color:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;flex-shrink:0;">מ</div><div style="flex:1;min-width:0;"><div style="font-weight:600;">${escapeHTML(e.title)}</div><div style="font-size:.78rem;color:var(--ink-faint);">נוצר ${formatDate(e.created_at)} · ${e.total_points} נק'</div></div><div style="display:flex;gap:.375rem;"><button class="btn btn-secondary" style="padding:.4rem .7rem;font-size:.8rem;" onclick='reprintPending(${JSON.stringify(JSON.stringify(e.exam_structure))})'>הדפס</button><button class="btn btn-ghost" style="padding:.4rem .6rem;font-size:.8rem;color:var(--rust);" onclick="deletePending('${e.id}')">✕</button></div></div>`).join('');
+  } catch(err) {
+    box.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--rust);font-size:.85rem;">שגיאה בטעינה</div>`;
+  }
+}
+
+function reprintPending(examJSON) {
+  try {
+    const exam = JSON.parse(examJSON);
+    openPrintWindow(exam);
+  } catch(e) { toast('שגיאה'); }
+}
+
+async function deletePending(id) {
+  if (!confirm('למחוק את המבחן מרשימת הממתינים?')) return;
+  try {
+    await api('exams', { action: 'delete', school_id: state.school.id, exam_id: id });
+    toast('נמחק');
+    renderPendingExams();
+  } catch(err) {
+    toast('שגיאה: ' + err.message);
+  }
 }
 
 // ============================================================
@@ -1782,9 +1819,37 @@ function renderExamPaper(exam) {
   area.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function printExam() {
+async function printExam() {
   if (!currentExam) { toast('אין מבחן להדפסה'); return; }
   const exam = currentExam;
+
+  // Save to pending queue (only once per exam)
+  if (!currentExam._saved) {
+    try {
+      const subject = state.subjects.find(s => s.id === activeSubjectId);
+      const cls = subject ? state.classes.find(c => c.id === subject.class_id) : null;
+      await api('exams', {
+        action: 'save',
+        school_id: state.school.id,
+        subject_id: activeSubjectId,
+        teacher_id: activeProfileId,
+        title: exam.title || 'מבחן',
+        subject: exam.subject || (subject ? subject.name : ''),
+        grade: String(exam.grade || (cls ? cls.grade : '')),
+        total_points: exam.total_points || 100,
+        exam_structure: exam
+      });
+      currentExam._saved = true;
+      toast('המבחן נשמר לרשימת הממתינים לבדיקה');
+    } catch(err) {
+      console.error('Save exam failed', err);
+    }
+  }
+
+  openPrintWindow(exam);
+}
+
+function openPrintWindow(exam) {
   const qHTML = (exam.questions || []).map(q => {
     let inner = `<div class="pq-head"><div class="pq-num">${q.number}</div><div class="pq-text">${escapeHTML(q.text || '')}</div><div class="pq-points">${formatPts(q.points)} נק'</div></div>`;
     if (q.has_parts && q.parts && q.parts.length) {
