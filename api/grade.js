@@ -13,15 +13,17 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
   try {
-    const { studentImage, answerKeyImage, examStructure, studentName, examName, teacherGender, school_id, student_id } = req.body;
-    if (!studentImage || !studentName) {
+    const { studentImage, studentImages, answerKeyImage, examStructure, studentName, examName, teacherGender, school_id, student_id } = req.body;
+    // Support both single image (legacy) and array of pages
+    const pages = studentImages && studentImages.length ? studentImages : (studentImage ? [studentImage] : []);
+    if (!pages.length || !studentName) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     if (!examStructure && !answerKeyImage) {
       return res.status(400).json({ error: 'Missing answer key or exam structure' });
     }
 
-    const studentB64 = studentImage.replace(/^data:image\/\w+;base64,/, '');
+    const pagesB64 = pages.map(p => p.replace(/^data:image\/\w+;base64,/, ''));
     const teacherTitle = teacherGender === 'female' ? 'בלשון נקבה' : 'בלשון זכר';
 
     // Build the answer reference
@@ -97,14 +99,17 @@ ${answerReference}
     const userContent = [];
     if (answerKeyImage && !examStructure) {
       const keyB64 = answerKeyImage.replace(/^data:image\/\w+;base64,/, '');
-      userContent.push({ type: 'text', text: 'תמונה 1: מפתח תשובות (פתרון מלא 100/100):' });
+      userContent.push({ type: 'text', text: 'תמונה: מפתח תשובות (פתרון מלא 100/100):' });
       userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: keyB64 } });
-      userContent.push({ type: 'text', text: `תמונה 2: מבחן של ${studentName}:` });
+      userContent.push({ type: 'text', text: `מבחן של ${studentName} (${pagesB64.length} עמודים):` });
     } else {
-      userContent.push({ type: 'text', text: `מבחן של ${studentName} (התשובות הנכונות ידועות לך מהמבנה למעלה):` });
+      userContent.push({ type: 'text', text: `מבחן של ${studentName} - ${pagesB64.length} עמודים (התשובות הנכונות ידועות לך מהמבנה למעלה):` });
     }
-    userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: studentB64 } });
-    userContent.push({ type: 'text', text: 'בדוק את המבחן והחזר JSON בלבד.' });
+    pagesB64.forEach((b64, i) => {
+      if (pagesB64.length > 1) userContent.push({ type: 'text', text: `עמוד ${i + 1}:` });
+      userContent.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } });
+    });
+    userContent.push({ type: 'text', text: 'בדוק את המבחן השלם (כל העמודים יחד) והחזר JSON בלבד.' });
 
     const runGrading = async () => {
       const r = await fetch('https://api.anthropic.com/v1/messages', {
