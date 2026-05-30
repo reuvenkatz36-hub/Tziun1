@@ -554,11 +554,13 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
   <div class="container-narrow" id="gs-2" style="display:none;">
     <div class="card card-elevated" style="text-align:center;margin-bottom:1rem;padding:1rem;"><div id="gs-student-label" style="font-weight:600;"></div><div id="gs-exam-label" style="font-size:.8rem;color:var(--ink-faint);margin-top:.25rem;"></div></div>
     <div class="camera-stage" id="gs-camera-stage"><video id="gs-video" autoplay playsinline muted></video><div class="camera-frame" id="gs-frame"></div><div class="camera-quality quality-checking" id="gs-quality">בודק איכות תמונה...</div></div>
-    <button class="btn btn-primary btn-block btn-lg" id="gs-capture" onclick="gradeCapture()" disabled>צילום מבחן</button>
-    <div style="margin-top:.75rem;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-      <label class="btn btn-secondary">העלאת תמונה<input type="file" accept="image/jpeg,image/png" style="display:none;" onchange="gradeUpload(event)"></label>
-      <button class="btn btn-ghost" onclick="gradeScan1()">← תלמיד אחר</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;">
+      <button class="btn btn-secondary btn-lg" id="gs-capture" onclick="gradeCapture()" disabled>+ צלם עמוד</button>
+      <label class="btn btn-secondary btn-lg" style="margin:0;">+ העלה עמוד<input type="file" accept="image/jpeg,image/png" multiple style="display:none;" onchange="gradeUpload(event)"></label>
     </div>
+    <div id="gs-pages" style="margin-bottom:.75rem;"></div>
+    <button class="btn btn-primary btn-block btn-lg" id="gs-grade-btn" onclick="submitGradePages()" style="display:none;">בדוק מבחן (<span id="gs-page-count">0</span> עמודים)</button>
+    <button class="btn btn-ghost btn-block" onclick="gradeScan1()" style="margin-top:.5rem;">← תלמיד אחר</button>
   </div>
 
   <div class="container-narrow" id="gs-3" style="display:none;">
@@ -1750,12 +1752,14 @@ async function toggleActive(id, isActive) {
 // ============================================================
 let gradingExam = null;
 let gradeStudentId = null;
+let gradePages = [];
 let lastGradeResult = null;
 let gsStream = null;
 let gsQInterval = null;
 
 function gradeScan1() {
   gradeStudentId = null;
+  gradePages = [];
   if (!gradingExam) { go('s-subject'); return; }
   document.getElementById('gs-exam-name').textContent = gradingExam.title;
   document.getElementById('gs-1').style.display = 'block';
@@ -1779,12 +1783,32 @@ function renderGradeStudents() {
 
 function selectGradeStudent(id) {
   gradeStudentId = id;
+  gradePages = [];
   const s = state.students.find(x => x.id === id);
   document.getElementById('gs-student-label').textContent = s.name;
   document.getElementById('gs-exam-label').textContent = gradingExam.title;
   document.getElementById('gs-1').style.display = 'none';
   document.getElementById('gs-2').style.display = 'block';
+  renderGradePages();
   startGradeCamera();
+}
+
+function renderGradePages() {
+  const box = document.getElementById('gs-pages');
+  const btn = document.getElementById('gs-grade-btn');
+  if (!gradePages.length) {
+    box.innerHTML = '';
+    btn.style.display = 'none';
+    return;
+  }
+  box.innerHTML = `<div style="display:flex;gap:.5rem;flex-wrap:wrap;">${gradePages.map((p,i)=>`<div style="position:relative;width:64px;height:84px;border-radius:8px;overflow:hidden;border:1px solid var(--line);"><img src="${p}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removeGradePage(${i})" style="position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:.7rem;cursor:pointer;line-height:1;">✕</button><div style="position:absolute;bottom:0;right:0;left:0;background:rgba(0,0,0,.6);color:#fff;font-size:.65rem;text-align:center;padding:1px;">עמ' ${i+1}</div></div>`).join('')}</div>`;
+  btn.style.display = 'block';
+  document.getElementById('gs-page-count').textContent = gradePages.length;
+}
+
+function removeGradePage(i) {
+  gradePages.splice(i, 1);
+  renderGradePages();
 }
 
 async function startGradeCamera() {
@@ -1827,30 +1851,43 @@ function gradeQualityCheck() {
   }, 400);
 }
 
-function gradeCapture() {
+async function gradeCapture() {
   const v = document.getElementById('gs-video');
   const c = document.createElement('canvas');
   c.width = v.videoWidth; c.height = v.videoHeight;
   c.getContext('2d').drawImage(v, 0, 0);
-  c.toBlob(blob => { stopGradeCamera(); runGradeAI(blob); }, 'image/jpeg', .9);
+  c.toBlob(async blob => {
+    const compressed = await compressImage(blob, 1600, 0.8);
+    gradePages.push(compressed);
+    renderGradePages();
+    toast('עמוד נוסף');
+  }, 'image/jpeg', .9);
 }
 
-function gradeUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
+async function gradeUpload(e) {
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+  for (const file of files) {
+    try {
+      const compressed = await compressImage(file, 1600, 0.8);
+      gradePages.push(compressed);
+    } catch(err) {}
+  }
+  renderGradePages();
+  e.target.value = '';
+  toast(files.length > 1 ? `${files.length} עמודים נוספו` : 'עמוד נוסף');
+}
+
+async function submitGradePages() {
+  if (!gradePages.length) { toast('הוסיפו לפחות עמוד אחד'); return; }
   stopGradeCamera();
-  runGradeAI(file);
-}
-
-async function runGradeAI(blob) {
   document.getElementById('gs-2').style.display = 'none';
   document.getElementById('gs-3').style.display = 'block';
   try {
-    const studentBase64 = await compressImage(blob, 1600, 0.8);
     const student = state.students.find(s => s.id === gradeStudentId);
     const teacher = activeProfile();
     const data = await api('grade', {
-      studentImage: studentBase64,
+      studentImages: gradePages,
       examStructure: gradingExam.exam_structure,
       studentName: student.name,
       examName: gradingExam.title,
