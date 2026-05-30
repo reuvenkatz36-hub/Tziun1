@@ -459,18 +459,17 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
         <div class="dash-sub" id="dash-welcome"></div>
         <div class="dash-stats">
           <div><div class="dash-stat-num" id="dash-stat-students">0</div><div class="dash-stat-label">תלמידים</div></div>
-          <div><div class="dash-stat-num" id="dash-stat-subjects">0</div><div class="dash-stat-label">מקצועות</div></div>
           <div><div class="dash-stat-num" id="dash-stat-classes">0</div><div class="dash-stat-label">כיתות</div></div>
+          <div><div class="dash-stat-num" id="dash-stat-exams">0</div><div class="dash-stat-label">מבחנים</div></div>
         </div>
       </div>
     </div>
-    <div id="dash-empty"><div class="empty-state"><div class="empty-icon">צ</div><h3 class="empty-title">בואו נתחיל</h3><p class="empty-desc">צרו כיתה ראשונה עם תלמידים ומקצועות.</p><button class="btn btn-primary btn-lg" onclick="go('s-onboarding')">יצירת כיתה ראשונה</button></div></div>
+    <div id="dash-empty"><div class="empty-state"><div class="empty-icon">צ</div><h3 class="empty-title">בואו נתחיל</h3><p class="empty-desc">צרו כיתה ראשונה עם רשימת התלמידים.</p><button class="btn btn-primary btn-lg" onclick="go('s-onboarding')">יצירת כיתה ראשונה</button></div></div>
     <div id="dash-content" style="display:none;">
-      <div class="section-header"><h3>המקצוע שלי</h3></div>
+      <div class="section-header"><h3>הכיתות שלי</h3></div>
       <div class="subject-grid" id="subjects-grid"></div>
       <div class="section-header"><h3>פעולות מהירות</h3></div>
       <div class="quick-actions">
-        <a class="quick-action" onclick="go('s-homework')"><div class="quick-action-icon">ש</div><div><div style="font-weight:600;">שיעורי בית</div><div style="font-size:.8rem;color:var(--ink-faint);">תיעוד יומי</div></div></a>
         <a class="quick-action" onclick="go('s-students')"><div class="quick-action-icon">ת</div><div><div style="font-weight:600;">תיקי תלמידים</div><div style="font-size:.8rem;color:var(--ink-faint);">צפייה ודוחות</div></div></a>
       </div>
     </div>
@@ -482,27 +481,20 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">יצירת כיתה</div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
     <div id="ob-1">
-      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 1 מתוך 3</div>
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 1 מתוך 2</div>
       <h2 class="h2" style="margin-bottom:.5rem;">פרטי הכיתה</h2>
       <div class="card card-elevated" style="margin-top:1.5rem;">
         <div class="field"><label class="label">שם הכיתה</label><input type="text" class="input" id="ob-name" placeholder="לדוגמה: כיתה ה'2"></div>
-        <div class="field" style="margin-bottom:0;"><label class="label">שכבת גיל</label><select class="select" id="ob-grade"><option value="1">א'</option><option value="2">ב'</option><option value="3">ג'</option><option value="4">ד'</option><option value="5" selected>ה'</option><option value="6">ו'</option></select></div>
+        <div class="field" style="margin-bottom:0;"><label class="label">שכבת גיל</label><select class="select" id="ob-grade"><option value="1">א'</option><option value="2">ב'</option><option value="3">ג'</option><option value="4">ד'</option><option value="5" selected>ה'</option><option value="6">ו'</option><option value="7">ז'</option><option value="8">ח'</option><option value="9">ט'</option><option value="10">י'</option><option value="11">י"א</option><option value="12">י"ב</option></select></div>
       </div>
       <button class="btn btn-primary btn-block btn-lg" onclick="obStep(2)" style="margin-top:1.5rem;">המשך</button>
     </div>
     <div id="ob-2" style="display:none;">
-      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 2 מתוך 3</div>
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 2 מתוך 2</div>
       <h2 class="h2" style="margin-bottom:.5rem;">רשימת תלמידים</h2>
       <p class="muted" style="margin-bottom:1.5rem;">תלמיד בכל שורה.</p>
       <div class="card card-elevated"><textarea class="textarea" id="ob-students" rows="10" placeholder="דניאל לוי&#10;רוני נחום"></textarea></div>
-      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(1)">חזרה</button><button class="btn btn-primary btn-block" onclick="obStep(3)">המשך</button></div>
-    </div>
-    <div id="ob-3" style="display:none;">
-      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 3 מתוך 3</div>
-      <h2 class="h2" style="margin-bottom:.5rem;">מקצוע</h2>
-      <p class="muted" style="margin-bottom:1.5rem;">מערכת Tziun מתמקדת במתמטיקה. מקצועות נוספים יתווספו בהמשך.</p>
-      <div id="ob-subjects" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;"></div>
-      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(2)">חזרה</button><button class="btn btn-primary btn-block" onclick="obFinish()" id="ob-finish-btn">סיום ויצירה</button></div>
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(1)">חזרה</button><button class="btn btn-primary btn-block" onclick="obFinish()" id="ob-finish-btn">סיום ויצירה</button></div>
     </div>
   </div>
 </div>
@@ -996,8 +988,9 @@ function renderDash() {
   const myStudents = state.students.filter(s => myClassIds.includes(s.class_id));
 
   document.getElementById('dash-stat-students').textContent = myStudents.length;
-  document.getElementById('dash-stat-subjects').textContent = mySubjects.length;
   document.getElementById('dash-stat-classes').textContent = myClassIds.length;
+  const myExamCount = state.exams.filter(e => mySubjects.some(s => s.id === e.subject_id)).length;
+  document.getElementById('dash-stat-exams').textContent = myExamCount;
 
   if (state.classes.length === 0) {
     document.getElementById('dash-empty').style.display = 'block';
@@ -1011,13 +1004,19 @@ function renderDash() {
   const grid = document.getElementById('subjects-grid');
   grid.innerHTML = '';
   mySubjects.forEach(s => {
+    const cls = state.classes.find(c => c.id === s.class_id);
     const examCount = state.exams.filter(e => e.subject_id === s.id).length;
     const el = document.createElement('a');
     el.className = 'subject-card';
     el.onclick = () => { activeSubjectId = s.id; go('s-subject'); };
-    el.innerHTML = `<div class="subject-icon">${s.sym||'מ'}</div><div class="subject-name">${escapeHTML(s.name)}</div><div class="subject-meta">${examCount} מבחנים</div>`;
+    el.innerHTML = `<div class="subject-icon">${cls ? escapeHTML(gradeLabel(cls.grade)) : 'מ'}</div><div class="subject-name">${cls ? escapeHTML(cls.name) : 'כיתה'}</div><div class="subject-meta">${examCount} מבחנים</div>`;
     grid.appendChild(el);
   });
+}
+
+function gradeLabel(g) {
+  const labels = {1:"א'",2:"ב'",3:"ג'",4:"ד'",5:"ה'",6:"ו'",7:"ז'",8:"ח'",9:"ט'",10:"י'",11:'י"א',12:'י"ב'};
+  return labels[g] || 'מ';
 }
 
 // ============================================================
@@ -1027,42 +1026,21 @@ function initOnboarding() {
   obStep(1);
   document.getElementById('ob-name').value = '';
   document.getElementById('ob-students').value = '';
-  const sub = document.getElementById('ob-subjects');
-  sub.innerHTML = '';
-  SUBJECTS_LIST.forEach((s,i) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.dataset.idx = i;
-    btn.dataset.selected = i < 3 ? '1' : '0';
-    const sel = i < 3;
-    btn.style.cssText = 'padding:1rem;cursor:pointer;text-align:right;border-radius:12px;font-family:inherit;display:flex;align-items:center;gap:.75rem;' + (sel?'border:2px solid var(--ink);background:var(--paper-soft);':'border:1px solid var(--line);background:var(--paper);');
-    btn.innerHTML = `<div style="width:32px;height:32px;background:var(--forest-bg);color:var(--forest);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;">${s.sym}</div><div style="font-weight:600;">${s.name}</div>`;
-    btn.onclick = () => {
-      const cur = btn.dataset.selected === '1';
-      btn.dataset.selected = cur ? '0' : '1';
-      btn.style.cssText = 'padding:1rem;cursor:pointer;text-align:right;border-radius:12px;font-family:inherit;display:flex;align-items:center;gap:.75rem;' + (!cur?'border:2px solid var(--ink);background:var(--paper-soft);':'border:1px solid var(--line);background:var(--paper);');
-    };
-    sub.appendChild(btn);
-  });
 }
 
 function obStep(n) {
   if (n === 2 && !document.getElementById('ob-name').value.trim()) { toast('נא להזין שם כיתה'); return; }
-  if (n === 3) {
-    const stu = document.getElementById('ob-students').value.split('\n').filter(s => s.trim());
-    if (stu.length === 0) { toast('נא להוסיף תלמידים'); return; }
-  }
   document.getElementById('ob-1').style.display = n===1?'block':'none';
   document.getElementById('ob-2').style.display = n===2?'block':'none';
-  document.getElementById('ob-3').style.display = n===3?'block':'none';
 }
 
 async function obFinish() {
   const name = document.getElementById('ob-name').value.trim();
   const grade = parseInt(document.getElementById('ob-grade').value);
   const stuList = document.getElementById('ob-students').value.split('\n').map(s => s.trim()).filter(Boolean);
-  const subs = Array.from(document.querySelectorAll('#ob-subjects button[data-selected="1"]')).map(b => SUBJECTS_LIST[parseInt(b.dataset.idx)]);
-  if (subs.length === 0) { toast('בחרו לפחות מקצוע'); return; }
+  if (stuList.length === 0) { toast('נא להוסיף תלמידים'); return; }
+  // Math is the only subject - created automatically
+  const subs = [{ name: 'מתמטיקה', sym: 'M' }];
 
   const btn = document.getElementById('ob-finish-btn');
   btn.disabled = true;
@@ -1093,7 +1071,8 @@ async function obFinish() {
 function renderSubject() {
   const s = state.subjects.find(x => x.id === activeSubjectId);
   if (!s) { go('s-dash'); return; }
-  document.getElementById('subj-title').textContent = s.name;
+  const cls = state.classes.find(c => c.id === s.class_id);
+  document.getElementById('subj-title').textContent = cls ? `${cls.name} · מתמטיקה` : s.name;
   renderPendingExams();
   const exams = state.exams.filter(e => e.subject_id === activeSubjectId);
   const groups = {};
