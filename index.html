@@ -9,29 +9,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink: #0A0E14;
-  --ink-soft: #4A5260;
-  --ink-faint: #8B92A0;
-  --paper: #FAFAF7;
-  --paper-soft: #F4F2EC;
-  --line: #E5E2D8;
-  --line-soft: #EFEDE5;
+  --ink: #2A2018;
+  --ink-soft: #6B5D4F;
+  --ink-faint: #A89888;
+  --paper: #FBF6EE;
+  --paper-soft: #F4EAD9;
+  --line: #E8DCC8;
+  --line-soft: #F0E7D7;
   --forest: #1F4A38;
   --forest-light: #2E6850;
-  --forest-bg: #EDF2EE;
-  --gold: #B8924A;
-  --gold-bg: #F5EFE0;
-  --rust: #A04030;
-  --rust-bg: #F4E5E1;
-  --slate: #475569;
+  --forest-bg: #E6F0E8;
+  --gold: #C8923C;
+  --gold-bg: #FaEFD8;
+  --rust: #C25A3A;
+  --rust-bg: #F8E4DA;
+  --slate: #5B6B7C;
   --slate-bg: #E8EBF0;
-  --shadow-sm: 0 1px 3px rgba(10,14,20,.06);
-  --shadow: 0 4px 12px rgba(10,14,20,.06);
-  --shadow-lg: 0 12px 32px rgba(10,14,20,.10);
+  --peach: #E8A05C;
+  --peach-bg: #FCEBD8;
+  --shadow-sm: 0 1px 3px rgba(120,90,50,.07);
+  --shadow: 0 4px 14px rgba(120,90,50,.09);
+  --shadow-lg: 0 14px 36px rgba(120,90,50,.13);
 }
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html { scroll-behavior:smooth; }
-body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink); -webkit-font-smoothing:antialiased; min-height:100vh; }
+body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6EE 0%, #FaF0E2 100%); background-attachment:fixed; color:var(--ink); -webkit-font-smoothing:antialiased; min-height:100vh; }
 .serif { font-family:'Frank Ruhl Libre',Georgia,serif; }
 
 .screen { display:none; min-height:100vh; }
@@ -284,6 +286,47 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
 .chat-typing span:nth-child(3) { animation-delay:.4s; }
 @keyframes typing { 0%,60%,100%{opacity:.3;transform:translateY(0)} 30%{opacity:1;transform:translateY(-4px)} }
 
+/* ===== IPARON CHARACTER ===== */
+.iparon { display:inline-block; }
+.iparon-float { animation:iparonFloat 3s ease-in-out infinite; }
+@keyframes iparonFloat { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-7px) rotate(2deg)} }
+.iparon-eye { animation:iparonBlink 4s infinite; transform-origin:center; }
+@keyframes iparonBlink { 0%,92%,100%{transform:scaleY(1)} 96%{transform:scaleY(.1)} }
+.iparon-writing .iparon-body { animation:iparonWrite .5s ease-in-out infinite; transform-origin:bottom center; }
+@keyframes iparonWrite { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+.iparon-hand { animation:iparonHand .4s ease-in-out infinite alternate; }
+@keyframes iparonHand { from{transform:translateX(-2px)} to{transform:translateX(2px)} }
+
+/* chat with character */
+.chat-ai-row { display:flex; align-items:flex-end; gap:.5rem; align-self:flex-end; max-width:90%; }
+.chat-ai-avatar { width:38px; height:38px; flex-shrink:0; }
+.chat-bubble-ai { background:var(--paper-soft); color:var(--ink); border-radius:14px; border-bottom-left-radius:4px; padding:.875rem 1.125rem; font-size:.95rem; line-height:1.5; box-shadow:var(--shadow-sm); }
+
+/* iparon loader for grading */
+.iparon-loader-wrap { display:flex; flex-direction:column; align-items:center; gap:1.25rem; padding:1.5rem; }
+.iparon-stage { position:relative; width:160px; height:140px; }
+.iparon-paper { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:120px; height:90px; background:#fff; border-radius:6px; box-shadow:var(--shadow); border:1px solid var(--line); overflow:hidden; }
+.iparon-line { height:5px; background:var(--line); border-radius:3px; margin:11px 12px; transform:scaleX(0); transform-origin:right; }
+.iparon-line:nth-child(1){ animation:drawLine 2.4s infinite .0s; }
+.iparon-line:nth-child(2){ animation:drawLine 2.4s infinite .35s; }
+.iparon-line:nth-child(3){ animation:drawLine 2.4s infinite .7s; width:60%; }
+.iparon-check { position:absolute; right:14px; opacity:0; font-weight:700; }
+.iparon-check.c1 { top:8px; animation:popCheck 2.4s infinite .25s; color:var(--forest); }
+.iparon-check.c2 { top:26px; animation:popCheck 2.4s infinite .6s; color:var(--forest); }
+.iparon-check.c3 { top:44px; animation:popCheck 2.4s infinite .95s; color:var(--rust); }
+@keyframes drawLine { 0%{transform:scaleX(0)} 30%,100%{transform:scaleX(1)} }
+@keyframes popCheck { 0%,20%{opacity:0;transform:scale(0)} 35%{opacity:1;transform:scale(1.3)} 45%,100%{opacity:1;transform:scale(1)} }
+.iparon-mover { position:absolute; top:-6px; left:50%; width:46px; height:46px; animation:iparonMove 2.4s infinite ease-in-out; }
+@keyframes iparonMove { 0%{left:62%} 50%{left:24%} 100%{left:62%} }
+
+/* pop-in entrance for cards/avatars */
+@keyframes popIn { 0%{opacity:0;transform:scale(.8)} 60%{transform:scale(1.05)} 100%{opacity:1;transform:scale(1)} }
+.pop-in { animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* confetti */
+.confetti-piece { position:fixed; width:10px; height:10px; top:-20px; z-index:9999; pointer-events:none; border-radius:2px; }
+@keyframes confettiFall { to { transform:translateY(105vh) rotate(720deg); opacity:0; } }
+
 /* EXAM PAPER */
 .exam-paper { background:#fff; border:1px solid var(--line); border-radius:8px; padding:2.5rem; max-width:680px; margin:0 auto; box-shadow:var(--shadow); font-family:'Heebo',sans-serif; }
 .exam-paper-head { text-align:center; border-bottom:2px solid var(--ink); padding-bottom:1.25rem; margin-bottom:1.5rem; }
@@ -517,7 +560,7 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
 
 <!-- ========== GENERATE EXAM (CHAT) ========== -->
 <div class="screen" id="s-generate">
-  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;">יצירת מבחן</div><button class="btn btn-ghost" onclick="resetChat()" style="font-size:.85rem;">התחל מחדש</button></div></header>
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;display:flex;align-items:center;gap:.5rem;"><span id="chat-header-iparon" style="display:inline-flex;width:28px;height:28px;"></span>עפרון · יצירת מבחן</div><button class="btn btn-ghost" onclick="resetChat()" style="font-size:.85rem;">התחל מחדש</button></div></header>
   <div class="chat-wrap">
     <div class="chat-messages" id="chat-messages"></div>
     <div id="exam-preview-area"></div>
@@ -557,15 +600,15 @@ body { font-family:'Heebo',sans-serif; background:var(--paper); color:var(--ink)
 
   <div class="container-narrow" id="gs-3" style="display:none;">
     <div class="card card-elevated loading-state">
-      <div class="tziun-loader">
-        <svg class="tziun-loader-svg logo-anim" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 20 10 L 60 10 L 35 50 L 60 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M 75 10 L 75 50 M 65 10 L 85 10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M 100 25 Q 110 10 120 25 Q 120 35 110 38 L 110 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M 135 10 L 135 50 M 125 10 L 145 10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <path d="M 160 50 L 160 25 Q 165 15 175 25 L 175 50" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-        <div><div class="tziun-loader-text">Tziun בודק מול התשובות</div><div class="tziun-loader-sub">בדיקה מדויקת · 20–40 שניות</div></div>
+      <div class="iparon-loader-wrap">
+        <div class="iparon-stage">
+          <div class="iparon-paper">
+            <div class="iparon-line"></div><div class="iparon-line"></div><div class="iparon-line"></div>
+            <span class="iparon-check c1">✓</span><span class="iparon-check c2">✓</span><span class="iparon-check c3">✕</span>
+          </div>
+          <div class="iparon-mover">${''}</div>
+        </div>
+        <div><div class="tziun-loader-text">עפרון בודק את המבחן</div><div class="tziun-loader-sub">משווה לתשובות הנכונות · 20–40 שניות</div></div>
       </div>
     </div>
   </div>
@@ -915,9 +958,10 @@ function renderProfiles() {
   document.getElementById('profiles-school').textContent = state.school?.school_name || '';
   const grid = document.getElementById('profiles-grid');
   grid.innerHTML = '';
-  state.profiles.forEach(p => {
+  state.profiles.forEach((p, idx) => {
     const btn = document.createElement('button');
-    btn.className = 'profile-item';
+    btn.className = 'profile-item pop-in';
+    btn.style.animationDelay = (idx * 0.08) + 's';
     btn.onclick = () => { activeProfileId = p.id; go('s-dash'); };
     btn.innerHTML = `<div class="profile-avatar-lg" style="background:${p.color};">${getInitials(p.name)}</div><div style="text-align:center;"><div class="profile-name">${escapeHTML(p.name)}</div><div class="profile-role">${p.is_homeroom?'מחנכ/ת':'מורה'}</div></div>`;
     grid.appendChild(btn);
@@ -963,6 +1007,7 @@ async function createProfile() {
     });
     state.profiles.push(result.profile);
     closeModal('m-profile');
+    confetti();
     toast('פרופיל נוצר');
     renderProfiles();
   } catch(err) {
@@ -1003,11 +1048,12 @@ function renderDash() {
 
   const grid = document.getElementById('subjects-grid');
   grid.innerHTML = '';
-  mySubjects.forEach(s => {
+  mySubjects.forEach((s, idx) => {
     const cls = state.classes.find(c => c.id === s.class_id);
     const examCount = state.exams.filter(e => e.subject_id === s.id).length;
     const el = document.createElement('a');
-    el.className = 'subject-card';
+    el.className = 'subject-card pop-in';
+    el.style.animationDelay = (idx * 0.07) + 's';
     el.onclick = () => { activeSubjectId = s.id; go('s-subject'); };
     el.innerHTML = `<div class="subject-icon">${cls ? escapeHTML(gradeLabel(cls.grade)) : 'מ'}</div><div class="subject-name">${cls ? escapeHTML(cls.name) : 'כיתה'}</div><div class="subject-meta">${examCount} מבחנים</div>`;
     grid.appendChild(el);
@@ -1056,6 +1102,7 @@ async function obFinish() {
       teacher_id: activeProfileId
     });
     await loadAllData();
+    confetti();
     toast('הכיתה נוצרה');
     go('s-dash');
   } catch(err) {
@@ -1862,6 +1909,8 @@ async function submitGradePages() {
   stopGradeCamera();
   document.getElementById('gs-2').style.display = 'none';
   document.getElementById('gs-3').style.display = 'block';
+  const mover = document.querySelector('#gs-3 .iparon-mover');
+  if (mover) mover.innerHTML = iparonSVG({size:46, class:'iparon-writing'});
   try {
     const student = state.students.find(s => s.id === gradeStudentId);
     const teacher = activeProfile();
@@ -1945,6 +1994,7 @@ async function saveGrade(score, source, aiData) {
       score, source, ai_data: aiData
     });
     await loadAllData();
+    confetti();
     toast('הציון נשמר לתיק התלמיד');
     gradeScan1(); // back to student list to grade next student
   } catch(err) {
@@ -1973,7 +2023,9 @@ function initChat() {
   document.getElementById('chat-input').value = '';
   document.getElementById('exam-preview-area').innerHTML = '';
   const subject = state.subjects.find(s => s.id === activeSubjectId);
-  const greeting = `שלום! אני אעזור לך ליצור מבחן ב${subject ? subject.name : 'מקצוע'}. ספרי לי מה תרצי: אילו נושאים, כמה שאלות, ואיזו רמת קושי.`;
+  const hdr = document.getElementById('chat-header-iparon');
+  if (hdr) hdr.innerHTML = iparonSVG({size:28, class:'iparon-float'});
+  const greeting = `שלום! אני עפרון, העוזר שלך ליצירת מבחנים ✏️ ספרי לי מה תרצי — אילו נושאים, כמה שאלות, ואיזו רמת קושי — ואני אכין לך מבחן.`;
   chatDisplay = [{ role: 'assistant', text: greeting }];
   renderChatMessages(chatDisplay);
 }
@@ -1992,9 +2044,12 @@ function chatKeydown(e) {
 
 function renderChatMessages(displayMsgs) {
   const box = document.getElementById('chat-messages');
-  box.innerHTML = displayMsgs.map(m =>
-    `<div class="chat-msg ${m.role === 'user' ? 'user' : 'ai'}">${escapeHTML(m.text)}</div>`
-  ).join('');
+  box.innerHTML = displayMsgs.map(m => {
+    if (m.role === 'user') {
+      return `<div class="chat-msg user">${escapeHTML(m.text)}</div>`;
+    }
+    return `<div class="chat-ai-row"><div class="chat-ai-avatar">${iparonSVG({size:38, class:'iparon-float'})}</div><div class="chat-bubble-ai">${escapeHTML(m.text)}</div></div>`;
+  }).join('');
   box.scrollTop = box.scrollHeight;
 }
 
@@ -2014,12 +2069,12 @@ async function sendChat() {
   input.style.height = '48px';
   renderChatMessages(chatDisplay);
 
-  // Show typing indicator
+  // Show Iparon writing
   const box = document.getElementById('chat-messages');
   const typing = document.createElement('div');
-  typing.className = 'chat-typing';
+  typing.className = 'chat-ai-row';
   typing.id = 'chat-typing';
-  typing.innerHTML = '<span></span><span></span><span></span>';
+  typing.innerHTML = `<div class="chat-ai-avatar">${iparonSVG({size:38, class:'iparon-writing'})}</div><div class="chat-bubble-ai chat-typing" style="padding:.875rem 1.125rem;"><span></span><span></span><span></span></div>`;
   box.appendChild(typing);
   box.scrollTop = box.scrollHeight;
 
@@ -2171,6 +2226,53 @@ ${qHTML}
 
 function formatPts(n) {
   return Math.round(n * 10) / 10;
+}
+
+// ============================================================
+// IPARON CHARACTER + DELIGHT
+// ============================================================
+function iparonSVG(opts) {
+  opts = opts || {};
+  const size = opts.size || 48;
+  const cls = opts.class || '';
+  // A friendly pencil character: yellow body, wood tip, eyes, smile
+  return `<svg class="iparon ${cls}" width="${size}" height="${size}" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <g class="iparon-body">
+      <!-- body -->
+      <rect x="22" y="14" width="20" height="34" rx="6" fill="#E8A05C"/>
+      <rect x="22" y="14" width="20" height="34" rx="6" fill="url(#ipg)" opacity="0.25"/>
+      <!-- metal band -->
+      <rect x="22" y="44" width="20" height="5" fill="#C8923C"/>
+      <!-- tip -->
+      <path d="M22 49 L32 60 L42 49 Z" fill="#F0D9B8"/>
+      <path d="M29 54 L32 60 L35 54 Z" fill="#2A2018"/>
+      <!-- eraser top -->
+      <rect x="22" y="10" width="20" height="7" rx="3.5" fill="#E89AA0"/>
+      <!-- face -->
+      <circle class="iparon-eye" cx="28" cy="28" r="2.6" fill="#2A2018"/>
+      <circle class="iparon-eye" cx="36" cy="28" r="2.6" fill="#2A2018"/>
+      <circle cx="28.8" cy="27.2" r="0.8" fill="#fff"/>
+      <circle cx="36.8" cy="27.2" r="0.8" fill="#fff"/>
+      <path d="M28 33 Q32 37 36 33" stroke="#2A2018" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <circle cx="25" cy="32" r="1.8" fill="#E8788A" opacity="0.5"/>
+      <circle cx="39" cy="32" r="1.8" fill="#E8788A" opacity="0.5"/>
+    </g>
+    <defs><linearGradient id="ipg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#C8923C"/></linearGradient></defs>
+  </svg>`;
+}
+
+function confetti() {
+  const colors = ['#E8A05C','#1F4A38','#C8923C','#C25A3A','#2E6850','#E89AA0'];
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animation = `confettiFall ${1 + Math.random() * 1.5}s ease-in ${Math.random() * 0.3}s forwards`;
+    if (Math.random() > 0.5) p.style.borderRadius = '50%';
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 3000);
+  }
 }
 
 // ============================================================
