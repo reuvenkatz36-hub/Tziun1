@@ -2110,16 +2110,96 @@ async function sendChat() {
   }
 }
 
+function renderDiagram(d, forPrint) {
+  if (!d) return '';
+  const stroke = forPrint ? '#000' : '#2A2018';
+  const W = 300, H = 300;
+  const pad = 30;
+  let svg = `<svg viewBox="-10 -10 ${W+20} ${H+20}" width="260" height="260" style="display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">`;
+  const pmap = {};
+  (d.points || []).forEach(p => { pmap[p.label] = p; });
+
+  // Axes (coordinate system)
+  if (d.axes) {
+    svg += `<line x1="0" y1="${H/2}" x2="${W}" y2="${H/2}" stroke="#999" stroke-width="1"/>`;
+    svg += `<line x1="${W/2}" y1="0" x2="${W/2}" y2="${H}" stroke="#999" stroke-width="1"/>`;
+    // arrows
+    svg += `<polygon points="${W},${H/2} ${W-8},${H/2-4} ${W-8},${H/2+4}" fill="#999"/>`;
+    svg += `<polygon points="${W/2},0 ${W/2-4},8 ${W/2+4},8" fill="#999"/>`;
+    svg += `<text x="${W-6}" y="${H/2-8}" font-size="12" fill="#666">x</text>`;
+    svg += `<text x="${W/2+8}" y="12" font-size="12" fill="#666">y</text>`;
+    // grid ticks
+    for (let i = 1; i <= 5; i++) {
+      const step = (W/2) / 6;
+      svg += `<line x1="${W/2 + i*step}" y1="${H/2-3}" x2="${W/2 + i*step}" y2="${H/2+3}" stroke="#999"/>`;
+      svg += `<line x1="${W/2 - i*step}" y1="${H/2-3}" x2="${W/2 - i*step}" y2="${H/2+3}" stroke="#999"/>`;
+      svg += `<line x1="${W/2-3}" y1="${H/2 + i*step}" x2="${W/2+3}" y2="${H/2 + i*step}" stroke="#999"/>`;
+      svg += `<line x1="${W/2-3}" y1="${H/2 - i*step}" x2="${W/2+3}" y2="${H/2 - i*step}" stroke="#999"/>`;
+    }
+  }
+
+  // Lines (edges between points)
+  (d.lines || []).forEach(l => {
+    const a = pmap[l.from], b = pmap[l.to];
+    if (a && b) svg += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${stroke}" stroke-width="2"/>`;
+  });
+
+  // Free curves / functions (polyline of points)
+  if (d.curve && d.curve.length) {
+    const pts = d.curve.map(p => `${p.x},${p.y}`).join(' ');
+    svg += `<polyline points="${pts}" fill="none" stroke="${stroke}" stroke-width="2"/>`;
+  }
+
+  // Right angle markers
+  (d.right_angles || []).forEach(ra => {
+    const v = pmap[ra.at], a = pmap[ra.from], b = pmap[ra.to];
+    if (v && a && b) {
+      const s = 14;
+      const u1 = norm(a.x - v.x, a.y - v.y), u2 = norm(b.x - v.x, b.y - v.y);
+      const p1 = [v.x + u1[0]*s, v.y + u1[1]*s];
+      const p2 = [v.x + u2[0]*s, v.y + u2[1]*s];
+      const pc = [v.x + (u1[0]+u2[0])*s, v.y + (u1[1]+u2[1])*s];
+      svg += `<polyline points="${p1[0]},${p1[1]} ${pc[0]},${pc[1]} ${p2[0]},${p2[1]}" fill="none" stroke="${stroke}" stroke-width="1.5"/>`;
+    }
+  });
+
+  // Points + labels
+  (d.points || []).forEach(p => {
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="${stroke}"/>`;
+    if (p.label) {
+      // place label slightly outside
+      const lx = p.x + (p.x < W/2 ? -14 : 8);
+      const ly = p.y + (p.y < H/2 ? -8 : 16);
+      svg += `<text x="${lx}" y="${ly}" font-size="15" font-weight="700" fill="${stroke}">${escapeHTML(p.label)}</text>`;
+    }
+  });
+
+  // Extra text labels (measurements)
+  (d.labels || []).forEach(t => {
+    svg += `<text x="${t.x}" y="${t.y}" font-size="12" fill="${stroke}" text-anchor="middle">${escapeHTML(t.text||'')}</text>`;
+  });
+
+  svg += `</svg>`;
+  return `<div style="margin:1rem 0;padding:1rem;background:${forPrint?'#fff':'var(--paper)'};border:1px solid var(--line);border-radius:8px;">${svg}</div>`;
+}
+
+function norm(dx, dy) {
+  const len = Math.sqrt(dx*dx + dy*dy) || 1;
+  return [dx/len, dy/len];
+}
+
 function renderExamPaper(exam) {
   const area = document.getElementById('exam-preview-area');
+  const onePer = (exam.layout || 'one_per_page') === 'one_per_page';
   const qHTML = (exam.questions || []).map(q => {
     let inner = `<div class="exam-q-head"><div class="exam-q-num">${q.number}</div><div class="exam-q-text">${escapeHTML(q.text || '')}</div><div class="exam-q-points">${formatPts(q.points)} נק'</div></div>`;
+    if (q.diagram) inner += renderDiagram(q.diagram, false);
     if (q.has_parts && q.parts && q.parts.length) {
-      inner += q.parts.map(p => `<div class="exam-part"><div style="display:flex;align-items:center;margin-bottom:.375rem;"><span class="exam-part-label">${escapeHTML(p.label||'')}</span><span style="font-size:.9rem;">${escapeHTML(p.text||'')}</span><span style="margin-right:auto;font-size:.75rem;color:var(--ink-soft);">${formatPts(p.points)} נק'</span></div><div class="exam-answer-box" style="min-height:44px;"></div></div>`).join('');
+      inner += q.parts.map(p => `<div class="exam-part"><div style="display:flex;align-items:center;margin-bottom:.375rem;"><span class="exam-part-label">${escapeHTML(p.label||'')}</span><span style="font-size:.9rem;">${escapeHTML(p.text||'')}</span><span style="margin-right:auto;font-size:.75rem;color:var(--ink-soft);">${formatPts(p.points)} נק'</span></div><div class="exam-answer-box" style="min-height:${onePer?120:44}px;"></div></div>`).join('');
     } else {
-      inner += `<div class="exam-answer-label">תשובה:</div><div class="exam-answer-box"></div>`;
+      inner += `<div class="exam-answer-label">תשובה:</div><div class="exam-answer-box" style="min-height:${onePer?160:60}px;"></div>`;
     }
-    return `<div class="exam-q">${inner}</div>`;
+    return `<div class="exam-q"${onePer?' style="margin-bottom:1.5rem;"':''}>${inner}</div>`;
   }).join('');
 
   area.innerHTML = `
@@ -2127,7 +2207,7 @@ function renderExamPaper(exam) {
       <div class="exam-paper">
         <div class="exam-paper-head">
           <div class="exam-paper-title">${escapeHTML(exam.title || 'מבחן')}</div>
-          <div class="exam-paper-meta"><span>${escapeHTML(exam.subject || '')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div>
+          <div class="exam-paper-meta"><span>${escapeHTML(exam.subject || 'מתמטיקה')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div>
         </div>
         <div class="exam-paper-fields">
           <div class="exam-field">שם: <div class="exam-field-box"></div></div>
@@ -2137,7 +2217,7 @@ function renderExamPaper(exam) {
       </div>
       <div style="max-width:680px;margin:1.25rem auto 0;padding-bottom:1.5rem;">
         <button class="btn btn-primary btn-lg btn-block" onclick="printExam()">הורדה והדפסה (PDF)</button>
-        <p style="font-size:.8rem;color:var(--ink-faint);text-align:center;margin-top:.75rem;">אפשר עדיין לבקש שינויים בצ'אט לפני ההדפסה</p>
+        <p style="font-size:.8rem;color:var(--ink-faint);text-align:center;margin-top:.75rem;">${onePer?'כל שאלה תודפס בעמוד נפרד עם מקום לפתור · ':''}אפשר לבקש שינויים בצ'אט לפני ההדפסה</p>
       </div>
     </div>`;
   area.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2174,14 +2254,17 @@ async function printExam() {
 }
 
 function openPrintWindow(exam) {
-  const qHTML = (exam.questions || []).map(q => {
+  const onePer = (exam.layout || 'one_per_page') === 'one_per_page';
+  const qHTML = (exam.questions || []).map((q, idx) => {
     let inner = `<div class="pq-head"><div class="pq-num">${q.number}</div><div class="pq-text">${escapeHTML(q.text || '')}</div><div class="pq-points">${formatPts(q.points)} נק'</div></div>`;
+    if (q.diagram) inner += renderDiagram(q.diagram, true);
     if (q.has_parts && q.parts && q.parts.length) {
-      inner += q.parts.map(p => `<div class="pq-part"><div class="pq-part-row"><span class="pq-part-label">${escapeHTML(p.label||'')}</span><span class="pq-part-text">${escapeHTML(p.text||'')}</span><span class="pq-part-pts">${formatPts(p.points)} נק'</span></div><div class="pq-box" style="min-height:50px;"></div></div>`).join('');
+      inner += q.parts.map(p => `<div class="pq-part"><div class="pq-part-row"><span class="pq-part-label">${escapeHTML(p.label||'')}</span><span class="pq-part-text">${escapeHTML(p.text||'')}</span><span class="pq-part-pts">${formatPts(p.points)} נק'</span></div><div class="pq-box" style="min-height:${onePer?110:50}px;"></div></div>`).join('');
     } else {
-      inner += `<div class="pq-ans-label">תשובה:</div><div class="pq-box"></div>`;
+      inner += `<div class="pq-ans-label">תשובה:</div><div class="pq-box" style="min-height:${onePer?180:70}px;"></div>`;
     }
-    return `<div class="pq">${inner}</div>`;
+    const breakCls = (onePer && idx < (exam.questions.length - 1)) ? ' pq-break' : '';
+    return `<div class="pq${breakCls}">${inner}</div>`;
   }).join('');
 
   const html = `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8">
@@ -2198,6 +2281,7 @@ body { font-family:'Heebo',sans-serif; color:#000; line-height:1.5; }
 .field { flex:1; display:flex; align-items:center; gap:8px; font-size:14px; }
 .field-box { flex:1; border:1px solid #000; border-radius:4px; height:32px; }
 .pq { border:1.5px solid #000; border-radius:8px; padding:14px 16px; margin-bottom:14px; page-break-inside:avoid; }
+.pq-break { page-break-after:always; }
 .pq-head { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; }
 .pq-num { width:30px; height:30px; border:2px solid #000; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex-shrink:0; }
 .pq-text { flex:1; font-weight:500; font-size:15px; }
@@ -2212,10 +2296,10 @@ body { font-family:'Heebo',sans-serif; color:#000; line-height:1.5; }
 @media print { body { -webkit-print-color-adjust:exact; } }
 </style></head><body>
 <div class="head"><div class="title">${escapeHTML(exam.title || 'מבחן')}</div>
-<div class="meta"><span>${escapeHTML(exam.subject || '')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div></div>
+<div class="meta"><span>${escapeHTML(exam.subject || 'מתמטיקה')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div></div>
 <div class="fields"><div class="field">שם: <div class="field-box"></div></div><div class="field">כיתה: <div class="field-box" style="max-width:90px;"></div></div></div>
 ${qHTML}
-<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script>
+<script>window.onload=function(){setTimeout(function(){window.print();},700);};<\/script>
 </body></html>`;
 
   const w = window.open('', '_blank');
