@@ -356,6 +356,13 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   .exam-paper { padding:1.5rem; }
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 </head>
 <body>
 
@@ -376,9 +383,9 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
     <div class="hero-content">
       <div class="hero-grid">
         <div>
-          <div class="hero-tag"><span class="hero-tag-dot"></span><span>מערכת מבחני מתמטיקה לבתי ספר</span></div>
-          <h1 class="h1 hero-title">מתמטיקה,<br><em>בלי הניירת.</em></h1>
-          <p class="hero-desc">המערכת החכמה ליצירה ובדיקה של מבחני מתמטיקה. צרו מבחן בשיחה, הדפיסו, וקבלו בדיקה אוטומטית מדויקת — מכיתה א' ועד י"ב.</p>
+          <div class="hero-tag"><span class="hero-tag-dot"></span><span>בדיקת עבודות ומטלות חכמה לבתי ספר</span></div>
+          <h1 class="h1 hero-title">עבודות גמר,<br><em>בלי הערימות.</em></h1>
+          <p class="hero-desc">עפרון בודק עבודות ומטלות ארוכות במקומכם — ציון, משוב מפורט לכל חלק, וזיהוי סימני כתיבת AI. וגם יוצר מבחנים בשיחה. כל מה שמורה צריכה, במקום אחד.</p>
           <div class="hero-cta">
             <button class="btn btn-primary btn-lg" onclick="go('s-login')">כניסה לבית הספר</button>
             <button class="btn btn-secondary btn-lg" onclick="go('s-pricing')">צפו בתוכניות</button>
@@ -387,7 +394,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
         <div>
           <div class="mock-screen">
             <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;border-bottom:1px solid var(--line-soft);margin-bottom:1rem;">
-              <div><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">כיתה ה'2</div><div style="font-size:.75rem;color:var(--ink-faint);">מתמטיקה</div></div>
+              <div><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">כיתה ה'2</div><div style="font-size:.75rem;color:var(--ink-faint);">עבודות גמר</div></div>
               <span class="tag tag-forest">פעיל</span>
             </div>
             <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--forest);font-size:.85rem;">דל</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">דניאל לוי</div><div style="font-size:.75rem;color:var(--ink-faint);">12 מבחנים</div></div><div class="grade grade-excellent">92</div></div>
@@ -403,13 +410,13 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   <section class="features">
     <div style="max-width:1100px;margin:0 auto;text-align:center;">
       <div class="eyebrow" style="margin-bottom:1rem;">מה כלול</div>
-      <h2 class="h2">הלולאה השלמה למבחני מתמטיקה.</h2>
+      <h2 class="h2">כל מה שמורה צריכה, במקום אחד.</h2>
     </div>
     <div class="features-grid">
-      <div><span class="feature-num">I</span><h3 class="feature-title">יצירת מבחן בשיחה</h3><p class="feature-desc">ספרו ל-Tziun מה אתם רוצים — נושאים, רמה, מספר שאלות — והוא בונה מבחן מותאם תוך שניות.</p></div>
-      <div><span class="feature-num">II</span><h3 class="feature-title">הדפסה מסודרת</h3><p class="feature-desc">מבחן מעוצב ומוכן להדפסה, עם מקום ברור לכל תשובה.</p></div>
-      <div><span class="feature-num">III</span><h3 class="feature-title">בדיקה אוטומטית מדויקת</h3><p class="feature-desc">צלמו את המבחן הפתור — Tziun בודק מול התשובות שהוא עצמו יצר. דיוק גבוה כי הוא יודע בדיוק מה נכון.</p></div>
-      <div><span class="feature-num">IV</span><h3 class="feature-title">תיק תלמיד דיגיטלי</h3><p class="feature-desc">כל מבחן נכנס אוטומטית לתיק התלמיד — ציונים, גרפים, והתקדמות לאורך השנה.</p></div>
+      <div><span class="feature-num">I</span><h3 class="feature-title">בדיקת עבודות ומטלות</h3><p class="feature-desc">העלו עבודה דיגיטלית — עפרון קורא, נותן ציון, ומפרט מה טוב ומה חסר בכל חלק. חוסך שעות על כל תלמיד.</p></div>
+      <div><span class="feature-num">II</span><h3 class="feature-title">זיהוי כתיבת AI</h3><p class="feature-desc">עפרון מסמן עבודות עם סימני כתיבה של בינה מלאכותית, ומסביר אילו סימנים מצא — לשיקול דעת המורה.</p></div>
+      <div><span class="feature-num">III</span><h3 class="feature-title">יצירת מבחנים בשיחה</h3><p class="feature-desc">ספרו לעפרון מה אתם רוצים — נושאים, רמה, שרטוטים — והוא בונה מבחן מותאם ומוכן להדפסה תוך שניות.</p></div>
+      <div><span class="feature-num">IV</span><h3 class="feature-title">תיק תלמיד דיגיטלי</h3><p class="feature-desc">כל ציון נכנס אוטומטית לתיק התלמיד — היסטוריה, גרפים, והתקדמות לאורך השנה.</p></div>
       <div><span class="feature-num">V</span><h3 class="feature-title">ניתוח כיתתי</h3><p class="feature-desc">ממוצעים, מגמות, ותובנות ברמת הכיתה במבט אחד.</p></div>
       <div><span class="feature-num">VI</span><h3 class="feature-title">הגנת פרטיות</h3><p class="feature-desc">אבטחה ברמה מוסדית, עומד בתקני משרד החינוך.</p></div>
     </div>
@@ -422,7 +429,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
       <p class="lead" style="margin-top:.875rem;">מתאים לתקציב גפ"ן.</p>
     </div>
     <div class="pricing-grid">
-      <div class="price-card"><div class="price-tier">ניצן</div><div class="price-students">עד 250 תלמידים</div><div><span class="price-amount">2,400</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>בדיקת מבחני מתמטיקה ב-AI</li><li>יצירת מבחנים חכמה</li><li>תיק תלמיד דיגיטלי</li><li>ניתוח כיתתי</li></ul><button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
+      <div class="price-card"><div class="price-tier">ניצן</div><div class="price-students">עד 250 תלמידים</div><div><span class="price-amount">2,400</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>בדיקת עבודות ומטלות ב-AI</li><li>זיהוי כתיבת AI</li><li>יצירת מבחנים חכמה</li><li>תיק תלמיד דיגיטלי</li><li>ניתוח כיתתי</li></ul><button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
       <div class="price-card featured"><div style="position:absolute;top:-12px;right:24px;background:var(--ink);color:var(--paper);padding:.25rem .75rem;border-radius:4px;font-size:.7rem;font-weight:600;">מומלץ</div><div class="price-tier">אלון</div><div class="price-students">250–600 תלמידים</div><div><span class="price-amount">3,600</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "ניצן"</li><li>דשבורד מנהל</li><li>דוחות הורים</li></ul><button class="btn btn-primary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
       <div class="price-card"><div class="price-tier">עץ הדעת</div><div class="price-students">מעל 600 תלמידים</div><div><span class="price-amount">4,800</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "אלון"</li><li>מנהל הצלחה ייעודי</li></ul><button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
     </div>
@@ -441,7 +448,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   <section class="pricing" style="min-height:calc(100vh - 80px);">
     <div style="max-width:1100px;margin:0 auto;text-align:center;"><div class="eyebrow" style="margin-bottom:1rem;">תמחור</div><h2 class="h2">תוכניות לבית הספר.</h2></div>
     <div class="pricing-grid">
-      <div class="price-card"><div class="price-tier">ניצן</div><div class="price-students">עד 250 תלמידים</div><div><span class="price-amount">2,400</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>בדיקת מבחני מתמטיקה ב-AI</li><li>יצירת מבחנים חכמה</li><li>תיק תלמיד דיגיטלי</li><li>ניתוח כיתתי</li></ul><button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
+      <div class="price-card"><div class="price-tier">ניצן</div><div class="price-students">עד 250 תלמידים</div><div><span class="price-amount">2,400</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>בדיקת עבודות ומטלות ב-AI</li><li>זיהוי כתיבת AI</li><li>יצירת מבחנים חכמה</li><li>תיק תלמיד דיגיטלי</li><li>ניתוח כיתתי</li></ul><button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
       <div class="price-card featured"><div style="position:absolute;top:-12px;right:24px;background:var(--ink);color:var(--paper);padding:.25rem .75rem;border-radius:4px;font-size:.7rem;font-weight:600;">מומלץ</div><div class="price-tier">אלון</div><div class="price-students">250–600 תלמידים</div><div><span class="price-amount">3,600</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "ניצן"</li><li>דשבורד מנהל</li><li>דוחות הורים</li></ul><button class="btn btn-primary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
       <div class="price-card"><div class="price-tier">עץ הדעת</div><div class="price-students">מעל 600 תלמידים</div><div><span class="price-amount">4,800</span><span class="price-currency"> ₪</span></div><div class="price-period">לשנה</div><ul class="price-features"><li>כל פיצ'רי "אלון"</li><li>מנהל הצלחה ייעודי</li></ul><button class="btn btn-secondary btn-block" onclick="go('s-login')">דברו איתנו</button></div>
     </div>
@@ -524,7 +531,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">יצירת כיתה</div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
     <div id="ob-1">
-      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 1 מתוך 2</div>
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 1 מתוך 3</div>
       <h2 class="h2" style="margin-bottom:.5rem;">פרטי הכיתה</h2>
       <div class="card card-elevated" style="margin-top:1.5rem;">
         <div class="field"><label class="label">שם הכיתה</label><input type="text" class="input" id="ob-name" placeholder="לדוגמה: כיתה ה'2"></div>
@@ -533,11 +540,18 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
       <button class="btn btn-primary btn-block btn-lg" onclick="obStep(2)" style="margin-top:1.5rem;">המשך</button>
     </div>
     <div id="ob-2" style="display:none;">
-      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 2 מתוך 2</div>
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 2 מתוך 3</div>
       <h2 class="h2" style="margin-bottom:.5rem;">רשימת תלמידים</h2>
       <p class="muted" style="margin-bottom:1.5rem;">תלמיד בכל שורה.</p>
       <div class="card card-elevated"><textarea class="textarea" id="ob-students" rows="10" placeholder="דניאל לוי&#10;רוני נחום"></textarea></div>
-      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(1)">חזרה</button><button class="btn btn-primary btn-block" onclick="obFinish()" id="ob-finish-btn">סיום ויצירה</button></div>
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(1)">חזרה</button><button class="btn btn-primary btn-block" onclick="obStep(3)">המשך</button></div>
+    </div>
+    <div id="ob-3" style="display:none;">
+      <div class="eyebrow" style="margin-bottom:.5rem;">שלב 3 מתוך 3</div>
+      <h2 class="h2" style="margin-bottom:.5rem;">המקצועות שלי</h2>
+      <p class="muted" style="margin-bottom:1.5rem;">בחרי את המקצועות שאת מלמדת בכיתה הזו.</p>
+      <div id="ob-subjects" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;"></div>
+      <div style="display:flex;gap:.75rem;margin-top:1.5rem;"><button class="btn btn-secondary" onclick="obStep(2)">חזרה</button><button class="btn btn-primary btn-block" onclick="obFinish()" id="ob-finish-btn">סיום ויצירה</button></div>
     </div>
   </div>
 </div>
@@ -546,14 +560,12 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 <div class="screen" id="s-subject">
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div id="subj-title" style="font-weight:600;"></div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
-    <button class="btn btn-primary btn-lg btn-block" onclick="go('s-generate')" style="margin-bottom:.75rem;">יצירת מבחן חדש עם Tziun</button>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem;">
-      <button class="btn btn-secondary btn-lg" onclick="go('s-scan')">סריקת AI</button>
-      <button class="btn btn-secondary btn-lg" onclick="go('s-manual')">הזנה ידנית</button>
-    </div>
-    <h3 class="h3" style="margin-bottom:1rem;">ממתינים לבדיקה</h3>
+    <button class="btn btn-primary btn-lg btn-block" onclick="go('s-assignment')" style="margin-bottom:.75rem;">בדיקת עבודה / מטלה</button>
+    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-generate')" style="margin-bottom:.75rem;">יצירת מבחן חדש עם Tziun</button>
+    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-manual')" style="margin-bottom:1.5rem;">הזנת ציונים ידנית</button>
+    <h3 class="h3" style="margin-bottom:1rem;">המבחנים שיצרתי</h3>
     <div id="subj-pending" style="margin-bottom:1.5rem;"></div>
-    <h3 class="h3" style="margin-bottom:1rem;">מבחנים אחרונים</h3>
+    <h3 class="h3" style="margin-bottom:1rem;">ציונים שהוזנו</h3>
     <div id="subj-exams"></div>
   </div>
 </div>
@@ -569,6 +581,55 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
       <button class="btn btn-primary" onclick="sendChat()" id="chat-send" style="height:48px;">שלח</button>
     </div>
   </div>
+</div>
+
+<!-- ========== ASSIGNMENT CHECK ========== -->
+<div class="screen" id="s-assignment">
+  <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;display:flex;align-items:center;gap:.5rem;"><span id="asg-iparon" style="display:inline-flex;width:28px;height:28px;"></span>עפרון · בדיקת עבודה</div><div style="width:60px;"></div></div></header>
+
+  <div class="container-narrow" id="asg-1">
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div class="field"><label class="label">שם המטלה (אופציונלי)</label><input type="text" class="input" id="asg-title" placeholder="לדוגמה: עבודת גמר בכלכלה"></div>
+      <div class="field" style="margin-bottom:0;"><label class="label">מחוון / קריטריונים לבדיקה (אופציונלי)</label><textarea class="textarea" id="asg-rubric" rows="3" placeholder="הדביקי כאן את דרישות העבודה או המחוון, ועפרון יבדוק לפיהן. אם תשאירי ריק - עפרון יבדוק לפי הסטנדרטים המקצועיים."></textarea></div>
+    </div>
+
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <label class="label" style="margin-bottom:.75rem;">בחירת תלמיד</label>
+      <input type="search" class="input" id="asg-search" placeholder="חיפוש תלמיד" oninput="renderAsgStudents()" style="margin-bottom:.75rem;">
+      <div id="asg-students" style="max-height:260px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="card card-elevated">
+      <label class="label" style="margin-bottom:.75rem;">העלאת העבודה</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;">
+        <label class="btn btn-secondary" style="margin:0;">קובץ Word / PDF<input type="file" accept=".docx,.pdf" style="display:none;" onchange="onAsgFile(event)"></label>
+        <button class="btn btn-secondary" onclick="document.getElementById('asg-paste-wrap').style.display='block'">הדבקת טקסט</button>
+      </div>
+      <div id="asg-paste-wrap" style="display:none;">
+        <textarea class="textarea" id="asg-text" rows="8" placeholder="הדביקי כאן את טקסט העבודה..."></textarea>
+      </div>
+      <div id="asg-file-status" style="display:none;margin-top:.5rem;padding:.625rem .875rem;background:var(--forest-bg);border-radius:8px;font-size:.85rem;color:var(--forest);"></div>
+    </div>
+
+    <button class="btn btn-primary btn-block btn-lg" onclick="submitAssignment()" style="margin-top:1rem;">בדוק עבודה</button>
+  </div>
+
+  <div class="container-narrow" id="asg-2" style="display:none;">
+    <div class="card card-elevated loading-state">
+      <div class="iparon-loader-wrap">
+        <div class="iparon-stage">
+          <div class="iparon-paper">
+            <div class="iparon-line"></div><div class="iparon-line"></div><div class="iparon-line"></div>
+            <span class="iparon-check c1">✓</span><span class="iparon-check c2">✓</span><span class="iparon-check c3">✕</span>
+          </div>
+          <div class="iparon-mover" id="asg-mover"></div>
+        </div>
+        <div><div class="tziun-loader-text">עפרון קורא את העבודה</div><div class="tziun-loader-sub">בדיקה מעמיקה · 20–40 שניות</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-narrow" id="asg-3" style="display:none;"></div>
 </div>
 
 <!-- ========== GRADE SCAN (from pending exam) ========== -->
@@ -833,7 +894,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 // STATE
 // ============================================================
 const COLORS = ['#1F4A38','#475569','#B8924A','#A04030','#2E6850','#5B6B7C','#7B5C3A','#445A4F'];
-const SUBJECTS_LIST = [{name:'מתמטיקה',sym:'M'}];
+const SUBJECTS_LIST = [{name:'מתמטיקה',sym:'M'},{name:'עברית',sym:'ע'},{name:'תנ"ך',sym:'ת'},{name:'אנגלית',sym:'E'},{name:'מדעים',sym:'מד'},{name:'היסטוריה',sym:'ה'},{name:'גיאוגרפיה',sym:'ג'},{name:'אזרחות',sym:'אז'},{name:'ספרות',sym:'ס'}];
 
 let state = {
   school: null,
@@ -887,6 +948,7 @@ function go(id) {
   if (id === 's-student') renderSF();
   if (id === 's-onboarding') initOnboarding();
   if (id === 's-generate') initChat();
+  if (id === 's-assignment') initAssignment();
   if (id === 's-grade-scan') gradeScan1();
   if (id === 's-admin') loadAdmin();
 }
@@ -1072,12 +1134,34 @@ function initOnboarding() {
   obStep(1);
   document.getElementById('ob-name').value = '';
   document.getElementById('ob-students').value = '';
+  const sub = document.getElementById('ob-subjects');
+  sub.innerHTML = '';
+  SUBJECTS_LIST.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.dataset.idx = i;
+    btn.dataset.selected = i === 0 ? '1' : '0'; // math preselected
+    const sel = i === 0;
+    btn.style.cssText = 'padding:.875rem;cursor:pointer;text-align:right;border-radius:12px;font-family:inherit;display:flex;align-items:center;gap:.625rem;' + (sel?'border:2px solid var(--ink);background:var(--paper-soft);':'border:1px solid var(--line);background:var(--paper);');
+    btn.innerHTML = `<div style="width:30px;height:30px;background:var(--forest-bg);color:var(--forest);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:.85rem;">${s.sym}</div><div style="font-weight:600;font-size:.9rem;">${s.name}</div>`;
+    btn.onclick = () => {
+      const cur = btn.dataset.selected === '1';
+      btn.dataset.selected = cur ? '0' : '1';
+      btn.style.cssText = 'padding:.875rem;cursor:pointer;text-align:right;border-radius:12px;font-family:inherit;display:flex;align-items:center;gap:.625rem;' + (!cur?'border:2px solid var(--ink);background:var(--paper-soft);':'border:1px solid var(--line);background:var(--paper);');
+    };
+    sub.appendChild(btn);
+  });
 }
 
 function obStep(n) {
   if (n === 2 && !document.getElementById('ob-name').value.trim()) { toast('נא להזין שם כיתה'); return; }
+  if (n === 3) {
+    const stu = document.getElementById('ob-students').value.split('\n').filter(s => s.trim());
+    if (stu.length === 0) { toast('נא להוסיף תלמידים'); return; }
+  }
   document.getElementById('ob-1').style.display = n===1?'block':'none';
   document.getElementById('ob-2').style.display = n===2?'block':'none';
+  document.getElementById('ob-3').style.display = n===3?'block':'none';
 }
 
 async function obFinish() {
@@ -1085,8 +1169,8 @@ async function obFinish() {
   const grade = parseInt(document.getElementById('ob-grade').value);
   const stuList = document.getElementById('ob-students').value.split('\n').map(s => s.trim()).filter(Boolean);
   if (stuList.length === 0) { toast('נא להוסיף תלמידים'); return; }
-  // Math is the only subject - created automatically
-  const subs = [{ name: 'מתמטיקה', sym: 'M' }];
+  const subs = Array.from(document.querySelectorAll('#ob-subjects button[data-selected="1"]')).map(b => SUBJECTS_LIST[parseInt(b.dataset.idx)]);
+  if (subs.length === 0) { toast('בחרי לפחות מקצוע אחד'); return; }
 
   const btn = document.getElementById('ob-finish-btn');
   btn.disabled = true;
@@ -1119,7 +1203,7 @@ function renderSubject() {
   const s = state.subjects.find(x => x.id === activeSubjectId);
   if (!s) { go('s-dash'); return; }
   const cls = state.classes.find(c => c.id === s.class_id);
-  document.getElementById('subj-title').textContent = cls ? `${cls.name} · מתמטיקה` : s.name;
+  document.getElementById('subj-title').textContent = cls ? `${cls.name} · ${s.name}` : s.name;
   renderPendingExams();
   const exams = state.exams.filter(e => e.subject_id === activeSubjectId);
   const groups = {};
@@ -1145,12 +1229,12 @@ async function renderPendingExams() {
     const data = await api('exams', { action: 'listPending', school_id: state.school.id, subject_id: activeSubjectId });
     const exams = data.exams || [];
     if (exams.length === 0) {
-      box.innerHTML = `<div style="text-align:center;padding:1.25rem;background:var(--paper-soft);border-radius:10px;color:var(--ink-faint);font-size:.9rem;">אין מבחנים שממתינים לבדיקה. צרו מבחן חדש כדי להתחיל.</div>`;
+      box.innerHTML = `<div style="text-align:center;padding:1.25rem;background:var(--paper-soft);border-radius:10px;color:var(--ink-faint);font-size:.9rem;">עדיין לא יצרת מבחנים. לחצי על "יצירת מבחן חדש" כדי להתחיל.</div>`;
       return;
     }
     pendingExamsCache = {};
     exams.forEach(e => { pendingExamsCache[e.id] = e; });
-    box.innerHTML = exams.map(e => `<div class="card" style="display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;flex-wrap:wrap;"><div style="width:40px;height:40px;background:var(--gold-bg);color:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;flex-shrink:0;">מ</div><div style="flex:1;min-width:0;"><div style="font-weight:600;">${escapeHTML(e.title)}</div><div style="font-size:.78rem;color:var(--ink-faint);">נוצר ${formatDate(e.created_at)} · ${e.total_points} נק'</div></div><div style="display:flex;gap:.375rem;"><button class="btn btn-primary" style="padding:.4rem .8rem;font-size:.8rem;" onclick="checkPending('${e.id}')">בדוק מבחנים</button><button class="btn btn-secondary" style="padding:.4rem .7rem;font-size:.8rem;" onclick="reprintPending('${e.id}')">הדפס</button><button class="btn btn-ghost" style="padding:.4rem .6rem;font-size:.8rem;color:var(--rust);" onclick="deletePending('${e.id}')">✕</button></div></div>`).join('');
+    box.innerHTML = exams.map(e => `<div class="card" style="display:flex;align-items:center;gap:.875rem;margin-bottom:.5rem;flex-wrap:wrap;"><div style="width:40px;height:40px;background:var(--gold-bg);color:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;font-weight:700;flex-shrink:0;">מ</div><div style="flex:1;min-width:0;"><div style="font-weight:600;">${escapeHTML(e.title)}</div><div style="font-size:.78rem;color:var(--ink-faint);">נוצר ${formatDate(e.created_at)} · ${e.total_points} נק'</div></div><div style="display:flex;gap:.375rem;"><button class="btn btn-secondary" style="padding:.4rem .9rem;font-size:.8rem;" onclick="reprintPending('${e.id}')">הדפס</button><button class="btn btn-ghost" style="padding:.4rem .6rem;font-size:.8rem;color:var(--rust);" onclick="deletePending('${e.id}')">✕</button></div></div>`).join('');
   } catch(err) {
     box.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--rust);font-size:.85rem;">שגיאה בטעינה</div>`;
   }
@@ -2010,6 +2094,171 @@ function gradeScanBack() {
 }
 
 // ============================================================
+// ASSIGNMENT CHECK
+// ============================================================
+let asgStudentId = null;
+let asgText = '';
+
+function initAssignment() {
+  asgStudentId = null;
+  asgText = '';
+  document.getElementById('asg-title').value = '';
+  document.getElementById('asg-rubric').value = '';
+  document.getElementById('asg-text').value = '';
+  document.getElementById('asg-paste-wrap').style.display = 'none';
+  document.getElementById('asg-file-status').style.display = 'none';
+  document.getElementById('asg-1').style.display = 'block';
+  document.getElementById('asg-2').style.display = 'none';
+  document.getElementById('asg-3').style.display = 'none';
+  const ip = document.getElementById('asg-iparon');
+  if (ip) ip.innerHTML = iparonSVG({size:28, class:'iparon-float'});
+  renderAsgStudents();
+}
+
+function renderAsgStudents() {
+  const subject = state.subjects.find(s => s.id === activeSubjectId);
+  let students = subject ? state.students.filter(s => s.class_id === subject.class_id) : [];
+  const q = document.getElementById('asg-search').value;
+  if (q) students = students.filter(s => s.name.includes(q));
+  document.getElementById('asg-students').innerHTML = students.map(s => `<button onclick="selectAsgStudent('${s.id}', this)" data-id="${s.id}" style="width:100%;display:flex;align-items:center;gap:.875rem;padding:.7rem;background:${asgStudentId===s.id?'var(--forest-bg)':'var(--paper-soft)'};border:1px solid ${asgStudentId===s.id?'var(--forest)':'transparent'};border-radius:10px;cursor:pointer;margin-bottom:.375rem;text-align:right;font-family:inherit;"><div class="avatar" style="width:34px;height:34px;font-size:.78rem;background:${avatarColor(s.name)};">${getInitials(s.name)}</div><div style="flex:1;font-weight:500;">${escapeHTML(s.name)}</div></button>`).join('');
+}
+
+function selectAsgStudent(id) {
+  asgStudentId = id;
+  renderAsgStudents();
+}
+
+async function onAsgFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('asg-file-status');
+  status.style.display = 'block';
+  status.textContent = 'קורא את הקובץ...';
+  try {
+    if (file.name.endsWith('.docx')) {
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buf });
+      asgText = result.value;
+    } else if (file.name.endsWith('.pdf')) {
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(it => it.str).join(' ') + '\n';
+      }
+      asgText = text;
+    } else {
+      status.textContent = 'סוג קובץ לא נתמך. העלי Word או PDF.';
+      return;
+    }
+    if (asgText.trim().length < 20) {
+      status.textContent = 'לא הצלחתי לחלץ טקסט מהקובץ. ייתכן שהוא סרוק כתמונה. נסי להדביק את הטקסט ידנית.';
+      asgText = '';
+      return;
+    }
+    status.textContent = `✓ נטען בהצלחה — ${asgText.trim().length} תווים`;
+  } catch(err) {
+    status.textContent = 'שגיאה בקריאת הקובץ. נסי להדביק את הטקסט ידנית.';
+    asgText = '';
+  }
+}
+
+async function submitAssignment() {
+  // text from paste box overrides file if present
+  const pasted = document.getElementById('asg-text').value.trim();
+  const text = pasted || asgText;
+  if (!asgStudentId) { toast('בחרי תלמיד'); return; }
+  if (!text || text.length < 20) { toast('העלי קובץ או הדביקי את טקסט העבודה'); return; }
+
+  document.getElementById('asg-1').style.display = 'none';
+  document.getElementById('asg-2').style.display = 'block';
+  const mover = document.getElementById('asg-mover');
+  if (mover) mover.innerHTML = iparonSVG({size:46, class:'iparon-writing'});
+
+  try {
+    const student = state.students.find(s => s.id === asgStudentId);
+    const subject = state.subjects.find(s => s.id === activeSubjectId);
+    const cls = subject ? state.classes.find(c => c.id === subject.class_id) : null;
+    const teacher = activeProfile();
+    const data = await api('assignment', {
+      assignmentText: text,
+      rubric: document.getElementById('asg-rubric').value.trim(),
+      taskTitle: document.getElementById('asg-title').value.trim(),
+      studentName: student.name,
+      subject: subject ? subject.name : '',
+      grade: cls ? cls.grade : '',
+      teacherGender: teacher.gender,
+      school_id: state.school.id,
+      student_id: student.id
+    });
+    showAsgResult(data.result, student);
+  } catch(err) {
+    document.getElementById('asg-2').style.display = 'none';
+    document.getElementById('asg-1').style.display = 'block';
+    toast('שגיאה: ' + err.message);
+  }
+}
+
+function showAsgResult(r, student) {
+  document.getElementById('asg-2').style.display = 'none';
+  const el = document.getElementById('asg-3');
+  el.style.display = 'block';
+  const ai = r.ai_detection || {};
+  const aiColor = ai.suspicion_level === 'high' ? 'var(--rust)' : ai.suspicion_level === 'medium' ? 'var(--gold)' : 'var(--forest)';
+  const aiLabel = ai.suspicion_level === 'high' ? 'חשד גבוה' : ai.suspicion_level === 'medium' ? 'חשד בינוני' : 'חשד נמוך';
+  const aiBg = ai.suspicion_level === 'high' ? 'var(--rust-bg)' : ai.suspicion_level === 'medium' ? 'var(--gold-bg)' : 'var(--forest-bg)';
+
+  el.innerHTML = `
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
+        <div><div style="font-weight:600;">${escapeHTML(student.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${escapeHTML(document.getElementById('asg-title').value || 'עבודה')}</div></div>
+        <div style="text-align:left;"><div style="font-family:'Frank Ruhl Libre',serif;font-size:3rem;font-weight:700;color:var(--forest);line-height:1;">${r.score}</div><div style="font-size:.75rem;color:var(--ink-faint);">מתוך 100</div></div>
+      </div>
+      ${r.bottom_line ? `<div style="background:var(--forest-bg);border-right:4px solid var(--forest);border-radius:8px;padding:.875rem;margin-bottom:.875rem;font-size:.875rem;">${escapeHTML(r.bottom_line)}</div>` : ''}
+
+      <div style="background:${aiBg};border-right:4px solid ${aiColor};border-radius:8px;padding:.875rem;margin-bottom:.875rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.375rem;"><span style="font-weight:700;font-size:.85rem;color:${aiColor};">זיהוי כתיבת AI</span><span style="font-weight:700;color:${aiColor};">${aiLabel}</span></div>
+        ${ai.signals && ai.signals.length ? `<div style="font-size:.82rem;margin-bottom:.375rem;">${ai.signals.map(s=>`· ${escapeHTML(s)}`).join('<br>')}</div>` : ''}
+        ${ai.note ? `<div style="font-size:.78rem;color:var(--ink-soft);">${escapeHTML(ai.note)}</div>` : ''}
+        <div style="font-size:.72rem;color:var(--ink-faint);margin-top:.5rem;">⚠ זיהוי AI אינו ודאי — לשיקול דעת המורה בלבד.</div>
+      </div>
+
+      ${r.strengths?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--forest);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.375rem;">חוזקות</div>${r.strengths.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
+      ${r.weaknesses?.length ? `<div style="margin-bottom:.75rem;"><div style="font-weight:600;font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.375rem;">לחיזוק</div>${r.weaknesses.map(s=>`<div style="font-size:.875rem;padding:.25rem 0;">· ${escapeHTML(s)}</div>`).join('')}</div>` : ''}
+      ${r.sections?.length ? `<details style="margin-top:1rem;" open><summary style="cursor:pointer;font-weight:600;font-size:.85rem;color:var(--ink-soft);">פירוט לפי חלקים (${r.sections.length})</summary><div style="margin-top:.75rem;">${r.sections.map(sec=>`<div style="padding:.75rem;background:var(--paper-soft);border-radius:8px;margin-bottom:.5rem;font-size:.85rem;"><div style="display:flex;justify-content:space-between;margin-bottom:.375rem;"><strong>${escapeHTML(sec.title||'')}</strong><span style="color:var(--forest);font-weight:600;">${formatPts(sec.points)}/${formatPts(sec.max)}</span></div>${sec.feedback?`<div>${escapeHTML(sec.feedback)}</div>`:''}</div>`).join('')}</div></details>` : ''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
+      <button class="btn btn-secondary" onclick="initAssignment()">בדיקה נוספת</button>
+      <button class="btn btn-primary" onclick='saveAsgGrade(${r.score})'>אשר ושמור לתיק</button>
+    </div>`;
+  lastAsgResult = r;
+}
+
+let lastAsgResult = null;
+
+async function saveAsgGrade(score) {
+  try {
+    await api('data', {
+      action: 'saveExam',
+      school_id: state.school.id,
+      student_id: asgStudentId,
+      subject_id: activeSubjectId,
+      exam_name: document.getElementById('asg-title').value.trim() || 'עבודה',
+      exam_date: new Date().toISOString().split('T')[0],
+      score, source: 'ai', ai_data: lastAsgResult
+    });
+    await loadAllData();
+    confetti();
+    toast('הציון נשמר לתיק התלמיד');
+    go('s-subject');
+  } catch(err) {
+    toast('שגיאה: ' + err.message);
+  }
+}
+
+// ============================================================
 // EXAM GENERATOR CHAT
 // ============================================================
 let chatMessages = [];
@@ -2207,7 +2456,7 @@ function renderExamPaper(exam) {
       <div class="exam-paper">
         <div class="exam-paper-head">
           <div class="exam-paper-title">${escapeHTML(exam.title || 'מבחן')}</div>
-          <div class="exam-paper-meta"><span>${escapeHTML(exam.subject || 'מתמטיקה')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div>
+          <div class="exam-paper-meta"><span>${escapeHTML(exam.subject || '')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div>
         </div>
         <div class="exam-paper-fields">
           <div class="exam-field">שם: <div class="exam-field-box"></div></div>
@@ -2244,7 +2493,7 @@ async function printExam() {
         exam_structure: exam
       });
       currentExam._saved = true;
-      toast('המבחן נשמר לרשימת הממתינים לבדיקה');
+      toast('המבחן נשמר');
     } catch(err) {
       console.error('Save exam failed', err);
     }
@@ -2296,7 +2545,7 @@ body { font-family:'Heebo',sans-serif; color:#000; line-height:1.5; }
 @media print { body { -webkit-print-color-adjust:exact; } }
 </style></head><body>
 <div class="head"><div class="title">${escapeHTML(exam.title || 'מבחן')}</div>
-<div class="meta"><span>${escapeHTML(exam.subject || 'מתמטיקה')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div></div>
+<div class="meta"><span>${escapeHTML(exam.subject || '')}</span><span>כיתה ${escapeHTML(String(exam.grade || ''))}</span><span>${exam.total_points || 100} נקודות</span></div></div>
 <div class="fields"><div class="field">שם: <div class="field-box"></div></div><div class="field">כיתה: <div class="field-box" style="max-width:90px;"></div></div></div>
 ${qHTML}
 <script>window.onload=function(){setTimeout(function(){window.print();},700);};<\/script>
