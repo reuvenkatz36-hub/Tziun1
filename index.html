@@ -394,12 +394,12 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
         <div>
           <div class="mock-screen">
             <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;border-bottom:1px solid var(--line-soft);margin-bottom:1rem;">
-              <div><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">כיתה ה'2</div><div style="font-size:.75rem;color:var(--ink-faint);">עבודות גמר</div></div>
+              <div><div style="font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.05rem;">כיתה י"א 3</div><div style="font-size:.75rem;color:var(--ink-faint);">עבודות גמר · היסטוריה</div></div>
               <span class="tag tag-forest">פעיל</span>
             </div>
-            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--forest);font-size:.85rem;">דל</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">דניאל לוי</div><div style="font-size:.75rem;color:var(--ink-faint);">12 מבחנים</div></div><div class="grade grade-excellent">92</div></div>
-            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--gold);font-size:.85rem;">רנ</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">רוני נחום</div><div style="font-size:.75rem;color:var(--ink-faint);">10 מבחנים</div></div><div class="grade grade-good">78</div></div>
-            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--slate);font-size:.85rem;">יע</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">יואב עזרא</div><div style="font-size:.75rem;color:var(--ink-faint);">11 מבחנים</div></div><div class="grade grade-excellent">95</div></div>
+            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--forest);font-size:.85rem;">דל</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">דניאל לוי</div><div style="font-size:.75rem;color:var(--ink-faint);">3 עבודות</div></div><div class="grade grade-excellent">92</div></div>
+            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--gold);font-size:.85rem;">רנ</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">רוני נחום</div><div style="font-size:.75rem;color:var(--ink-faint);">2 עבודות</div></div><div class="grade grade-good">78</div></div>
+            <div class="mock-row"><div class="avatar" style="width:36px;height:36px;background:var(--slate);font-size:.85rem;">יע</div><div style="flex:1;"><div style="font-weight:600;font-size:.9rem;">יואב עזרא</div><div style="font-size:.75rem;color:var(--ink-faint);">3 עבודות</div></div><div class="grade grade-excellent">95</div></div>
             <div style="padding-top:1rem;border-top:1px solid var(--line-soft);margin-top:.5rem;display:flex;justify-content:space-between;font-size:.85rem;"><span class="muted">ממוצע כיתה</span><span style="font-weight:700;">86.3</span></div>
           </div>
         </div>
@@ -462,7 +462,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
       <div class="auth-header">
         <div class="auth-brand">צ</div>
         <h2 class="h3">כניסה לבית הספר</h2>
-        <p class="muted" style="margin-top:.5rem;font-size:.9rem;">רק חשבונות מאושרים מראש</p>
+        <p class="muted" style="margin-top:.5rem;font-size:.9rem;">טוב לראותכם שוב</p>
       </div>
       <div class="field"><label class="label">מייל בית הספר</label><input type="email" class="input" id="login-email" placeholder="school@example.com" dir="ltr"></div>
       <div class="field"><label class="label">סיסמה</label><input type="password" class="input" id="login-pass" placeholder="••••••••" dir="ltr"></div>
@@ -516,7 +516,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
     </div>
     <div id="dash-empty"><div class="empty-state"><div class="empty-icon">צ</div><h3 class="empty-title">בואו נתחיל</h3><p class="empty-desc">צרו כיתה ראשונה עם רשימת התלמידים.</p><button class="btn btn-primary btn-lg" onclick="go('s-onboarding')">יצירת כיתה ראשונה</button></div></div>
     <div id="dash-content" style="display:none;">
-      <div class="section-header"><h3>הכיתות שלי</h3></div>
+      <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;"><h3>הכיתות שלי</h3><button class="btn btn-primary" onclick="go('s-onboarding')" style="padding:.5rem 1rem;font-size:.9rem;">+ כיתה חדשה</button></div>
       <div class="subject-grid" id="subjects-grid"></div>
       <div class="section-header"><h3>פעולות מהירות</h3></div>
       <div class="quick-actions">
@@ -534,7 +534,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
       <div class="eyebrow" style="margin-bottom:.5rem;">שלב 1 מתוך 3</div>
       <h2 class="h2" style="margin-bottom:.5rem;">פרטי הכיתה</h2>
       <div class="card card-elevated" style="margin-top:1.5rem;">
-        <div class="field"><label class="label">שם הכיתה</label><input type="text" class="input" id="ob-name" placeholder="לדוגמה: כיתה ה'2"></div>
+        <div class="field"><label class="label">שם הכיתה</label><input type="text" class="input" id="ob-name" placeholder="לדוגמה: כיתה י&quot;א 3"></div>
         <div class="field" style="margin-bottom:0;"><label class="label">שכבת גיל</label><select class="select" id="ob-grade"><option value="1">א'</option><option value="2">ב'</option><option value="3">ג'</option><option value="4">ד'</option><option value="5" selected>ה'</option><option value="6">ו'</option><option value="7">ז'</option><option value="8">ח'</option><option value="9">ט'</option><option value="10">י'</option><option value="11">י"א</option><option value="12">י"ב</option></select></div>
       </div>
       <button class="btn btn-primary btn-block btn-lg" onclick="obStep(2)" style="margin-top:1.5rem;">המשך</button>
@@ -560,9 +560,13 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 <div class="screen" id="s-subject">
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div id="subj-title" style="font-weight:600;"></div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
-    <button class="btn btn-primary btn-lg btn-block" onclick="go('s-assignment')" style="margin-bottom:.75rem;">בדיקת עבודה / מטלה</button>
-    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-generate')" style="margin-bottom:.75rem;">יצירת מבחן חדש עם Tziun</button>
-    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-manual')" style="margin-bottom:1.5rem;">הזנת ציונים ידנית</button>
+    <p style="color:var(--ink-faint);font-size:.9rem;margin-bottom:1rem;">מה תרצי לעשות?</p>
+    <button class="btn btn-primary btn-lg btn-block" onclick="go('s-assignment')" style="margin-bottom:.5rem;">בדיקת עבודה / מטלה</button>
+    <p style="font-size:.78rem;color:var(--ink-faint);text-align:center;margin-bottom:1rem;">העלי עבודה של תלמיד — עפרון יבדוק וייתן ציון ומשוב</p>
+    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-generate')" style="margin-bottom:.5rem;">יצירת מבחן חדש עם עפרון</button>
+    <p style="font-size:.78rem;color:var(--ink-faint);text-align:center;margin-bottom:1rem;">צרי מבחן בשיחה — עפרון יבנה ויעצב אותו עבורך</p>
+    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-manual')" style="margin-bottom:.5rem;">הזנת ציונים ידנית</button>
+    <p style="font-size:.78rem;color:var(--ink-faint);text-align:center;margin-bottom:1.75rem;">הזיני ציונים בעצמך לתיק התלמיד</p>
     <h3 class="h3" style="margin-bottom:1rem;">המבחנים שיצרתי</h3>
     <div id="subj-pending" style="margin-bottom:1.5rem;"></div>
     <h3 class="h3" style="margin-bottom:1rem;">ציונים שהוזנו</h3>
@@ -577,7 +581,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
     <div class="chat-messages" id="chat-messages"></div>
     <div id="exam-preview-area"></div>
     <div class="chat-input-bar">
-      <textarea id="chat-input" placeholder="לדוגמה: מבחן בחיבור וחיסור עד 100, 5 שאלות, רמה בינונית" rows="1" onkeydown="chatKeydown(event)" oninput="autoGrow(this)"></textarea>
+      <textarea id="chat-input" placeholder="לדוגמה: מתכונת בגאומטריה אנליטית, 6 שאלות, רמה בינונית" rows="1" onkeydown="chatKeydown(event)" oninput="autoGrow(this)"></textarea>
       <button class="btn btn-primary" onclick="sendChat()" id="chat-send" style="height:48px;">שלח</button>
     </div>
   </div>
@@ -728,7 +732,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-subject')">←&nbsp; חזרה</button><div style="font-weight:600;">הזנה ידנית</div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
     <div class="card card-elevated" style="margin-bottom:1rem;">
-      <div class="field"><label class="label">שם המבחן</label><input type="text" class="input" id="m-name" placeholder="לדוגמה: מבחן פרק 6"></div>
+      <div class="field"><label class="label">שם המבחן</label><input type="text" class="input" id="m-name" placeholder="לדוגמה: מתכונת מועד א"></div>
       <div class="field" style="margin-bottom:0;"><label class="label">תאריך</label><input type="date" class="input" id="m-date"></div>
     </div>
     <div class="card card-elevated"><h4 class="h4" style="margin-bottom:1rem;">ציונים</h4><div id="m-list"></div></div>
@@ -873,7 +877,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   <div class="modal-content">
     <h3 class="h3" style="margin-bottom:.5rem;">מבחן חדש</h3>
     <p class="muted" style="margin-bottom:1.5rem;font-size:.9rem;">העלו את מפתח התשובות שלכם - דף מבחן שפתרתם ב-100/100. ה-AI ישתמש בו כדי לבדוק את התלמידים.</p>
-    <div class="field"><label class="label">שם המבחן</label><input type="text" class="input" id="ne-name" placeholder="לדוגמה: מבחן פרק 5 — שברים"></div>
+    <div class="field"><label class="label">שם המבחן</label><input type="text" class="input" id="ne-name" placeholder="לדוגמה: מתכונת מועד א"></div>
     <div class="field" style="margin-bottom:1.5rem;">
       <label class="label">מפתח תשובות (תמונה)</label>
       <input type="file" id="ne-file" accept="image/jpeg,image/png" style="display:none;" onchange="onAnswerKeyUpload(event)">
@@ -1162,7 +1166,7 @@ function renderDash() {
     el.className = 'subject-card pop-in';
     el.style.animationDelay = (idx * 0.07) + 's';
     el.onclick = () => { activeSubjectId = s.id; go('s-subject'); };
-    el.innerHTML = `<div class="subject-icon">${cls ? escapeHTML(gradeLabel(cls.grade)) : 'מ'}</div><div class="subject-name">${cls ? escapeHTML(cls.name) : 'כיתה'}</div><div class="subject-meta">${examCount} מבחנים</div>`;
+    el.innerHTML = `<div class="subject-icon">${cls ? escapeHTML(gradeLabel(cls.grade)) : 'מ'}</div><div class="subject-name">${cls ? escapeHTML(cls.name) : 'כיתה'}</div><div class="subject-meta">${escapeHTML(s.name)} · ${examCount} ציונים</div>`;
     grid.appendChild(el);
   });
 }
