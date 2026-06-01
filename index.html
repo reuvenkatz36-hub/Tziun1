@@ -2323,7 +2323,7 @@ function initChat() {
   const subject = state.subjects.find(s => s.id === activeSubjectId);
   const hdr = document.getElementById('chat-header-iparon');
   if (hdr) hdr.innerHTML = iparonSVG({size:28, class:'iparon-float'});
-  const greeting = `שלום! אני עפרון, העוזר שלך ליצירת מבחנים ✏️ ספרי לי מה תרצי — אילו נושאים, כמה שאלות, ואיזו רמת קושי — ואני אכין לך מבחן.`;
+  const greeting = `שלום! אני עפרון, העוזר שלך ליצירת מבחנים ומטלות ב${subject ? subject.name : 'מקצוע שלך'} ✏️ ספרי לי מה תרצי — אילו נושאים, כמה שאלות, ואיזו רמת קושי — ואני אכין לך את זה.`;
   chatDisplay = [{ role: 'assistant', text: greeting }];
   renderChatMessages(chatDisplay);
 }
