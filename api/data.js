@@ -112,6 +112,34 @@ export default async function handler(req, res) {
       return res.status(200).json({ student: result[0] });
     }
 
+    // ============ RUBRICS (reusable grading criteria) ============
+    if (action === 'listRubrics') {
+      const { subject_id } = payload;
+      let q = `rubrics?school_id=eq.${school_id}&select=*&order=created_at.desc`;
+      if (subject_id) q += `&subject_id=eq.${subject_id}`;
+      const rows = await SB(q);
+      return res.status(200).json({ rubrics: rows });
+    }
+
+    if (action === 'saveRubric') {
+      const { subject_id, teacher_id, name, content } = payload;
+      if (!name || !content) return res.status(400).json({ error: 'Missing name or content' });
+      const result = await SB('rubrics', {
+        method: 'POST',
+        body: JSON.stringify({ school_id, subject_id, teacher_id, name, content })
+      });
+      return res.status(200).json({ rubric: result[0] });
+    }
+
+    if (action === 'deleteRubric') {
+      const { rubric_id } = payload;
+      await SB(`rubrics?id=eq.${rubric_id}&school_id=eq.${school_id}`, {
+        method: 'DELETE',
+        prefer: 'return=minimal'
+      });
+      return res.status(200).json({ success: true });
+    }
+
     // ============ SAVE EXAM ============
     if (action === 'saveExam') {
       const { student_id, subject_id, exam_name, exam_date, score, source, ai_data } = payload;

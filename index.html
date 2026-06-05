@@ -2206,16 +2206,18 @@ function initAssignment() {
   renderSavedRubrics();
 }
 
-// ===== Saved rubrics (reusable per subject, stored locally) =====
-function getRubrics() {
-  try { return JSON.parse(localStorage.getItem('tziun_rubrics') || '{}'); } catch(e) { return {}; }
-}
-function saveRubrics(r) { localStorage.setItem('tziun_rubrics', JSON.stringify(r)); }
+// ===== Saved rubrics (reusable per subject, stored in Supabase) =====
+let rubricsCache = [];
 
-function renderSavedRubrics() {
+async function renderSavedRubrics() {
   const box = document.getElementById('asg-saved-rubrics');
   if (!box) return;
-  const list = getRubrics()[activeSubjectId] || [];
+  let list = [];
+  try {
+    const data = await api('data', { action: 'listRubrics', school_id: state.school.id, subject_id: activeSubjectId });
+    list = data.rubrics || [];
+  } catch(e) { list = []; }
+  rubricsCache = list;
   let html = `<div style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;">`;
   if (list.length) {
     html += `<span style="font-size:.75rem;color:var(--ink-faint);">מחוונים שמורים:</span>`;
@@ -2228,34 +2230,37 @@ function renderSavedRubrics() {
   box.innerHTML = html;
 }
 
-function saveCurrentRubric() {
-  const text = document.getElementById('asg-rubric').value.trim();
-  if (!text) { toast('מלאי קודם את שדה המחוון'); return; }
+async function saveCurrentRubric() {
+  const content = document.getElementById('asg-rubric').value.trim();
+  if (!content) { toast('מלאי קודם את שדה המחוון'); return; }
   const name = prompt('שם למחוון (לזיהוי מהיר):', '');
   if (name === null) return;
   const finalName = name.trim() || ('מחוון ' + new Date().toLocaleDateString('he-IL'));
-  const all = getRubrics();
-  if (!all[activeSubjectId]) all[activeSubjectId] = [];
-  all[activeSubjectId].push({ id: Date.now().toString(), name: finalName, text });
-  try { saveRubrics(all); } catch(e) { toast('שגיאה בשמירה'); return; }
-  toast('המחוון נשמר');
-  renderSavedRubrics();
+  try {
+    await api('data', { action: 'saveRubric', school_id: state.school.id, subject_id: activeSubjectId, teacher_id: activeProfileId, name: finalName, content });
+    toast('המחוון נשמר');
+    renderSavedRubrics();
+  } catch(e) {
+    toast('שגיאה בשמירת המחוון');
+  }
 }
 
 function loadRubric(id) {
-  const rb = (getRubrics()[activeSubjectId] || []).find(x => x.id === id);
+  const rb = rubricsCache.find(x => x.id === id);
   if (!rb) return;
-  document.getElementById('asg-rubric').value = rb.text;
+  document.getElementById('asg-rubric').value = rb.content;
   toast('המחוון נטען');
 }
 
-function deleteRubric(id) {
+async function deleteRubric(id) {
   if (!confirm('למחוק את המחוון השמור?')) return;
-  const all = getRubrics();
-  all[activeSubjectId] = (all[activeSubjectId] || []).filter(x => x.id !== id);
-  saveRubrics(all);
-  renderSavedRubrics();
-  toast('נמחק');
+  try {
+    await api('data', { action: 'deleteRubric', school_id: state.school.id, rubric_id: id });
+    renderSavedRubrics();
+    toast('נמחק');
+  } catch(e) {
+    toast('שגיאה במחיקה');
+  }
 }
 
 function renderAsgStudents() {
