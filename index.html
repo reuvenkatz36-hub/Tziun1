@@ -345,6 +345,16 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 .exam-part { margin-top:.875rem; }
 .exam-part-label { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border:1.5px solid var(--ink-soft); border-radius:50%; font-size:.8rem; font-weight:600; margin-left:.5rem; }
 
+/* guided step badge */
+.step-badge { width:27px; height:27px; border-radius:50%; background:var(--ink); color:var(--paper); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; flex-shrink:0; font-family:'Frank Ruhl Libre',serif; }
+
+/* action cards (subject screen) */
+.action-card { display:flex; align-items:center; gap:1rem; background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:1.1rem 1.25rem; cursor:pointer; margin-bottom:.75rem; transition:all .15s; }
+.action-card:hover { border-color:var(--ink); box-shadow:var(--shadow); transform:translateY(-2px); }
+.action-card-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+.action-card-title { font-weight:700; font-size:1.02rem; margin-bottom:.15rem; }
+.action-card-desc { font-size:.83rem; color:var(--ink-soft); line-height:1.4; }
+
 @media (max-width:640px) {
   .container, .container-narrow, .container-wide { padding:1.5rem 1rem; }
   .topbar-inner { padding:.875rem 1rem; }
@@ -561,12 +571,21 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div id="subj-title" style="font-weight:600;"></div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
     <p style="color:var(--ink-faint);font-size:.9rem;margin-bottom:1rem;">מה תרצי לעשות?</p>
-    <button class="btn btn-primary btn-lg btn-block" onclick="go('s-assignment')" style="margin-bottom:.5rem;">בדיקת עבודה / מטלה</button>
-    <p style="font-size:.78rem;color:var(--ink-faint);text-align:center;margin-bottom:1rem;">העלי עבודה של תלמיד — עפרון יבדוק וייתן ציון ומשוב</p>
-    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-generate')" style="margin-bottom:.5rem;">יצירת מבחן חדש עם עפרון</button>
-    <p style="font-size:.78rem;color:var(--ink-faint);text-align:center;margin-bottom:1rem;">צרי מבחן בשיחה — עפרון יבנה ויעצב אותו עבורך</p>
-    <button class="btn btn-secondary btn-lg btn-block" onclick="go('s-manual')" style="margin-bottom:.5rem;">הזנת ציונים ידנית</button>
-    <p style="font-size:.78rem;color:var(--ink-faint);text-align:center;margin-bottom:1.75rem;">הזיני ציונים בעצמך לתיק התלמיד</p>
+    <div class="action-card" onclick="go('s-assignment')">
+      <div class="action-card-icon" style="background:var(--forest);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      <div style="flex:1;min-width:0;"><div class="action-card-title">בדיקת עבודה או מטלה</div><div class="action-card-desc">עפרון בודק, נותן ציון מוצע ומשוב מפורט</div></div>
+      <div style="color:var(--ink-faint);font-size:1.1rem;">←</div>
+    </div>
+    <div class="action-card" onclick="go('s-generate')">
+      <div class="action-card-icon" style="background:var(--gold);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
+      <div style="flex:1;min-width:0;"><div class="action-card-title">יצירת מבחן חדש</div><div class="action-card-desc">ספרי לעפרון מה צריך — והוא בונה מבחן מוכן להדפסה</div></div>
+      <div style="color:var(--ink-faint);font-size:1.1rem;">←</div>
+    </div>
+    <div class="action-card" onclick="go('s-manual')" style="margin-bottom:1.75rem;">
+      <div class="action-card-icon" style="background:var(--slate);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+      <div style="flex:1;min-width:0;"><div class="action-card-title">הזנת ציונים ידנית</div><div class="action-card-desc">הזיני ציונים בעצמך ישירות לתיק התלמיד</div></div>
+      <div style="color:var(--ink-faint);font-size:1.1rem;">←</div>
+    </div>
     <h3 class="h3" style="margin-bottom:1rem;">המבחנים שיצרתי</h3>
     <div id="subj-pending" style="margin-bottom:1.5rem;"></div>
     <h3 class="h3" style="margin-bottom:1rem;">ציונים שהוזנו</h3>
@@ -593,19 +612,13 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 
   <div class="container-narrow" id="asg-1">
     <div class="card card-elevated" style="margin-bottom:1rem;">
-      <div class="field"><label class="label">שם המטלה (אופציונלי)</label><input type="text" class="input" id="asg-title" placeholder="לדוגמה: עבודת גמר בכלכלה"></div>
-      <div class="field" style="margin-bottom:0;"><label class="label">מחוון / קריטריונים לבדיקה (אופציונלי)</label><textarea class="textarea" id="asg-rubric" rows="3" placeholder="הדביקי כאן את דרישות העבודה או המחוון, ועפרון יבדוק לפיהן. אם תשאירי ריק - עפרון יבדוק לפי הסטנדרטים המקצועיים."></textarea></div>
-      <div id="asg-saved-rubrics" style="margin-top:.6rem;"></div>
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;"><span class="step-badge">1</span><label class="label" style="margin:0;">בחירת תלמיד/ה</label></div>
+      <input type="search" class="input" id="asg-search" placeholder="חיפוש תלמיד" oninput="renderAsgStudents()" style="margin-bottom:.75rem;">
+      <div id="asg-students" style="max-height:240px;overflow-y:auto;"></div>
     </div>
 
     <div class="card card-elevated" style="margin-bottom:1rem;">
-      <label class="label" style="margin-bottom:.75rem;">בחירת תלמיד</label>
-      <input type="search" class="input" id="asg-search" placeholder="חיפוש תלמיד" oninput="renderAsgStudents()" style="margin-bottom:.75rem;">
-      <div id="asg-students" style="max-height:260px;overflow-y:auto;"></div>
-    </div>
-
-    <div class="card card-elevated">
-      <label class="label" style="margin-bottom:.75rem;">העלאת העבודה</label>
+      <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;"><span class="step-badge">2</span><label class="label" style="margin:0;">העלאת העבודה</label></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;">
         <label class="btn btn-secondary" style="margin:0;">קובץ Word / PDF<input type="file" accept=".docx,.pdf" style="display:none;" onchange="onAsgFile(event)"></label>
         <button class="btn btn-secondary" onclick="document.getElementById('asg-paste-wrap').style.display='block'">הדבקת טקסט</button>
@@ -616,7 +629,19 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
       <div id="asg-file-status" style="display:none;margin-top:.5rem;padding:.625rem .875rem;background:var(--forest-bg);border-radius:8px;font-size:.85rem;color:var(--forest);"></div>
     </div>
 
-    <button class="btn btn-primary btn-block btn-lg" onclick="submitAssignment()" style="margin-top:1rem;">בדוק עבודה</button>
+    <div class="card card-elevated" style="margin-bottom:1rem;">
+      <button onclick="toggleAsgOptions()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;gap:.5rem;">
+        <span style="display:flex;align-items:center;gap:.5rem;font-weight:600;font-size:.95rem;color:var(--ink);text-align:right;"><span style="color:var(--gold);">✦</span><span>מחוון ושם מטלה <span style="font-weight:400;font-size:.78rem;color:var(--ink-faint);">· משפר דיוק · לא חובה</span></span></span>
+        <span id="asg-options-chevron" style="color:var(--ink-faint);transition:transform .2s;flex-shrink:0;">▾</span>
+      </button>
+      <div id="asg-options-body" style="display:none;margin-top:1rem;">
+        <div class="field"><label class="label">שם המטלה</label><input type="text" class="input" id="asg-title" placeholder="לדוגמה: עבודת גמר בכלכלה"></div>
+        <div class="field" style="margin-bottom:0;"><label class="label">מחוון / קריטריונים לבדיקה</label><textarea class="textarea" id="asg-rubric" rows="3" placeholder="הדביקי כאן את דרישות העבודה או המחוון, ועפרון יבדוק לפיהן."></textarea></div>
+        <div id="asg-saved-rubrics" style="margin-top:.6rem;"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-block btn-lg" onclick="submitAssignment()">בדוק עבודה</button>
   </div>
 
   <div class="container-narrow" id="asg-2" style="display:none;">
@@ -2197,6 +2222,8 @@ function initAssignment() {
   document.getElementById('asg-text').value = '';
   document.getElementById('asg-paste-wrap').style.display = 'none';
   document.getElementById('asg-file-status').style.display = 'none';
+  document.getElementById('asg-options-body').style.display = 'none';
+  document.getElementById('asg-options-chevron').style.transform = 'rotate(0deg)';
   document.getElementById('asg-1').style.display = 'block';
   document.getElementById('asg-2').style.display = 'none';
   document.getElementById('asg-3').style.display = 'none';
@@ -2204,6 +2231,14 @@ function initAssignment() {
   if (ip) ip.innerHTML = iparonSVG({size:28, class:'iparon-float'});
   renderAsgStudents();
   renderSavedRubrics();
+}
+
+function toggleAsgOptions() {
+  const body = document.getElementById('asg-options-body');
+  const chev = document.getElementById('asg-options-chevron');
+  const open = body.style.display === 'block';
+  body.style.display = open ? 'none' : 'block';
+  if (chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
 }
 
 // ===== Saved rubrics (reusable per subject, stored in Supabase) =====
