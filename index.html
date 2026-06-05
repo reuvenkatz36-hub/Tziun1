@@ -595,6 +595,7 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
     <div class="card card-elevated" style="margin-bottom:1rem;">
       <div class="field"><label class="label">שם המטלה (אופציונלי)</label><input type="text" class="input" id="asg-title" placeholder="לדוגמה: עבודת גמר בכלכלה"></div>
       <div class="field" style="margin-bottom:0;"><label class="label">מחוון / קריטריונים לבדיקה (אופציונלי)</label><textarea class="textarea" id="asg-rubric" rows="3" placeholder="הדביקי כאן את דרישות העבודה או המחוון, ועפרון יבדוק לפיהן. אם תשאירי ריק - עפרון יבדוק לפי הסטנדרטים המקצועיים."></textarea></div>
+      <div id="asg-saved-rubrics" style="margin-top:.6rem;"></div>
     </div>
 
     <div class="card card-elevated" style="margin-bottom:1rem;">
@@ -744,7 +745,10 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 <div class="screen" id="s-students">
   <header class="topbar"><div class="topbar-inner"><button class="back-link" onclick="go('s-dash')">←&nbsp; חזרה</button><div style="font-weight:600;">תיקי תלמידים</div><div style="width:60px;"></div></div></header>
   <div class="container-narrow">
-    <input type="search" class="input" id="st-search" placeholder="חיפוש תלמיד" oninput="renderStudents()" style="margin-bottom:1rem;">
+    <div style="display:flex;gap:.6rem;align-items:center;margin-bottom:1rem;">
+      <input type="search" class="input" id="st-search" placeholder="חיפוש תלמיד" oninput="renderStudents()" style="flex:1;">
+      <button class="btn btn-primary" onclick="openAddStudentModal()" style="white-space:nowrap;padding:.7rem 1rem;">+ תלמיד</button>
+    </div>
     <div class="filter-row">
       <button class="filter-pill active" onclick="setStFilter('all',this)">הכל</button>
       <button class="filter-pill" onclick="setStFilter('top',this)">מצטיינים</button>
@@ -869,6 +873,17 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
     <div class="field"><label class="label">סיסמה</label><input type="text" class="input" id="ns-pass" placeholder="לדוגמה: ofeq2026" dir="ltr"></div>
     <div class="field" style="margin-bottom:1.5rem;"><label class="label">חבילה</label><select class="select" id="ns-tier"><option value="trial">תקופת ניסיון</option><option value="nitzan">ניצן</option><option value="alon">אלון</option><option value="etz">עץ הדעת</option></select></div>
     <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="closeModal('m-school')">ביטול</button><button class="btn btn-primary" onclick="addSchool()">הוספה</button></div>
+  </div>
+</div>
+
+<!-- ========== ADD STUDENT MODAL ========== -->
+<div class="modal" id="m-add-student">
+  <div class="modal-content">
+    <h3 class="h3" style="margin-bottom:.5rem;">הוספת תלמיד</h3>
+    <p class="muted" style="margin-bottom:1.5rem;font-size:.9rem;">הוספת תלמיד לכיתה קיימת</p>
+    <div class="field"><label class="label">כיתה</label><select class="select" id="as-class"></select></div>
+    <div class="field" style="margin-bottom:1.5rem;"><label class="label">שם התלמיד</label><input type="text" class="input" id="as-name" placeholder="לדוגמה: דניאל לוי"></div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;"><button class="btn btn-secondary" onclick="closeModal('m-add-student')">ביטול</button><button class="btn btn-primary" onclick="addStudent()">הוספה</button></div>
   </div>
 </div>
 
@@ -1354,6 +1369,32 @@ function setStFilter(f, el) {
 }
 
 function openStudent(id) { activeStudentId = id; go('s-student'); }
+
+function openAddStudentModal() {
+  const mySubjects = state.subjects.filter(s => s.teacher_id === activeProfileId);
+  const myClassIds = [...new Set(mySubjects.map(s => s.class_id))];
+  const myClasses = state.classes.filter(c => myClassIds.includes(c.id));
+  if (myClasses.length === 0) { toast('אין כיתות. צרי קודם כיתה.'); return; }
+  document.getElementById('as-class').innerHTML = myClasses.map(c => `<option value="${c.id}">${escapeHTML(c.name)}</option>`).join('');
+  document.getElementById('as-name').value = '';
+  document.getElementById('m-add-student').classList.add('open');
+}
+
+async function addStudent() {
+  const class_id = document.getElementById('as-class').value;
+  const name = document.getElementById('as-name').value.trim();
+  if (!name) { toast('נא להזין שם'); return; }
+  try {
+    await api('data', { action: 'addStudent', school_id: state.school.id, class_id, name });
+    await loadAllData();
+    closeModal('m-add-student');
+    confetti();
+    toast('התלמיד נוסף');
+    renderStudents();
+  } catch(err) {
+    toast('שגיאה: ' + err.message);
+  }
+}
 
 function renderSF() {
   const s = state.students.find(x => x.id === activeStudentId);
@@ -2162,6 +2203,59 @@ function initAssignment() {
   const ip = document.getElementById('asg-iparon');
   if (ip) ip.innerHTML = iparonSVG({size:28, class:'iparon-float'});
   renderAsgStudents();
+  renderSavedRubrics();
+}
+
+// ===== Saved rubrics (reusable per subject, stored locally) =====
+function getRubrics() {
+  try { return JSON.parse(localStorage.getItem('tziun_rubrics') || '{}'); } catch(e) { return {}; }
+}
+function saveRubrics(r) { localStorage.setItem('tziun_rubrics', JSON.stringify(r)); }
+
+function renderSavedRubrics() {
+  const box = document.getElementById('asg-saved-rubrics');
+  if (!box) return;
+  const list = getRubrics()[activeSubjectId] || [];
+  let html = `<div style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;">`;
+  if (list.length) {
+    html += `<span style="font-size:.75rem;color:var(--ink-faint);">מחוונים שמורים:</span>`;
+    list.forEach(rb => {
+      html += `<span style="display:inline-flex;align-items:center;gap:.3rem;background:var(--paper-soft);border:1px solid var(--line);border-radius:100px;padding:.2rem .25rem .2rem .65rem;font-size:.8rem;"><button onclick="loadRubric('${rb.id}')" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:.8rem;color:var(--ink);padding:0;">${escapeHTML(rb.name)}</button><button onclick="deleteRubric('${rb.id}')" title="מחק" style="width:18px;height:18px;border:none;background:var(--line);border-radius:50%;cursor:pointer;color:var(--ink-soft);font-size:.7rem;line-height:1;padding:0;">✕</button></span>`;
+    });
+  }
+  html += `<button onclick="saveCurrentRubric()" style="background:none;border:1px dashed var(--line);border-radius:100px;padding:.25rem .7rem;font-size:.8rem;cursor:pointer;font-family:inherit;color:var(--forest);">+ שמור מחוון נוכחי</button>`;
+  html += `</div>`;
+  box.innerHTML = html;
+}
+
+function saveCurrentRubric() {
+  const text = document.getElementById('asg-rubric').value.trim();
+  if (!text) { toast('מלאי קודם את שדה המחוון'); return; }
+  const name = prompt('שם למחוון (לזיהוי מהיר):', '');
+  if (name === null) return;
+  const finalName = name.trim() || ('מחוון ' + new Date().toLocaleDateString('he-IL'));
+  const all = getRubrics();
+  if (!all[activeSubjectId]) all[activeSubjectId] = [];
+  all[activeSubjectId].push({ id: Date.now().toString(), name: finalName, text });
+  try { saveRubrics(all); } catch(e) { toast('שגיאה בשמירה'); return; }
+  toast('המחוון נשמר');
+  renderSavedRubrics();
+}
+
+function loadRubric(id) {
+  const rb = (getRubrics()[activeSubjectId] || []).find(x => x.id === id);
+  if (!rb) return;
+  document.getElementById('asg-rubric').value = rb.text;
+  toast('המחוון נטען');
+}
+
+function deleteRubric(id) {
+  if (!confirm('למחוק את המחוון השמור?')) return;
+  const all = getRubrics();
+  all[activeSubjectId] = (all[activeSubjectId] || []).filter(x => x.id !== id);
+  saveRubrics(all);
+  renderSavedRubrics();
+  toast('נמחק');
 }
 
 function renderAsgStudents() {
@@ -2263,7 +2357,7 @@ function showAsgResult(r, student) {
     <div class="card card-elevated" style="margin-bottom:1rem;">
       <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;">
         <div><div style="font-weight:600;">${escapeHTML(student.name)}</div><div style="font-size:.8rem;color:var(--ink-faint);">${escapeHTML(document.getElementById('asg-title').value || 'עבודה')}</div></div>
-        <div style="text-align:left;"><div style="font-family:'Frank Ruhl Libre',serif;font-size:3rem;font-weight:700;color:var(--forest);line-height:1;">${r.score}</div><div style="font-size:.75rem;color:var(--ink-faint);">מתוך 100</div></div>
+        <div style="text-align:left;"><input type="number" id="asg-final-score" value="${r.score}" min="0" max="100" style="width:92px;text-align:center;font-family:'Frank Ruhl Libre',serif;font-size:2.4rem;font-weight:700;color:var(--forest);line-height:1;border:1px solid var(--line);border-radius:10px;padding:.15rem .2rem;background:var(--paper);"><div style="font-size:.72rem;color:var(--ink-faint);margin-top:.25rem;">ציון מוצע · ניתן לעריכה</div></div>
       </div>
       ${r.bottom_line ? `<div style="background:var(--forest-bg);border-right:4px solid var(--forest);border-radius:8px;padding:.875rem;margin-bottom:.875rem;font-size:.875rem;">${escapeHTML(r.bottom_line)}</div>` : ''}
 
@@ -2280,14 +2374,17 @@ function showAsgResult(r, student) {
     </div>
     <div style="display:grid;grid-template-columns:1fr 2fr;gap:.75rem;">
       <button class="btn btn-secondary" onclick="initAssignment()">בדיקה נוספת</button>
-      <button class="btn btn-primary" onclick='saveAsgGrade(${r.score})'>אשר ושמור לתיק</button>
+      <button class="btn btn-primary" onclick='saveAsgGrade()'>אשר ושמור לתיק</button>
     </div>`;
   lastAsgResult = r;
 }
 
 let lastAsgResult = null;
 
-async function saveAsgGrade(score) {
+async function saveAsgGrade() {
+  const inp = document.getElementById('asg-final-score');
+  const score = parseInt(inp ? inp.value : (lastAsgResult ? lastAsgResult.score : NaN));
+  if (isNaN(score) || score < 0 || score > 100) { toast('ציון לא תקין (0–100)'); return; }
   try {
     await api('data', {
       action: 'saveExam',

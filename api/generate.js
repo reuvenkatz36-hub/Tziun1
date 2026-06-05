@@ -97,7 +97,8 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
-        max_tokens: 4096,
+        max_tokens: 8192,
+        temperature: 0.4,
         system: systemPrompt,
         messages: messages
       })
@@ -113,14 +114,26 @@ export default async function handler(req, res) {
     const textBlock = data.content?.find(b => b.type === 'text');
     if (!textBlock) return res.status(500).json({ error: 'No response from AI' });
 
-    const cleaned = textBlock.text.replace(/```json\s*|```\s*$/g, '').trim();
-    const result = JSON.parse(cleaned);
+    const result = extractJSON(textBlock.text);
 
     return res.status(200).json({ success: true, ...result });
   } catch (err) {
     console.error('Generate error:', err);
     return res.status(500).json({ error: err.message || 'Internal error' });
   }
+}
+
+// Robustly extract a JSON object from the model's text response.
+// Handles code fences and any stray prose before/after the JSON.
+function extractJSON(text) {
+  let t = (text || '').trim();
+  t = t.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  if (t[0] !== '{') {
+    const start = t.indexOf('{');
+    const end = t.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) t = t.slice(start, end + 1);
+  }
+  return JSON.parse(t);
 }
 
 export const config = {

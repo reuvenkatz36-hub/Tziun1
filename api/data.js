@@ -98,6 +98,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ class_id: classId });
     }
 
+    // ============ ADD STUDENT (to existing class) ============
+    if (action === 'addStudent') {
+      const { class_id, name } = payload;
+      if (!class_id || !name) return res.status(400).json({ error: 'Missing class_id or name' });
+      // Verify the class belongs to this school
+      const cls = await SB(`classes?id=eq.${class_id}&school_id=eq.${school_id}&select=id`);
+      if (!cls.length) return res.status(403).json({ error: 'Class not found' });
+      const result = await SB('students', {
+        method: 'POST',
+        body: JSON.stringify({ class_id, name })
+      });
+      return res.status(200).json({ student: result[0] });
+    }
+
     // ============ SAVE EXAM ============
     if (action === 'saveExam') {
       const { student_id, subject_id, exam_name, exam_date, score, source, ai_data } = payload;

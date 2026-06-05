@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     const teacherTitle = teacherGender === 'female' ? 'בלשון נקבה' : 'בלשון זכר';
 
-    const systemPrompt = `אתה "עפרון", בודק עבודות ומטלות מקצועי לבתי ספr בישראל. אתה בודק עבודה דיגיטלית (טקסט מוקלד) של תלמיד.
+    const systemPrompt = `אתה "עפרון", בודק עבודות ומטלות מקצועי לבתי ספר בישראל. אתה בודק עבודה דיגיטלית (טקסט מוקלד) של תלמיד.
 
 מקצוע: ${subject || 'כללי'}
 כיתה: ${grade || ''}
@@ -27,6 +27,12 @@ export default async function handler(req, res) {
 ${taskTitle ? `שם המטלה: ${taskTitle}` : ''}
 
 ${rubric ? `**מחוון הבדיקה של המורה (בדוק לפיו):**\n${rubric}\n` : '**אין מחוון - בדוק לפי הסטנדרטים המקצועיים של המקצוע והכיתה.**'}
+
+**עקרונות בדיקה (קריטי לעקביות):**
+- היה עקבי, אובייקטיבי והוגן. אותה רמת עבודה צריכה לקבל אותו ציון בכל פעם.
+- בסס כל החלטה אך ורק על תוכן העבודה ועל המחוון - לא על אורך הטקסט או ניסוח מרשים.
+- קרא את העבודה במלואה לפני שאתה קובע ציון. אל תזדרז.
+- אל תמציא ציטוטים או חלקים שלא הופיעו בעבודה.
 
 **משימתך - בדיקה מקיפה:**
 
@@ -72,7 +78,8 @@ ${rubric ? `**מחוון הבדיקה של המורה (בדוק לפיו):**\n${
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
-        max_tokens: 4096,
+        max_tokens: 8192,
+        temperature: 0,
         system: systemPrompt,
         messages: [{
           role: 'user',
@@ -91,8 +98,7 @@ ${rubric ? `**מחוון הבדיקה של המורה (בדוק לפיו):**\n${
     const textBlock = data.content?.find(b => b.type === 'text');
     if (!textBlock) return res.status(500).json({ error: 'No response from AI' });
 
-    const cleaned = textBlock.text.replace(/```json\s*|```\s*$/g, '').trim();
-    const result = JSON.parse(cleaned);
+    const result = extractJSON(textBlock.text);
 
     if (result.max_score && result.max_score !== 100) {
       const ratio = 100 / result.max_score;
@@ -123,6 +129,19 @@ ${rubric ? `**מחוון הבדיקה של המורה (בדוק לפיו):**\n${
     console.error('Assignment grading error:', err);
     return res.status(500).json({ error: err.message || 'Internal error' });
   }
+}
+
+// Robustly extract a JSON object from the model's text response.
+// Handles code fences and any stray prose before/after the JSON.
+function extractJSON(text) {
+  let t = (text || '').trim();
+  t = t.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  if (t[0] !== '{') {
+    const start = t.indexOf('{');
+    const end = t.lastIndexOf('}');
+    if (start !== -1 && end !== -1 && end > start) t = t.slice(start, end + 1);
+  }
+  return JSON.parse(t);
 }
 
 export const config = {
