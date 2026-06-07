@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ציון — מערכת ניהול ציונים חכמה</title>
+<!-- SEO / שיתוף · og:url ו-canonical מתמלאים אוטומטית מ-SITE_URL שב-JS (ראה הגדרת הדומיין למטה) -->
+<meta name="description" content="ציון — בדיקת עבודות ומטלות חכמה ויצירת מבחנים לבתי ספר">
+<meta property="og:title" content="ציון — מערכת חכמה לבתי ספר">
+<meta property="og:description" content="עפרון בודק עבודות ומטלות, נותן ציון ומשוב, ויוצר מבחנים — כל מה שמורה צריכה.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="">
+<link rel="canonical" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -937,6 +944,11 @@ body { font-family:'Heebo',sans-serif; background:linear-gradient(170deg, #FBF6E
 // ============================================================
 // STATE
 // ============================================================
+// ====== כתובת האתר (דומיין) ======
+// כשתקנה דומיין — הכנס אותו כאן (למשל 'https://tziun.co.il'), וגם חבר אותו ב-Vercel → Settings → Domains.
+// זהו. כל שאר האתר עובד בנתיבים יחסיים, אז לא צריך לשנות שום דבר נוסף.
+const SITE_URL = '';
+
 const COLORS = ['#1F4A38','#475569','#B8924A','#A04030','#2E6850','#5B6B7C','#7B5C3A','#445A4F'];
 const SUBJECTS_LIST = [
   // שפות ומדעי הרוח
@@ -1042,12 +1054,23 @@ function go(id) {
   if (id === 's-admin') loadAdmin();
 }
 
-// Check for admin route
-window.addEventListener('load', () => {
-  if (window.location.hash === '#admin') {
-    go('s-admin-login');
+// Fill SEO/sharing tags with the configured domain (or the current origin)
+(function applySiteUrl() {
+  const url = SITE_URL || window.location.origin;
+  const c = document.querySelector('link[rel="canonical"]'); if (c) c.href = url;
+  const o = document.querySelector('meta[property="og:url"]'); if (o) o.setAttribute('content', url);
+})();
+
+// Initial route: admin hash, otherwise restore a saved login if one exists
+(function initialRoute() {
+  if (window.location.hash === '#admin') { go('s-admin-login'); return; }
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('tziun_session') || 'null'); } catch(e) {}
+  if (saved && saved.school) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    restoreSession();
   }
-});
+})();
 window.addEventListener('hashchange', () => {
   if (window.location.hash === '#admin') {
     if (!adminPassword) go('s-admin-login');
@@ -1071,6 +1094,7 @@ async function doLogin() {
     const result = await api('auth', { email, password: pass });
     state.school = result.school;
     await loadAllData();
+    saveSession();
     go('s-profiles');
   } catch(err) {
     toast(err.message || 'שגיאת התחברות');
@@ -1081,7 +1105,7 @@ async function doLogin() {
 }
 
 async function loadAllData() {
-  if (!state.school) return;
+  if (!state.school) return false;
   try {
     const data = await api('data', { action: 'load', school_id: state.school.id });
     state.profiles = data.profiles || [];
@@ -1089,8 +1113,10 @@ async function loadAllData() {
     state.subjects = data.subjects || [];
     state.students = data.students || [];
     state.exams = data.exams || [];
+    return true;
   } catch(err) {
     toast('שגיאה בטעינת נתונים');
+    return false;
   }
 }
 
@@ -1098,8 +1124,32 @@ function doLogout() {
   if (confirm('להתנתק?')) {
     state = { school:null, profiles:[], classes:[], subjects:[], students:[], exams:[], homework:{} };
     activeProfileId = null;
+    clearSession();
     go('s-landing');
   }
+}
+
+// ===== התחברות נשמרת (המכשיר זוכר את הכניסה עד שמתנתקים) =====
+function saveSession() {
+  try { localStorage.setItem('tziun_session', JSON.stringify({ school: state.school, profileId: activeProfileId })); } catch(e) {}
+}
+function clearSession() {
+  try { localStorage.removeItem('tziun_session'); } catch(e) {}
+}
+async function restoreSession() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('tziun_session') || 'null'); } catch(e) {}
+  if (!saved || !saved.school) return false;
+  state.school = saved.school;
+  const ok = await loadAllData();
+  if (!ok) { clearSession(); state.school = null; go('s-landing'); return false; }
+  if (saved.profileId && state.profiles.find(p => p.id === saved.profileId)) {
+    activeProfileId = saved.profileId;
+    go('s-dash');
+  } else {
+    go('s-profiles');
+  }
+  return true;
 }
 
 // ============================================================
@@ -1113,7 +1163,7 @@ function renderProfiles() {
     const btn = document.createElement('button');
     btn.className = 'profile-item pop-in';
     btn.style.animationDelay = (idx * 0.08) + 's';
-    btn.onclick = () => { activeProfileId = p.id; go('s-dash'); };
+    btn.onclick = () => { activeProfileId = p.id; saveSession(); go('s-dash'); };
     btn.innerHTML = `<div class="profile-avatar-lg" style="background:${p.color};">${getInitials(p.name)}</div><div style="text-align:center;"><div class="profile-name">${escapeHTML(p.name)}</div><div class="profile-role">${p.is_homeroom?'מחנכ/ת':'מורה'}</div></div>`;
     grid.appendChild(btn);
   });
