@@ -1537,18 +1537,22 @@ async function saveManual() {
   if (!name) { toast('נא להזין שם'); return; }
   const inputs = document.querySelectorAll('#m-list input[type="number"]');
   const exams_list = [];
+  let invalid = 0;
   inputs.forEach(inp => {
     if (inp.value) {
+      const sc = parseInt(inp.value);
+      if (isNaN(sc) || sc < 0 || sc > 100) { invalid++; return; }
       exams_list.push({
         student_id: inp.dataset.sid,
         subject_id: activeSubjectId,
         exam_name: name,
         exam_date: date,
-        score: parseInt(inp.value),
+        score: sc,
         source: 'manual'
       });
     }
   });
+  if (invalid > 0) { toast('יש ציונים לא תקינים (0–100) — תקני אותם'); return; }
   if (exams_list.length === 0) { toast('נא להזין ציון'); return; }
   try {
     await api('data', { action: 'saveExamsBulk', school_id: state.school.id, exams_list });
@@ -2794,7 +2798,9 @@ ${qHTML}
 }
 
 function formatPts(n) {
-  return Math.round(n * 10) / 10;
+  const v = Number(n);
+  if (!isFinite(v)) return 0;
+  return Math.round(v * 10) / 10;
 }
 
 // ============================================================
@@ -2858,7 +2864,7 @@ function toast(msg) {
 }
 
 function activeProfile() { return state.profiles.find(p => p.id === activeProfileId); }
-function getInitials(name) { return name.split(' ').map(w => w[0]).slice(0,2).join(''); }
+function getInitials(name) { return String(name||'').split(' ').filter(Boolean).map(w => w[0]).slice(0,2).join('') || '?'; }
 function avatarColor(name) { return COLORS[name.split('').reduce((a,c)=>a+c.charCodeAt(0),0) % COLORS.length]; }
 function gradeClass(s) { return s>=90?'grade-excellent':s>=75?'grade-good':s>=60?'grade-ok':'grade-low'; }
 function escapeHTML(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
